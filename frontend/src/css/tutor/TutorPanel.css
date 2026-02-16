@@ -1,0 +1,79 @@
+/* TutorPanel.css */
+.tutor-panel-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.tutor-main {
+  flex: 1;
+  padding: 20px;
+  background: #f5f7fc;
+}
+
+/* TutorSidebar.css */
+.tutor-sidebar {
+  width: 220px;
+  background: #2b3a67;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+.tutor-sidebar .tutor-logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.tutor-sidebar nav ul {
+  list-style: none;
+  padding: 0;
+}
+.tutor-sidebar nav ul li {
+  padding: 15px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tutor-sidebar nav ul li.active,
+.tutor-sidebar nav ul li:hover {
+  background: #1e2a50;
+  border-left: 4px solid #ffcc00;
+}
+
+/* TutorDashboard.css */
+.tutor-dashboard h2 {
+  margin-bottom: 20px;
+}
+.stats-cards {
+  display: flex;
+  gap: 20px;
+}
+.stats-cards .card {
+  flex: 1;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+/* MyChildren.css */
+.my-children table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.my-children th, .my-children td {
+  padding: 12px 15px;
+  text-align: left;
+}
+.my-children th {
+  background: #2b3a67;
+  color: #fff;
+}
+.my-children tr:nth-child(even) {
+  background: #f1f1f1;
+}

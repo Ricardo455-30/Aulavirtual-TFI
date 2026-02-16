@@ -1,0 +1,31 @@
+USUARIOS ────< ROLES
+   │
+   ├───< DOCENTES
+   │        │
+   │        └───< ASIGNACIONES >─── MATERIAS
+   │                     │
+   │                     └─── CURSOS
+   │
+   ├───< ALUMNOS >───< ALUMNOS_CURSOS >─── CURSOS
+   │        │
+   │        ├───< ASISTENCIAS
+   │        ├───< CALIFICACIONES
+   │        ├───< ENTREGAS_TAREAS
+   │        └───< DISCIPLINAS_SANCIONES
+   │
+   ├───< PADRES_TUTORES >───< ALUMNOS_TUTORES
+   │
+   ├───< MENSAJES
+   ├───< NOTIFICACIONES >───< NOTIFICACIONES_USUARIOS
+   └───< LOGS_ACCIONES
+
+
+
+
+El modelo entidad–relación fue diseñado siguiendo los principios de normalización hasta la Tercera Forma Normal (3FN), evitando redundancia de datos y asegurando integridad referencial.
+
+Se utilizaron tablas intermedias para resolver relaciones muchos a muchos, como alumnos–cursos y alumnos–tutores, permitiendo representar cambios históricos y múltiples responsables legales.
+
+Las calificaciones fueron unificadas en una única entidad con un atributo discriminador de tipo, facilitando la extensibilidad del sistema.
+
+El sistema contempla gestión académica, comunicación interna, auditoría y control de accesos mediante roles y permisos, alineándose con plataformas reales de aula virtual.

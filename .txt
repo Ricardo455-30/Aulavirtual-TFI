@@ -1,0 +1,242 @@
+Table: alumnos
+Columns:
+id_alumno int AI PK 
+legajo varchar(20) 
+nombre varchar(100) 
+apellido varchar(100) 
+dni varchar(20) 
+fecha_nacimiento date 
+id_usuario int
+
+
+Table: alumnos_cursos
+Columns:
+id_alumno int PK 
+id_curso int PK 
+anio_lectivo int PK
+
+
+
+Table: alumnos_tutores
+Columns:
+id_alumno int PK 
+id_tutor int PK 
+parentesco varchar(50)
+
+
+Table: asignaciones
+Columns:
+id_asignacion int AI PK 
+id_docente int 
+id_materia int 
+id_curso int
+
+
+
+Table: asistencias
+Columns:
+id_asistencia int AI PK 
+id_alumno int 
+id_curso int 
+fecha date 
+estado enum('Presente','Ausente','Tarde')
+
+
+
+Table: calificaciones
+Columns:
+id_calificacion int AI PK 
+id_alumno int 
+id_asignacion int 
+tipo enum('Examen','Tarea','Trabajo Practico') 
+id_referencia int 
+nota decimal(4,2) 
+fecha date
+
+
+
+Table: cursos
+Columns:
+id_curso int AI PK 
+anio int 
+division varchar(10) 
+turno enum('Mañana','Tarde','Noche')
+
+Table: disciplinas_sanciones
+Columns:
+id_sancion int AI PK 
+id_alumno int 
+tipo_sancion varchar(100) 
+motivo text 
+fecha date 
+docente_responsable int
+
+Table: docentes
+Columns:
+id_docente int AI PK 
+nombre varchar(100) 
+apellido varchar(100) 
+titulo varchar(150) 
+especialidad varchar(150) 
+id_usuario int
+
+
+
+Table: entregas_tareas
+Columns:
+id_entrega int AI PK 
+id_tarea int 
+id_alumno int 
+archivo_url varchar(500) 
+fecha_entrega timestamp 
+calificacion decimal(4,2)
+
+
+
+Table: eventos_escolares
+Columns:
+id_evento int AI PK 
+titulo varchar(150) 
+descripcion text 
+fecha date 
+publico enum('Alumnos','Docentes','Padres','Todos')
+
+Table: examenes
+Columns:
+id_examen int AI PK 
+id_asignacion int 
+tipo_examen varchar(50) 
+fecha date 
+descripcion text
+
+
+
+Table: foros
+Columns:
+id_foro int AI PK 
+id_asignacion int 
+titulo varchar(150) 
+creado_en datetime
+
+
+
+Table: logs_acciones
+Columns:
+id_log int AI PK 
+id_usuario int 
+accion varchar(255) 
+fecha datetime
+
+
+
+Table: materiales_estudio
+Columns:
+id_material int AI PK 
+id_asignacion int 
+titulo varchar(150) 
+descripcion text 
+archivo_url varchar(255) 
+fecha_subida date
+
+
+
+
+Table: materias
+Columns:
+id_materia int AI PK 
+nombre_materia varchar(100) 
+carga_horaria int
+
+
+Table: mensajes
+Columns:
+id_mensaje int AI PK 
+id_emisor int 
+id_receptor int 
+asunto varchar(150) 
+contenido text 
+fecha_envio datetime 
+leido tinyint(1)
+
+
+Table: mensajes_foro
+Columns:
+id int AI PK 
+id_foro int 
+id_usuario int 
+mensaje text 
+fecha datetime
+
+
+Table: notificaciones
+Columns:
+id_notificacion int AI PK 
+titulo varchar(150) 
+mensaje text 
+fecha_envio datetime 
+leido tinyint(1)
+
+
+Table: notificaciones_usuarios
+Columns:
+id_notificacion int PK 
+id_usuario int PK 
+leido tinyint(1)
+
+Table: padres_tutores
+Columns:
+id_tutor int AI PK 
+nombre varchar(100) 
+apellido varchar(100) 
+telefono varchar(20) 
+email varchar(150) 
+id_usuario int
+
+
+Table: pendientes_docentes
+Columns:
+id int AI PK 
+nombre varchar(100) 
+apellido varchar(100) 
+id_usuario int 
+fecha_solicitud timestamp
+
+Table: permisos
+Columns:
+id_permiso int AI PK 
+nombre_permiso varchar(100) 
+descripcion text
+
+
+Table: roles
+Columns:
+id_rol int AI PK 
+nombre_rol varchar(50) 
+descripcion text
+
+Table: roles_permisos
+Columns:
+id_rol int PK 
+id_permiso int PK
+
+Table: tareas
+Columns:
+id_tarea int AI PK 
+id_asignacion int 
+titulo varchar(150) 
+descripcion text 
+fecha_entrega date
+
+
+Table: usuarios
+Columns:
+id_usuario int AI PK 
+nombre varchar(100) 
+apellido varchar(100) 
+email varchar(150) 
+contraseña varchar(255) 
+id_rol int 
+estado enum('Activo','Inactivo') 
+creado_en datetime 
+actualizado_en datetime
+

@@ -1,0 +1,58 @@
+.user-management {
+  margin-top: 40px;
+}
+
+.user-form {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.user-form input,
+.user-form select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  flex: 1;
+}
+
+.user-form button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.user-table th,
+.user-table td {
+  padding: 12px;
+}
+
+.user-table thead {
+  background: #f1f5f9;
+}
+
+.actions button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.actions .delete {
+  color: #ef4444;
+}

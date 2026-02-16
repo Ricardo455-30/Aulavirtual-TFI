@@ -1,0 +1,476 @@
+.alumno-container {
+  display: flex;
+  height: 100vh;
+  background: #f4f6fa;
+}
+
+.alumno-sidebar {
+  width: 250px;
+  background: #0d47a1;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  margin-bottom: 30px;
+}
+
+.alumno-sidebar button {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  margin-bottom: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.alumno-sidebar button:hover {
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+}
+
+.alumno-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.lista {
+  margin-top: 20px;
+  list-style: none;
+}
+
+.lista li {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+
+.tabla {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.tabla th {
+  background: #0d47a1;
+  color: white;
+  padding: 10px;
+}
+
+.tabla td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.perfil-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+}
+
+.perfil-form input {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.perfil-form button {
+  background: #0d47a1;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.perfil-form button:hover {
+  background: #1565c0;
+}
+/* GRID DE MATERIAS */
+
+.materias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* CARD MATERIA */
+
+.materia-card {
+  background: linear-gradient(135deg, #1565c0, #1e88e5);
+  color: white;
+  padding: 25px;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.materia-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+
+.materia-card h3 {
+  margin-bottom: 10px;
+}
+
+.materia-card p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.materia-card.small {
+  padding: 15px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3949ab, #5c6bc0);
+}
+
+/* TITULO RECIENTES */
+
+.recent-title {
+  margin-top: 40px;
+}
+/* FONDO GENERAL */
+
+.alumno-content {
+  background: #f5f7fa;
+}
+
+/* TITULOS */
+
+.moodle-title {
+  font-size: 26px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.moodle-subtitle {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  color: #444;
+}
+
+/* GRID */
+
+.moodle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+/* CARD ESTILO MOODLE */
+
+.moodle-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border: 1px solid #e0e0e0;
+}
+
+.moodle-card:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+/* IMAGEN */
+
+.moodle-card-img {
+  height: 120px;
+  background-size: cover;
+  background-position: center;
+}
+
+/* BODY */
+
+.moodle-card-body {
+  padding: 15px;
+}
+
+.moodle-card-body h3 {
+  margin: 5px 0;
+  font-size: 18px;
+  color: #222;
+}
+
+.moodle-code {
+  font-size: 12px;
+  color: #777;
+}
+
+.moodle-card-body p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* PROGRESS */
+
+.progress-container {
+  width: 100%;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #1976d2;
+  border-radius: 5px;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #555;
+}
+
+/* SMALL VERSION */
+
+.moodle-card.small .moodle-card-img {
+  height: 80px;
+}
+
+.moodle-card.small h4 {
+  font-size: 16px;
+}
+/* HEADER CALENDARIO */
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendar-header button {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* GRID CALENDARIO */
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.calendar-day {
+  height: 70px;
+  background: #f5f7fa;
+  border-radius: 6px;
+  padding: 5px;
+  position: relative;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.calendar-day:hover {
+  background: #e3f2fd;
+}
+
+.calendar-day span {
+  font-size: 14px;
+}
+
+.calendar-day.selected {
+  background: #bbdefb;
+  border: 1px solid #1976d2;
+}
+
+.event-dot {
+  width: 8px;
+  height: 8px;
+  background: #d32f2f;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+}
+
+/* EVENT BOX */
+
+.event-box {
+  margin-top: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.event-box input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.event-box button {
+  background: #1976d2;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.calendar-layout {
+  display: flex;
+  gap: 25px;
+}
+
+.calendar-main {
+  flex: 3;
+}
+
+.calendar-side {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* NOMBRE DIAS */
+
+.calendar-days-names {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* GRID */
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-day {
+  height: 90px;
+  background: #f5f7fa;
+  border-radius: 6px;
+  padding: 5px;
+  position: relative;
+  cursor: pointer;
+}
+
+.calendar-day.selected {
+  background: #bbdefb;
+  border: 1px solid #1976d2;
+}
+
+.event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 2px;
+}
+
+/* EVENT LIST */
+
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+.event-list li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.event-tag {
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: white;
+  font-size: 11px;
+  margin-right: 5px;
+}
+.notificaciones-list {
+  list-style: none;
+  padding: 0;
+}
+
+.notificaciones-list li {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-left: 4px solid #1976d2;
+  transition: 0.2s;
+}
+
+.notificaciones-list li.no-leida {
+  background: #e3f2fd;
+  border-left: 4px solid #d32f2f;
+}
+
+.notificaciones-list li.leida {
+  opacity: 0.7;
+}
+
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.btn-clear {
+  background: #d32f2f;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+.badge {
+  background: #d32f2f;
+  color: white;
+  border-radius: 50%;
+  padding: 3px 8px;
+  font-size: 11px;
+  margin-left: 8px;
+}

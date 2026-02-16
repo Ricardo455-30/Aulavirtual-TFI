@@ -1,0 +1,218 @@
+/* ===============================
+   CONTENEDOR GENERAL
+================================= */
+.users-section {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.users-section h2 {
+  margin-bottom: 25px;
+  color: #003366;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+/* ===============================
+   TABS POR ROL
+================================= */
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 10px 18px;
+  border: none;
+  background: #eef3fa;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #003366;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background: #dbe9ff;
+  transform: translateY(-2px);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #003366, #0055aa);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ===============================
+   FILTROS
+================================= */
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.filters input:focus,
+.filters select:focus {
+  outline: none;
+  border-color: #003366;
+  box-shadow: 0 0 0 2px rgba(0, 51, 102, 0.1);
+}
+
+/* ===============================
+   BOTÓN EXPORTAR
+================================= */
+.btn-export {
+  background: linear-gradient(135deg, #003366, #0055aa);
+  color: white;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-export:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+/* ===============================
+   TABLA
+================================= */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.users-table th {
+  background: #f4f6f9;
+  padding: 14px;
+  text-align: left;
+  font-size: 14px;
+  color: #003366;
+  font-weight: 600;
+}
+
+.users-table td {
+  padding: 14px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #444;
+}
+
+.users-table tr:hover {
+  background: #f9fbff;
+}
+
+/* ===============================
+   ESTADOS
+================================= */
+.estado {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.estado.activo {
+  background: #e6f7ec;
+  color: #1e7e34;
+}
+
+.estado.inactivo {
+  background: #fdecea;
+  color: #c82333;
+}
+
+/* ===============================
+   BOTONES ACCIÓN
+================================= */
+.btn-estado,
+.btn-password {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 6px;
+  transition: 0.3s ease;
+}
+
+.btn-estado {
+  background: #007bff;
+  color: white;
+}
+
+.btn-estado:hover {
+  background: #0056b3;
+}
+
+.btn-password {
+  background: #ffc107;
+  color: #333;
+}
+
+.btn-password:hover {
+  background: #e0a800;
+}
+
+/* ===============================
+   RESPONSIVE
+================================= */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .users-table {
+    font-size: 12px;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 10px;
+  }
+
+  .tab-btn {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+/* ===============================
+   ANIMACIÓN
+================================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
