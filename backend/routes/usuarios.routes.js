@@ -11,10 +11,10 @@ import { requireRole } from "../middlewares/role.middleware.js";
 const router = Router();
 
 // SOLO ADMIN PUEDE GESTIONAR
-router.post("/", verifyToken, requireRole("admin"), crearUsuario);
-router.get("/", verifyToken, requireRole("admin"), listarUsuarios);
+router.post("/", verifyToken, requireRole("admin", "directivo"), crearUsuario);
+router.get("/", verifyToken, requireRole("admin", "directivo"), listarUsuarios);
 
-router.patch("/:id/estado", verifyToken, requireRole("admin"), cambiarEstado);
-router.patch("/:id/password", verifyToken, requireRole("admin"), cambiarPassword);
+router.patch("/:id/estado", verifyToken, requireRole("admin", "directivo"), cambiarEstado);
+router.patch("/:id/password", verifyToken, requireRole("admin", "directivo"), cambiarPassword);
 
 export default router;

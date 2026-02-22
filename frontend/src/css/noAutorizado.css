@@ -1,0 +1,67 @@
+.noauth-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #1f2937, #111827);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.noauth-card {
+  background: #1f2937;
+  padding: 50px 40px;
+  border-radius: 20px;
+  text-align: center;
+  color: #fff;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.noauth-card .icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.noauth-card h1 {
+  margin-bottom: 15px;
+  font-size: 28px;
+}
+
+.noauth-card p {
+  font-size: 15px;
+  color: #d1d5db;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.btn-volver {
+  background: #ef4444;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-volver:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

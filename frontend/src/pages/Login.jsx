@@ -9,6 +9,7 @@ import {
   FiLogIn,
 } from "react-icons/fi";
 import "../css/login.css";
+import logo from "../assets/icono.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,15 +21,12 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errorLogin, setErrorLogin] = useState("");
 
-  // Modal recuperar contraseña
   const [modalRecuperar, setModalRecuperar] = useState(false);
   const [emailRecuperar, setEmailRecuperar] = useState("");
   const [errorRecuperar, setErrorRecuperar] = useState("");
   const [successRecuperar, setSuccessRecuperar] = useState("");
 
-  // ==============================
-  // LOGIN
-  // ==============================
+  // ================= LOGIN =================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorLogin("");
@@ -38,13 +36,20 @@ const Login = () => {
       return;
     }
 
+    // Validar solo Gmail, Hotmail o Outlook
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook)\.com$/i;
+    if (!emailRegex.test(email)) {
+      setErrorLogin("Solo se permiten correos Gmail, Hotmail o Outlook");
+      return;
+    }
+
     try {
       const response = await fetch("http://localhost:8000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          contraseña: password,
+          contraseña: password, // Backend espera "contraseña"
         }),
       });
 
@@ -55,12 +60,11 @@ const Login = () => {
         return;
       }
 
-      // 🔐 Guardar sesión
+      // Guardar token y usuario
       localStorage.setItem("token", data.token);
       localStorage.setItem("usuario", JSON.stringify(data.usuario));
-      localStorage.setItem("userRole", data.usuario.rol);
+      localStorage.setItem("userRole", data.usuario.rol_id);
 
-      // 🚀 Ir a pantalla de carga
       navigate("/loading");
 
     } catch (error) {
@@ -68,10 +72,8 @@ const Login = () => {
     }
   };
 
-  // ==============================
-  // RECUPERAR CONTRASEÑA (Simulado)
-  // ==============================
-  const handleRecuperar = (e) => {
+  // ================= RECUPERAR =================
+  const handleRecuperar = async (e) => {
     e.preventDefault();
     setErrorRecuperar("");
     setSuccessRecuperar("");
@@ -81,21 +83,52 @@ const Login = () => {
       return;
     }
 
-    const token = Math.random().toString(36).substring(2, 12);
+    // Validar solo Gmail, Hotmail o Outlook
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook)\.com$/i;
+    if (!emailRegex.test(emailRecuperar)) {
+      setErrorRecuperar("Solo se permiten correos Gmail, Hotmail o Outlook");
+      return;
+    }
 
-    setSuccessRecuperar(
-      `Se envió un link de recuperación a ${emailRecuperar}. Token simulado: ${token}`
-    );
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/auth/recuperar",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: emailRecuperar }),
+        }
+      );
 
-    setEmailRecuperar("");
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorRecuperar(data.message || "Error al enviar el correo");
+        return;
+      }
+
+      setSuccessRecuperar("Correo enviado correctamente 📩");
+      setEmailRecuperar("");
+
+      setTimeout(() => {
+        setModalRecuperar(false);
+        setSuccessRecuperar("");
+      }, 3000);
+
+    } catch (error) {
+      setErrorRecuperar("Error de conexión con el servidor");
+    }
   };
 
   return (
     <div className="login-page">
       <div className="login-card">
 
+        {/* LOGO */}
         <div className="logo-box">
-          <img src="/src/assets/icono.png" alt="Aula Virtual" />
+          <Link to="/" className="logo-link">
+            <img src={logo} alt="Aula Virtual" />
+          </Link>
         </div>
 
         <h2>Bienvenido</h2>
@@ -123,13 +156,12 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button
-              type="button"
+            <span
               className="toggle-password"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
-            </button>
+            </span>
           </div>
 
           <div className="captcha-wrapper">
@@ -164,9 +196,7 @@ const Login = () => {
         </div>
       </div>
 
-      {/* ==============================
-          MODAL RECUPERAR
-      ============================== */}
+      {/* MODAL RECUPERAR */}
       {modalRecuperar && (
         <div
           className="modal-overlay"
@@ -177,7 +207,6 @@ const Login = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <h3>Recuperar contraseña</h3>
-            <p>Ingresa tu correo para enviar el link de recuperación:</p>
 
             <form onSubmit={handleRecuperar}>
 
@@ -192,16 +221,10 @@ const Login = () => {
                 />
               </div>
 
-              {errorRecuperar && (
-                <span className="error">{errorRecuperar}</span>
-              )}
-
-              {successRecuperar && (
-                <span className="success">{successRecuperar}</span>
-              )}
+              {errorRecuperar && <span className="error">{errorRecuperar}</span>}
+              {successRecuperar && <span className="success">{successRecuperar}</span>}
 
               <button type="submit">Enviar</button>
-
               <button
                 type="button"
                 className="close-btn"
