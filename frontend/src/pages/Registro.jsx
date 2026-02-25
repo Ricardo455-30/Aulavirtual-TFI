@@ -57,7 +57,7 @@ const Registro = () => {
       return;
     }
 
-    const camposObligatorios = ["nombre", "apellido", "email", "password"];
+    const camposObligatorios = ["nombre", "apellido", "email", "contraseña", "rol"];
     let vacios = camposObligatorios.filter((c) => !form[c]);
 
     if (vacios.length > 0) {
@@ -69,7 +69,7 @@ const Registro = () => {
       nombre: form.nombre,
       apellido: form.apellido,
       email: form.email,
-      password: form.password,
+      contraseña: form.contraseña,
       rol: form.rol,
       claveRol: form.claveRol,
       datosEspecificos: form.datosEspecificos
@@ -155,9 +155,9 @@ const Registro = () => {
           <FiLock className="input-icon" />
           <input
             type="password"
-            name="password"
+            name="contraseña"
             placeholder="Contraseña"
-            value={form.password}
+            value={form.contraseña}
             onChange={handleChange}
             required
           />

@@ -63,30 +63,132 @@ export const login = async (req, res) => {
 // 📝 REGISTER
 // =========================
 export const register = async (req, res) => {
-  const { nombre, email, contraseña, rol } = req.body;
+  const {
+    nombre,
+    apellido,
+    email,
+    contraseña,
+    rol,
+    claveRol,
+    datosEspecificos
+  } = req.body;
+
+  const connection = await pool.getConnection();
 
   try {
-    const [existe] = await pool.query(
-      "SELECT * FROM usuarios WHERE email = ?",
+    await connection.beginTransaction();
+
+    // 🔎 1. Verificar si el usuario ya existe
+    const [existe] = await connection.query(
+      "SELECT id_usuario FROM usuarios WHERE email = ?",
       [email]
     );
 
     if (existe.length > 0) {
+      await connection.rollback();
       return res.status(400).json({ message: "El usuario ya existe" });
     }
 
+    // 🎭 2. Obtener id_rol desde la tabla roles
+    const [rolResult] = await connection.query(
+      "SELECT id_rol FROM roles WHERE nombre_rol = ?",
+      [rol]
+    );
+
+    if (rolResult.length === 0) {
+      await connection.rollback();
+      return res.status(400).json({ message: "Rol inválido" });
+    }
+
+    const idRol = rolResult[0].id_rol;
+
+    // 🔐 3. Validar clave si es docente o tutor
+    if (rol === "docente" && claveRol !== "CLAVE_DOCENTE_2025") {
+      await connection.rollback();
+      return res.status(403).json({ message: "Clave docente incorrecta" });
+    }
+
+    if (rol === "tutor" && claveRol !== "CLAVE_TUTOR_2025") {
+      await connection.rollback();
+      return res.status(403).json({ message: "Clave tutor incorrecta" });
+    }
+
+    // 🔑 4. Encriptar contraseña
+    console.log("BODY COMPLETO:", req.body);
+console.log("PASSWORD:", contraseña);
     const hashedPassword = await bcrypt.hash(contraseña, 10);
 
-    await pool.query(
-      "INSERT INTO usuarios (nombre, email, contraseña, rol) VALUES (?, ?, ?, ?)",
-      [nombre, email, hashedPassword, rol]
+    // 👤 5. Insertar en usuarios
+    const [usuarioResult] = await connection.query(
+      `INSERT INTO usuarios 
+      (nombre, apellido, email, contraseña, id_rol, estado, creado_en, actualizado_en) 
+      VALUES (?, ?, ?, ?, ?, 'Activo', NOW(), NOW())`,
+      [nombre, apellido, email, hashedPassword, idRol]
     );
+
+    const idUsuario = usuarioResult.insertId;
+
+    // 📚 6. Insertar datos según rol
+
+    // ALUMNO
+    if (rol === "alumno") {
+      await connection.query(
+        `INSERT INTO alumnos 
+        (legajo, nombre, apellido, dni, fecha_nacimiento, id_usuario)
+        VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          datosEspecificos.legajo,
+          nombre,
+          apellido,
+          datosEspecificos.dni,
+          datosEspecificos.fecha_nacimiento,
+          idUsuario
+        ]
+      );
+    }
+
+    // DOCENTE
+    if (rol === "docente") {
+      await connection.query(
+        `INSERT INTO docentes 
+        (nombre, apellido, titulo, especialidad, id_usuario)
+        VALUES (?, ?, ?, ?, ?)`,
+        [
+          nombre,
+          apellido,
+          datosEspecificos.titulo,
+          datosEspecificos.especialidad,
+          idUsuario
+        ]
+      );
+    }
+
+    // TUTOR
+    if (rol === "tutor") {
+      await connection.query(
+        `INSERT INTO padres_tutores 
+        (nombre, apellido, telefono, email, id_usuario)
+        VALUES (?, ?, ?, ?, ?)`,
+        [
+          nombre,
+          apellido,
+          datosEspecificos.telefono,
+          email,
+          idUsuario
+        ]
+      );
+    }
+
+    await connection.commit();
 
     res.json({ message: "Usuario registrado correctamente" });
 
   } catch (error) {
+    await connection.rollback();
     console.error("Error register:", error);
     res.status(500).json({ message: "Error del servidor" });
+  } finally {
+    connection.release();
   }
 };
 
@@ -147,7 +249,8 @@ export const solicitarRecuperacion = async (req, res) => {
       html: `
         <div style="font-family: Arial, sans-serif; padding:20px;">
           <h2 style="color:#2563eb;">Recuperación de contraseña</h2>
-          <p>Hola, recibimos una solicitud para restablecer tu contraseña.</p>
+          <p>Hola, Somos del centro de soprte tecnico del aula virtual del TFI. 
+          Hemos recibimos una solicitud para restablecer tu contraseña.</p>
           <p>Haz clic en el botón para continuar:</p>
 
           <a href="${link}" 
@@ -197,7 +300,7 @@ export const resetPassword = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      "SELECT id FROM usuarios WHERE reset_token = ? AND reset_token_expire > ?",
+      "SELECT id_usuario FROM usuarios WHERE reset_token = ? AND reset_token_expire > ?",
       [token, new Date()]
     );
 
