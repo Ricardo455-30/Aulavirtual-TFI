@@ -1,111 +1,140 @@
-.panel-container {
-  display: flex;
+.directivo-wrapper {
   min-height: 100vh;
-  background: #f4f6fb;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-.sidebar {
-  width: 240px;
-  background: #1e293b;
-  color: white;
-  padding: 30px 20px;
+  background: #f4f6f9;
   display: flex;
   flex-direction: column;
 }
 
-.sidebar-logo {
-  margin-bottom: 40px;
-  text-align: center;
+/* 🔷 TOPBAR */
+.directivo-topbar {
+  background: #1e293b;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
 }
 
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
+.topbar-left {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
+  gap: 20px;
+}
+
+.topbar-left button {
+  background: transparent;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.topbar-left button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.logo-container img {
+  width: 32px;
+}
+
+.logout-btn {
+  background: #ef4444;
+  border: none;
+  padding: 6px 14px;
   border-radius: 8px;
-  transition: 0.3s;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.2s;
 }
 
-.sidebar li:hover {
-  background: #334155;
+.logout-btn:hover {
+  background: #dc2626;
 }
 
-.logout {
-  margin-top: auto;
-  color: #f87171;
+/* 🔷 CONTENIDO */
+.directivo-content {
+  padding: 30px;
 }
-
-.panel-content {
-  flex: 1;
-  padding: 40px;
-}
-
-.panel-title {
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.stats-grid {
+.dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
-  margin-bottom: 40px;
 }
 
-.stat-card {
+.dashboard-card {
   background: white;
-  padding: 20px;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  transition: 0.3s;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: 0.2s;
 }
 
-.stat-card:hover {
+.dashboard-card:hover {
   transform: translateY(-5px);
 }
 
-.stat-icon {
-  font-size: 28px;
-  color: #3b82f6;
-}
-.panel-layout {
-  display: flex;
-  height: 100vh;
+.section-container {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.sidebar {
-  width: 250px;
-  background: #1e293b;
-  color: white;
-  padding: 20px;
-}
-
-.sidebar ul li {
-  cursor: pointer;
-  padding: 10px;
+.form-inline {
   display: flex;
   gap: 10px;
+  margin-bottom: 20px;
 }
 
-.sidebar ul li:hover {
-  background: #334155;
+.form-inline input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
-.contenido {
-  flex: 1;
-  padding: 30px;
-  background: #f1f5f9;
-  overflow-y: auto;
+.form-inline button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th, td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
 }

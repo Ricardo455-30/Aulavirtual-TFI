@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
+import dotenv from "dotenv";
 
 // =========================
 // 🔐 LOGIN
@@ -103,12 +104,12 @@ export const register = async (req, res) => {
     const idRol = rolResult[0].id_rol;
 
     // 🔐 3. Validar clave si es docente o tutor
-    if (rol === "docente" && claveRol !== "CLAVE_DOCENTE_2025") {
+    if (rol === "docente" && claveRol !== process.env.CLAVE_DOCENTE) {
       await connection.rollback();
       return res.status(403).json({ message: "Clave docente incorrecta" });
     }
 
-    if (rol === "tutor" && claveRol !== "CLAVE_TUTOR_2025") {
+    if (rol === "tutor" && claveRol !== process.env.CLAVE_TUTOR ) {
       await connection.rollback();
       return res.status(403).json({ message: "Clave tutor incorrecta" });
     }

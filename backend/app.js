@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import path from "path";
+
 
 // Middlewares
 
@@ -15,7 +17,8 @@ import asistenciasRoutes from "./routes/asistencias.routes.js";
 import materialesRoutes from "./routes/materiales.routes.js";
 import examenesRoutes from "./routes/examenes.routes.js";
 import testRoutes from "./routes/test.routes.js";
-
+import entregasRoutes from "./routes/entregas.routes.js";
+import materiasRoutes from "./routes/materias.routes.js";
 
 import usuariosRoutes from "./routes/usuarios.routes.js";
 
@@ -29,6 +32,9 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // ===== RUTAS =====
 
@@ -41,10 +47,10 @@ app.use("/api/cursos", cursosRoutes);
 app.use("/api/calificaciones", calificacionesRoutes);
 app.use("/api/tareas", tareasRoutes);
 app.use("/api/asistencias", asistenciasRoutes);
+app.use("/api/materias", materiasRoutes);
 app.use("/api/materiales", materialesRoutes);
 app.use("/api/examenes", examenesRoutes);
-
-// 🔥 ESTA LÍNEA ES LA QUE SOLUCIONA TU ERROR
+app.use("/api/entregas", entregasRoutes);
 app.use("/api/users", usuariosRoutes);
 
 app.get("/", (req, res) => {

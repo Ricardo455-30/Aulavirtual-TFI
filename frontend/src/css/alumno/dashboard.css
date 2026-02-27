@@ -1,0 +1,46 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.bienvenida {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.notificaciones {
+  grid-column: span 2;
+}
+
+.materia-item {
+  margin-bottom: 15px;
+}
+
+.barra {
+  background: #eee;
+  height: 8px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progreso {
+  background: #3b82f6;
+  height: 100%;
+}
+
+.notificacion-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}

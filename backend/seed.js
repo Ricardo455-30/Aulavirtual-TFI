@@ -69,6 +69,7 @@ const seed = async () => {
     const idDirectivo = await crearUsuario("Laura","Directora","directivo@demo.com",rolesMap.directivo);
     const idUsuarioDocente = await crearUsuario("Juan","Perez","docente@demo.com",rolesMap.docente);
     const idUsuarioAlumno = await crearUsuario("Maria","Gomez","alumno@demo.com",rolesMap.alumno);
+    
     const idUsuarioTutor = await crearUsuario("Carlos","Gomez","tutor@demo.com",rolesMap.tutor);
 
     console.log("Usuarios creados ✅");

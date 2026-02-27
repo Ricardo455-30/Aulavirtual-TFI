@@ -12,7 +12,7 @@ import DocentePanel from "./pages/paneles/docente/DocentePanel";
 import AlumnoPanel from "./pages/alumnos/AlumnoPanel";
 import AutoLogout from "../src/components/AutoLogout";
 import NoAutorizado from "./pages/NoAutorizado";
-import ProtectedRoute from "./components/ProtectedRoute";
+// import ProtectedRoute from "./components/ProtectedRoute";
 import ResetPassword from "./pages/ResetPassword";
 function App() {
   return (
@@ -32,45 +32,54 @@ function App() {
         <Route
           path="/admin/*"
           element={
-            <ProtectedRoute rolesPermitidos={["admin"]}>
-              <AdminLayout />
-            </ProtectedRoute>
+            // <ProtectedRoute rolesPermitidos={["admin"]}>
+            //   <AdminLayout />
+            // </ProtectedRoute>
+                          <AdminLayout />
+
           }
         />
 
         <Route
           path="/directivo/*"
           element={
-            <ProtectedRoute rolesPermitidos={["directivo"]}>
-              <PanelDirectivo />
-            </ProtectedRoute>
+            // <ProtectedRoute rolesPermitidos={["directivo"]}>
+            //   <PanelDirectivo />
+            // </ProtectedRoute>
+                          <PanelDirectivo />
+
           }
         />
 
         <Route
           path="/docente/*"
           element={
-            <ProtectedRoute rolesPermitidos={["docente"]}>
-              <DocentePanel />
-            </ProtectedRoute>
+            // <ProtectedRoute rolesPermitidos={["docente"]}>
+            //   <DocentePanel />
+            // </ProtectedRoute>
+                          <DocentePanel />
+
           }
         />
 
         <Route
           path="/alumno/*"
           element={
-            <ProtectedRoute rolesPermitidos={["alumno"]}>
-              <AlumnoPanel />
-            </ProtectedRoute>
+            // <ProtectedRoute rolesPermitidos={["alumno"]}>
+            //   <AlumnoPanel />
+            // </ProtectedRoute>
+                          <AlumnoPanel />
+
           }
         />
 
         <Route
           path="/tutor/*"
           element={
-            <ProtectedRoute rolesPermitidos={["tutor"]}>
-              <TutorPanel />
-            </ProtectedRoute>
+            // <ProtectedRoute rolesPermitidos={["tutor"]}>
+            //   <TutorPanel />
+            // </ProtectedRoute>
+            <TutorPanel />
           }
         />
 

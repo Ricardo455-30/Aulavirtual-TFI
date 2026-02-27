@@ -1,31 +1,52 @@
 import pool from "../config/db.js";
 
-// Crear tarea (docente)
+// =============================
+// CREAR TAREA
+// =============================
 export const crearTarea = async (req, res) => {
   try {
-    const { id_asignacion, titulo, descripcion, fecha_entrega } = req.body;
-    const [result] = await pool.query(
-      "INSERT INTO tareas (id_asignacion,titulo,descripcion,fecha_entrega) VALUES (?,?,?,?)",
-      [id_asignacion, titulo, descripcion, fecha_entrega]
+    const {
+      id_asignacion,
+      titulo,
+      descripcion,
+      fecha_entrega,
+      permite_reintentos,
+      max_intentos
+    } = req.body;
+
+    await pool.query(
+      `INSERT INTO tareas 
+      (id_asignacion, titulo, descripcion, fecha_entrega, permite_reintentos, max_intentos)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        id_asignacion,
+        titulo,
+        descripcion,
+        fecha_entrega,
+        permite_reintentos || false,
+        permite_reintentos ? max_intentos || 1 : 1
+      ]
     );
-    res.status(201).json({ message: "Tarea creada", id_tarea: result.insertId });
+
+    res.json({ message: "Tarea creada correctamente" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error al crear tarea" });
   }
 };
-
-// Listar tareas de un curso/asignación
-export const listarTareasCurso = async (req, res) => {
+export const listarTareasPorAsignacion = async (req, res) => {
   try {
     const { id_asignacion } = req.params;
+
     const [rows] = await pool.query(
-      "SELECT * FROM tareas WHERE id_asignacion = ?",
+      `SELECT * FROM tareas 
+       WHERE id_asignacion = ?
+       ORDER BY fecha_entrega ASC`,
       [id_asignacion]
     );
+
     res.json(rows);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Error al listar tareas" });
   }
 };
