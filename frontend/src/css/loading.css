@@ -90,3 +90,17 @@
     opacity: 1;
   }
 }
+.logo-link {
+  display: inline-block;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.logo-link img {
+  width: 90px;
+  cursor: pointer;
+}
+
+.logo-link:hover {
+  transform: scale(1.08);
+  opacity: 0.85;
+}

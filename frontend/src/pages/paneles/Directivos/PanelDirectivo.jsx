@@ -1,61 +1,84 @@
-import React, { useEffect, useState } from "react";
-import Sidebar from "../../../components/directivo/Sidebar";
-import StatCard from "../../../components/directivo/StatCard";
-import UserManagement from "../../../components/directivo/UserManagement";
+import { useState } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import {
+  Home,
+  BookOpen,
+  Users,
+  GraduationCap,
+  UserCheck,
+  LogOut
+} from "lucide-react";
+
+import DirectivoDashboard from "../../../components/directivo/DirectivoDashboard";
+import GestionMaterias from "../../../components/directivo/GestionMaterias";
+import GestionUsuarios from "../../../components/directivo/GestionUsuarios";
+
+import logo from "../../../assets/icono.png";
 import "../../../css/directivo/panelDirectivo.css";
-import { FiUsers, FiBriefcase, FiShield } from "react-icons/fi";
 
-const PanelDirectivo = () => {
-  const [stats, setStats] = useState({
-    usuarios: 0,
-    empleados: 0,
-    admins: 0,
-  });
+const DirectivoPanel = () => {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-    const empleados = usuarios.filter(u => u.rol === "empleado").length;
-    const admins = usuarios.filter(u => u.rol === "admin").length;
-
-    setStats({
-      usuarios: usuarios.length,
-      empleados,
-      admins,
-    });
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
   return (
-    <div className="panel-container">
-      <Sidebar />
+    <div className="directivo-wrapper">
 
-      <div className="panel-content">
-        <h1 className="panel-title">Panel Directivo</h1>
+      {/* 🔷 TOPBAR */}
+      <header className="directivo-topbar">
 
-        {/* CARDS */}
-        <div className="stats-grid">
-          <StatCard
-            icon={<FiUsers />}
-            title="Usuarios Totales"
-            value={stats.usuarios}
-          />
-          <StatCard
-            icon={<FiBriefcase />}
-            title="Empleados"
-            value={stats.empleados}
-          />
-          <StatCard
-            icon={<FiShield />}
-            title="Administradores"
-            value={stats.admins}
-          />
+        <div className="topbar-left">
+          <div className="logo-container" onClick={() => navigate("/directivo")}>
+            <img src={logo} alt="logo" />
+            <span>Aula Virtual</span>
+          </div>
+
+          <button onClick={() => navigate("/directivo")}>
+            <Home size={18} /> Inicio
+          </button>
+
+          <button onClick={() => navigate("/directivo/materias")}>
+            <BookOpen size={18} /> Materias
+          </button>
+
+          <button onClick={() => navigate("/directivo/docentes")}>
+            <UserCheck size={18} /> Docentes
+          </button>
+
+          <button onClick={() => navigate("/directivo/alumnos")}>
+            <GraduationCap size={18} /> Alumnos
+          </button>
+
+          <button onClick={() => navigate("/directivo/tutores")}>
+            <Users size={18} /> Tutores
+          </button>
         </div>
 
-        {/* GESTIÓN DE USUARIOS */}
-        <UserManagement />
-      </div>
+        <div className="topbar-right">
+          <button className="logout-btn" onClick={handleLogout}>
+            <LogOut size={18} /> Salir
+          </button>
+        </div>
+
+      </header>
+
+      {/* 🔷 CONTENIDO */}
+      <main className="directivo-content">
+        <Routes>
+          <Route path="/" element={<DirectivoDashboard />} />
+          <Route path="materias" element={<GestionMaterias />} />
+          <Route path="docentes" element={<GestionUsuarios rol="docente" />} />
+          <Route path="alumnos" element={<GestionUsuarios rol="alumno" />} />
+          <Route path="tutores" element={<GestionUsuarios rol="tutor" />} />
+          <Route path="*" element={<Navigate to="" />} />
+        </Routes>
+      </main>
+
     </div>
   );
 };
 
-export default PanelDirectivo;
+export default DirectivoPanel;

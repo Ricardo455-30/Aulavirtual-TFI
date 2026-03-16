@@ -1,79 +1,79 @@
-import React from "react";
-
-const materias = [
-  {
-    id: 1,
-    nombre: "Matemática",
-    codigo: "MAT-2026",
-    profesor: "Prof. Gómez",
-    progreso: 70,
-    imagen: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb"
-  },
-  {
-    id: 2,
-    nombre: "Lengua y Literatura",
-    codigo: "LEN-2026",
-    profesor: "Prof. Díaz",
-    progreso: 45,
-    imagen: "https://images.unsplash.com/photo-1516979187457-637abb4f9353"
-  },
-  {
-    id: 3,
-    nombre: "Historia",
-    codigo: "HIS-2026",
-    profesor: "Prof. Pérez",
-    progreso: 80,
-    imagen: "https://images.unsplash.com/photo-1461360370896-922624d12aa1"
-  }
-];
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AlumnoMaterias = () => {
+  const navigate = useNavigate();
 
-  const guardarReciente = (materia) => {
-    let recientes = JSON.parse(localStorage.getItem("materiasRecientes")) || [];
+  const [materias, setMaterias] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    recientes = recientes.filter(m => m.id !== materia.id);
-    recientes.unshift(materia);
+  useEffect(() => {
+    const obtenerMaterias = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-    if (recientes.length > 5) recientes.pop();
+        const res = await fetch("http://localhost:8000/api/materias", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    localStorage.setItem("materiasRecientes", JSON.stringify(recientes));
-  };
+        if (!res.ok) {
+          throw new Error("Error al obtener materias");
+        }
+
+        const data = await res.json();
+        setMaterias(data);
+      } catch (err) {
+        console.error(err);
+        setError("No se pudieron cargar las materias");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    obtenerMaterias();
+  }, []);
+
+  if (loading) {
+    return <p className="loading">Cargando materias...</p>;
+  }
+
+  if (error) {
+    return <p className="error">{error}</p>;
+  }
 
   return (
     <div>
-      <h1 className="moodle-title">Mis Cursos</h1>
+      <h2 className="titulo-seccion">Mis Materias</h2>
 
-      <div className="moodle-grid">
-        {materias.map((materia) => (
-          <div
-            key={materia.id}
-            className="moodle-card"
-            onClick={() => guardarReciente(materia)}
-          >
+      <div className="materias-grid">
+        {materias.length > 0 ? (
+          materias.map((materia) => (
             <div
-              className="moodle-card-img"
-              style={{ backgroundImage: `url(${materia.imagen})` }}
-            />
-
-            <div className="moodle-card-body">
-              <span className="moodle-code">{materia.codigo}</span>
-              <h3>{materia.nombre}</h3>
-              <p>{materia.profesor}</p>
-
-              <div className="progress-container">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${materia.progreso}%` }}
+              key={materia.id_materia}
+              className="materia-card"
+              onClick={() =>
+                navigate(`/alumno/materias/${materia.id_materia}`)
+              }
+            >
+              <div className="materia-imagen">
+                <img
+                  src="/materia-default.png"
+                  alt={materia.nombre_materia}
                 />
               </div>
 
-              <span className="progress-text">
-                Progreso: {materia.progreso}%
-              </span>
+              <div className="materia-info">
+                <h3>{materia.nombre_materia}</h3>
+                <p>Carga horaria: {materia.carga_horaria} hs</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No tenés materias asignadas</p>
+        )}
       </div>
     </div>
   );
