@@ -1,14 +1,13 @@
 import { pool } from "../config/db.js";
 
-/* =========================
-   LISTAR TODOS LOS ALUMNOS
-========================= */
+/* listar todos los alumnos  */
 export const listarAlumnos = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT a.*, u.email 
+      `SELECT a.*, u.email, ac.id_curso
        FROM alumnos a
-       JOIN usuarios u ON a.id_usuario = u.id_usuario`
+       JOIN usuarios u ON a.id_usuario = u.id_usuario
+       JOIN alumnos_cursos ac ON a.id_alumno = ac.id_alumno`
     );
 
     res.json(rows);
@@ -17,9 +16,7 @@ export const listarAlumnos = async (req, res) => {
   }
 };
 
-/* =========================
-   OBTENER ALUMNO POR ID
-========================= */
+/*  obtener alumno por id*/
 export const obtenerAlumno = async (req, res) => {
   try {
     const { id } = req.params;
@@ -42,9 +39,7 @@ export const obtenerAlumno = async (req, res) => {
   }
 };
 
-/* =========================
-   CREAR ALUMNO
-========================= */
+/*crear alumno*/
 export const crearAlumno = async (req, res) => {
   try {
     const {
@@ -71,9 +66,7 @@ export const crearAlumno = async (req, res) => {
   }
 };
 
-/* =========================
-   ACTUALIZAR ALUMNO  ✅
-========================= */
+/* actualiza un alumno */
 export const actualizarAlumno = async (req, res) => {
   try {
     const { id } = req.params;
@@ -96,9 +89,7 @@ export const actualizarAlumno = async (req, res) => {
   }
 };
 
-/* =========================
-   ELIMINAR ALUMNO
-========================= */
+/* elimina un alumno */
 export const eliminarAlumno = async (req, res) => {
   try {
     const { id } = req.params;
@@ -118,9 +109,7 @@ export const eliminarAlumno = async (req, res) => {
   }
 };
 
-/* =========================
-    LISTAR CURSOS DE UN ALUMNO
-========================= */
+/* muestra los curssos del alumno*/
 export const listarCursosDeAlumno = async (req, res) => {
   try {
     const { id_alumno } = req.params;
@@ -137,12 +126,46 @@ export const listarCursosDeAlumno = async (req, res) => {
   }
 };
 
+
+export const verAlumnosPorCurso = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    const [rows] = await pool.query(
+      `SELECT 
+        a.id_alumno,
+        a.nombre,
+        a.apellido,
+        a.dni,
+        c.nota AS calificacion
+      FROM alumnos a
+      JOIN alumnos_cursos ac 
+        ON a.id_alumno = ac.id_alumno
+      LEFT JOIN calificaciones c 
+        ON c.id_alumno = a.id_alumno
+      WHERE ac.id_curso = ?`,
+      [id]
+    );
+
+    console.log("ALUMNOS ENCONTRADOS:", rows);
+
+    res.json(rows);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener alumnos del curso" });
+  }
+};
+
 export default {
   listarAlumnos,
   obtenerAlumno,
   crearAlumno,
   actualizarAlumno,
   eliminarAlumno,
-  listarCursosDeAlumno
+  listarCursosDeAlumno,
+  verAlumnosPorCurso
 };
+
 

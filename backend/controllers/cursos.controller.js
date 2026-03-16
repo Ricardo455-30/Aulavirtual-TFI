@@ -25,3 +25,33 @@ export const listarCursos = async (req, res) => {
     res.status(500).json({ message: "Error al listar cursos" });
   }
 };
+// ver alumnos del curso 
+export const listarAlumnosDeCurso = async (req, res) => {
+  try {
+    const { id } = req.params; // id_curso
+
+    const [rows] = await pool.query(
+      `SELECT 
+      a.id_alumno,
+      a.legajo,
+      a.nombre,
+      a.apellido,
+      a.dni,
+      a.fecha_nacimiento,
+      ac.anio_lectivo
+   FROM alumnos a
+   INNER JOIN alumnos_cursos ac 
+        ON a.id_alumno = ac.id_alumno
+   INNER JOIN usuarios u 
+        ON a.id_usuario = u.id_usuario
+   WHERE ac.id_curso = ?`,
+  [id]
+    );
+
+    res.json(rows);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al listar alumnos del curso" });
+  }
+};

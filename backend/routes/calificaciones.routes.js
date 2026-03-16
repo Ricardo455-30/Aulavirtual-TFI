@@ -1,8 +1,12 @@
 import { Router } from "express";
 import {
   verCalificacionesAlumno,
-  cargarCalificacion
+  cargarCalificacion,
+  guardarNotasCurso,
+  verNotasCurso,
+  editarCalificacion
 } from "../controllers/calificaciones.controller.js";
+
 
 import * as authMiddleware from "../middlewares/auth.middleware.js";
 const _verify = authMiddleware.verifyToken ?? authMiddleware.default ?? authMiddleware.auth ?? authMiddleware.verify ?? authMiddleware.ensureAuth;
@@ -42,6 +46,13 @@ router.get(
   accesoAlumnoFlexible(alumnoSoloPropio, tutorDeAlumno),
   verCalificacionesAlumno
 );
+
+router.post("/guardar", verifyToken, guardarNotasCurso);
+
+router.get("/curso/:id", verifyToken, verNotasCurso);
+
+router.put("/calificaciones/:id_calificacion", verifyToken, editarCalificacion);
+
 
 // Rutas adicionales comentadas
 // router.post("/", verifyToken, soloAdmin, /* crearCalificacion */);

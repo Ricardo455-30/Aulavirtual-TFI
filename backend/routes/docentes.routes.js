@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { crearDocente, listarDocentes } from "../controllers/docentes.controller.js";
+import { crearDocente, listarDocentes, obtenerPerfilDocente } from "../controllers/docentes.controller.js";
 import * as authMiddleware from "../middlewares/auth.middleware.js";
 const _verify = authMiddleware.verifyToken ?? authMiddleware.default ?? authMiddleware.auth ?? authMiddleware.verify ?? authMiddleware.ensureAuth;
 const verifyToken = typeof _verify === "function" ? _verify : (req, res, next) => {
@@ -31,5 +31,7 @@ router.get(
   soloAdmin,
   listarDocentes
 );
+
+router.get("/perfil", verifyToken, obtenerPerfilDocente);
 
 export default router;

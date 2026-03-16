@@ -6,6 +6,7 @@ import AlumnosSection from "../../../components/docente/AlumnosSection";
 import CalificacionesSection from "../../../components/docente/CalificacionesSection";
 import ComunicadosSection from "../../../components/docente/ComunicadosSection";
 import PerfilDocente from "../../../components/docente/PerfilDocente";
+import AsistenciaSection from "../../../components/docente/AsistenciaSection";
 import "../../../css/docente/docente.css";
 
 const DocentePanel = () => {
@@ -25,6 +26,8 @@ const DocentePanel = () => {
         return <ComunicadosSection />;
       case "perfil":
         return <PerfilDocente />;
+      case "asistencias":
+        return <AsistenciaSection />;
       default:
         return <DocenteDashboard />;
     }

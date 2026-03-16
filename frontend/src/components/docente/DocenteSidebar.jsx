@@ -17,8 +17,8 @@ const DocenteSidebar = ({ setSection }) => {
         <FiHome /> Dashboard
       </button>
 
-      <button onClick={() => setSection("cursos")}>
-        <FiBookOpen /> Cursos
+      <button onClick={() => setSection("asistencias")}>
+        <FiBookOpen /> Asistencia
       </button>
 
       <button onClick={() => setSection("alumnos")}>
@@ -29,10 +29,7 @@ const DocenteSidebar = ({ setSection }) => {
         <FiEdit /> Calificaciones
       </button>
 
-      <button onClick={() => setSection("comunicados")}>
-        <FiBell /> Comunicados
-      </button>
-
+     
       <button onClick={() => setSection("perfil")}>
         <FiUser /> Mi Perfil
       </button>

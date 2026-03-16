@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getCursos } from "../../services/cursos.services";
 import { getAlumnosPorCurso } from "../../services/alumnos.services";
-import { guardarNotasCurso } from "../../services/calificaciones.services";
+import { guardarAsistencia } from "../../services/asistencias.services";
 
-const CalificacionesSection = () => {
+const AsistenciaSection = () => {
   const [cursos, setCursos] = useState([]);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
   const [alumnos, setAlumnos] = useState([]);
-  const [notas, setNotas] = useState({});
+  const [asistencias, setAsistencias] = useState({});
   const [modoEdicion, setModoEdicion] = useState(false);
+
+  const fechaHoy = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     cargarCursos();
@@ -33,51 +35,52 @@ const CalificacionesSection = () => {
 
     setAlumnos(data);
 
-    const notasIniciales = {};
+    const asistenciasIniciales = {};
+
     data.forEach((a) => {
-      notasIniciales[a.id_alumno] = a.calificacion || "";
+      asistenciasIniciales[a.id_alumno] = "Presente";
     });
 
-    setNotas(notasIniciales);
+    setAsistencias(asistenciasIniciales);
   };
 
-  const handleNotaChange = (id_alumno, valor) => {
-    // permitir borrar
-    if (valor === "") {
-      setNotas({
-        ...notas,
-        [id_alumno]: "",
-      });
-      return;
-    }
-
-    if (valor < 1 || valor > 10) return;
-
-    setNotas({
-      ...notas,
+  const handleAsistenciaChange = (id_alumno, valor) => {
+    setAsistencias({
+      ...asistencias,
       [id_alumno]: valor,
     });
   };
 
-  const guardarNotas = async () => {
-    try {
-      const notasArray = alumnos.map((a) => ({
-        id_alumno: a.id_alumno,
-        nota: notas[a.id_alumno],
-      }));
+  const guardar = async () => {
+  try {
 
-      await guardarNotasCurso(cursoSeleccionado, notasArray);
+    const asistenciasArray = alumnos.map((a) => ({
+      id_alumno: a.id_alumno,
+      id_curso: cursoSeleccionado,
+      fecha: fechaHoy,
+      estado: asistencias[a.id_alumno],
+    }));
 
-      alert("Notas guardadas correctamente");
-    } catch (error) {
-      console.error(error);
-      alert("Error al guardar notas");
-    }
-  };
+    console.log("Asistencias a enviar:", asistenciasArray);
+
+    const res = await guardarAsistencia(asistenciasArray);
+
+    alert("✅ Asistencias guardadas correctamente");
+
+    console.log("Respuesta del servidor:", res);
+
+  } catch (error) {
+
+    console.error("Error al guardar:", error);
+
+    alert("❌ Error al guardar asistencias");
+
+  }
+};
 
   return (
     <div>
-      <h2>Calificaciones</h2>
+      <h2>Asistencias</h2>
 
       <div style={styles.grid}>
         {cursos.map((c) => (
@@ -102,53 +105,36 @@ const CalificacionesSection = () => {
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>DNI</th>
-                <th>Calificación</th>
+                <th>Asistencia</th>
+                <th>Fecha</th>
               </tr>
             </thead>
 
             <tbody>
-              {alumnos.map((a, index) => (
+              {alumnos.map((a) => (
                 <tr key={a.id_alumno}>
                   <td>{a.nombre}</td>
                   <td>{a.apellido}</td>
                   <td>{a.dni}</td>
 
                   <td>
-                    <input
-                      id={`nota-${index}`}
-                      type="text"
+                    <select
                       disabled={!modoEdicion}
-                      value={notas[a.id_alumno] ?? ""}
-                      onChange={(e) => {
-                        const valor = e.target.value;
-
-                        // permitir borrar
-                        if (valor === "") {
-                          handleNotaChange(a.id_alumno, "");
-                          return;
-                        }
-
-                        // solo números
-                        if (!/^\d+$/.test(valor)) return;
-
-                        const numero = Number(valor);
-
-                        // limitar 1 a 10
-                        if (numero < 1 || numero > 10) return;
-
-                        handleNotaChange(a.id_alumno, numero);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          const siguiente = document.getElementById(
-                            `nota-${index + 1}`
-                          );
-                          if (siguiente) siguiente.focus();
-                        }
-                      }}
-                      style={styles.inputNota}
-                    />
+                      value={asistencias[a.id_alumno] || "Presente"}
+                      onChange={(e) =>
+                        handleAsistenciaChange(a.id_alumno, e.target.value)
+                      }
+                    >
+                      <option value="Presente">Presente</option>
+                      <option value="Ausente">Ausente</option>
+                      <option value="Tarde">Tarde</option>
+                      <option value="Ausente justificado">Ausente justificado</option>
+                        
+                      
+                    </select>
                   </td>
+
+                  <td>{fechaHoy}</td>
                 </tr>
               ))}
             </tbody>
@@ -159,11 +145,11 @@ const CalificacionesSection = () => {
               onClick={() => setModoEdicion(!modoEdicion)}
               style={styles.botonEditar}
             >
-              Editar notas
+              Editar asistencia
             </button>
 
-            <button onClick={guardarNotas} style={styles.botonGuardar}>
-              Guardar notas
+            <button onClick={guardar} style={styles.botonGuardar}>
+              Guardar asistencia
             </button>
           </div>
         </div>
@@ -198,14 +184,6 @@ const styles = {
     marginTop: 20,
   },
 
-  inputNota: {
-    width: 45,
-    padding: 6,
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-
   botones: {
     display: "flex",
     justifyContent: "flex-end",
@@ -232,4 +210,4 @@ const styles = {
   },
 };
 
-export default CalificacionesSection;
+export default AsistenciaSection;

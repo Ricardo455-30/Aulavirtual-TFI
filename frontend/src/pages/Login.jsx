@@ -25,6 +25,7 @@ const Login = () => {
   const [emailRecuperar, setEmailRecuperar] = useState("");
   const [errorRecuperar, setErrorRecuperar] = useState("");
   const [successRecuperar, setSuccessRecuperar] = useState("");
+  
 
   // ================= LOGIN =================
   const handleSubmit = async (e) => {
@@ -54,6 +55,7 @@ const Login = () => {
       });
 
       const data = await response.json();
+      console.log("Respuesta login:", data); //////
 
       if (!response.ok) {
         setErrorLogin(data.message || "Credenciales incorrectas");

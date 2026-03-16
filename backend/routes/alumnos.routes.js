@@ -4,8 +4,10 @@ import {
   obtenerAlumno,
   crearAlumno,
   actualizarAlumno,
-  eliminarAlumno
+  eliminarAlumno,
+  verAlumnosPorCurso
 } from "../controllers/alumnos.controller.js";
+
 
 import * as authMiddleware from "../middlewares/auth.middleware.js";
 const _verify = authMiddleware.verifyToken ?? authMiddleware.default ?? authMiddleware.auth ?? authMiddleware.verify ?? authMiddleware.ensureAuth;
@@ -23,10 +25,16 @@ const soloAdmin = typeof _solo === "function" ? _solo : (req, res, next) => {
 
 const router = Router();
 
+router.get("/curso/:id", verifyToken, verAlumnosPorCurso);
+
 router.get("/", verifyToken, listarAlumnos);
 router.get("/:id", verifyToken, obtenerAlumno);
+
 router.post("/", verifyToken, soloAdmin, crearAlumno);
 router.put("/:id", verifyToken, soloAdmin, actualizarAlumno);
 router.delete("/:id", verifyToken, soloAdmin, eliminarAlumno);
+
+
+
 
 export default router;

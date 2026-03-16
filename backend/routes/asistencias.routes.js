@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registrarAsistencia, verAsistenciasAlumno } from "../controllers/asistencias.controller.js";
+import { registrarAsistencia, verAsistenciasAlumno, obtenerAsistenciasHoy } from "../controllers/asistencias.controller.js";
 import * as authMiddleware from "../middlewares/auth.middleware.js";
 const _verify = authMiddleware.verifyToken ?? authMiddleware.default ?? authMiddleware.auth ?? authMiddleware.verify ?? authMiddleware.ensureAuth;
 const verifyToken = typeof _verify === "function" ? _verify : (req, res, next) => {
@@ -24,9 +24,9 @@ const router = Router();
 router.post(
   "/",
   verifyToken,
-  soloAdmin,
   registrarAsistencia
 );
+
 
 // GET /api/asistencias/alumno/:id -> alumno/tutor/admin ve asistencias
 router.get(
@@ -37,6 +37,7 @@ router.get(
   verAsistenciasAlumno
 );
 
+router.get("/hoy", obtenerAsistenciasHoy);
 // Rutas adicionales comentadas
 // router.put("/:id", verifyToken, soloAdmin, /* actualizarAsistencia */);
 // router.delete("/:id", verifyToken, soloAdmin, /* eliminarAsistencia */);
