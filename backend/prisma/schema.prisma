@@ -1,14 +1,372 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
+}
+
+model alumnos {
+  id_alumno             Int                     @id @default(autoincrement())
+  legajo                String                  @unique(map: "legajo") @db.VarChar(20)
+  nombre                String                  @db.VarChar(100)
+  apellido              String                  @db.VarChar(100)
+  dni                   String                  @unique(map: "dni") @db.VarChar(20)
+  fecha_nacimiento      DateTime                @db.Date
+  id_usuario            Int?
+  usuarios              usuarios?               @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "alumnos_ibfk_1")
+  alumnos_cursos        alumnos_cursos[]
+  alumnos_tutores       alumnos_tutores[]
+  asistencias           asistencias[]
+  calificaciones        calificaciones[]
+  disciplinas_sanciones disciplinas_sanciones[]
+  entregas_tareas       entregas_tareas[]
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model alumnos_cursos {
+  id_alumno    Int
+  id_curso     Int
+  anio_lectivo Int
+  alumnos      alumnos @relation(fields: [id_alumno], references: [id_alumno], onDelete: NoAction, onUpdate: NoAction, map: "alumnos_cursos_ibfk_1")
+  cursos       cursos  @relation(fields: [id_curso], references: [id_curso], onDelete: NoAction, onUpdate: NoAction, map: "alumnos_cursos_ibfk_2")
+
+  @@id([id_alumno, id_curso, anio_lectivo])
+  @@index([id_curso], map: "id_curso")
+}
+
+model alumnos_tutores {
+  id_alumno      Int
+  id_tutor       Int
+  parentesco     String?        @db.VarChar(50)
+  alumnos        alumnos        @relation(fields: [id_alumno], references: [id_alumno], onDelete: NoAction, onUpdate: NoAction, map: "alumnos_tutores_ibfk_1")
+  padres_tutores padres_tutores @relation(fields: [id_tutor], references: [id_tutor], onDelete: NoAction, onUpdate: NoAction, map: "alumnos_tutores_ibfk_2")
+
+  @@id([id_alumno, id_tutor])
+  @@index([id_tutor], map: "id_tutor")
+}
+
+model asignaciones {
+  id_asignacion      Int                  @id @default(autoincrement())
+  id_docente         Int?
+  id_materia         Int?
+  id_curso           Int?
+  docentes           docentes?            @relation(fields: [id_docente], references: [id_docente], onDelete: NoAction, onUpdate: NoAction, map: "asignaciones_ibfk_1")
+  materias           materias?            @relation(fields: [id_materia], references: [id_materia], onDelete: NoAction, onUpdate: NoAction, map: "asignaciones_ibfk_2")
+  cursos             cursos?              @relation(fields: [id_curso], references: [id_curso], onDelete: NoAction, onUpdate: NoAction, map: "asignaciones_ibfk_3")
+  calificaciones     calificaciones[]
+  examenes           examenes[]
+  foros              foros[]
+  materiales_estudio materiales_estudio[]
+  tareas             tareas[]
+
+  @@index([id_curso], map: "id_curso")
+  @@index([id_docente], map: "id_docente")
+  @@index([id_materia], map: "id_materia")
+}
+
+model asistencias {
+  id_asistencia Int                 @id @default(autoincrement())
+  id_alumno     Int?
+  id_curso      Int?
+  fecha         DateTime?           @db.Date
+  estado        asistencias_estado?
+  alumnos       alumnos?            @relation(fields: [id_alumno], references: [id_alumno], onDelete: NoAction, onUpdate: NoAction, map: "asistencias_ibfk_1")
+  cursos        cursos?             @relation(fields: [id_curso], references: [id_curso], onDelete: NoAction, onUpdate: NoAction, map: "asistencias_ibfk_2")
+
+  @@index([id_alumno], map: "id_alumno")
+  @@index([id_curso], map: "id_curso")
+}
+
+model calificaciones {
+  id_calificacion Int                 @id @default(autoincrement())
+  id_alumno       Int
+  id_asignacion   Int
+  tipo            calificaciones_tipo
+  id_referencia   Int?
+  nota            Decimal?            @db.Decimal(4, 2)
+  fecha           DateTime?           @db.Date
+  alumnos         alumnos             @relation(fields: [id_alumno], references: [id_alumno], onDelete: NoAction, onUpdate: NoAction, map: "calificaciones_ibfk_1")
+  asignaciones    asignaciones        @relation(fields: [id_asignacion], references: [id_asignacion], onDelete: NoAction, onUpdate: NoAction, map: "calificaciones_ibfk_2")
+
+  @@index([id_alumno], map: "id_alumno")
+  @@index([id_asignacion], map: "id_asignacion")
+}
+
+model configuracion_sistema {
+  id                   Int     @id @default(autoincrement())
+  ciclo_lectivo_actual Int?    @default(2026)
+  nombre_institucion   String? @default("Escuela Municipal BRS") @db.VarChar(255)
+  periodo_actual       Int?    @default(1) @db.TinyInt
+}
+
+model cursos {
+  id_curso       Int              @id @default(autoincrement())
+  anio           Int
+  division       String           @db.VarChar(10)
+  turno          cursos_turno
+  alumnos_cursos alumnos_cursos[]
+  asignaciones   asignaciones[]
+  asistencias    asistencias[]
+}
+
+model disciplinas_sanciones {
+  id_sancion          Int       @id @default(autoincrement())
+  id_alumno           Int?
+  tipo_sancion        String?   @db.VarChar(100)
+  motivo              String?   @db.Text
+  fecha               DateTime? @db.Date
+  docente_responsable Int?
+  alumnos             alumnos?  @relation(fields: [id_alumno], references: [id_alumno], onDelete: NoAction, onUpdate: NoAction, map: "disciplinas_sanciones_ibfk_1")
+  docentes            docentes? @relation(fields: [docente_responsable], references: [id_docente], onDelete: NoAction, onUpdate: NoAction, map: "disciplinas_sanciones_ibfk_2")
+
+  @@index([docente_responsable], map: "docente_responsable")
+  @@index([id_alumno], map: "id_alumno")
+}
+
+model docentes {
+  id_docente            Int                     @id @default(autoincrement())
+  nombre                String                  @db.VarChar(100)
+  apellido              String                  @db.VarChar(100)
+  titulo                String?                 @db.VarChar(150)
+  especialidad          String?                 @db.VarChar(150)
+  id_usuario            Int?
+  asignaciones          asignaciones[]
+  disciplinas_sanciones disciplinas_sanciones[]
+  usuarios              usuarios?               @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "docentes_ibfk_1")
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model entregas_tareas {
+  id_entrega    Int       @id @default(autoincrement())
+  id_tarea      Int?
+  id_alumno     Int?
+  archivo_url   String    @db.VarChar(500)
+  fecha_entrega DateTime? @default(now()) @db.Timestamp(0)
+  calificacion  Decimal?  @db.Decimal(4, 2)
+  tareas        tareas?   @relation(fields: [id_tarea], references: [id_tarea], onDelete: NoAction, onUpdate: NoAction, map: "entregas_tareas_ibfk_1")
+  alumnos       alumnos?  @relation(fields: [id_alumno], references: [id_alumno], onDelete: NoAction, onUpdate: NoAction, map: "entregas_tareas_ibfk_2")
+
+  @@index([id_alumno], map: "fk_alumno")
+  @@index([id_tarea], map: "fk_tarea")
+}
+
+model eventos_escolares {
+  id_evento   Int                        @id @default(autoincrement())
+  titulo      String?                    @db.VarChar(150)
+  descripcion String?                    @db.Text
+  fecha       DateTime?                  @db.Date
+  publico     eventos_escolares_publico?
+}
+
+model examenes {
+  id_examen     Int           @id @default(autoincrement())
+  id_asignacion Int?
+  tipo_examen   String?       @db.VarChar(50)
+  fecha         DateTime?     @db.Date
+  descripcion   String?       @db.Text
+  asignaciones  asignaciones? @relation(fields: [id_asignacion], references: [id_asignacion], onDelete: NoAction, onUpdate: NoAction, map: "examenes_ibfk_1")
+
+  @@index([id_asignacion], map: "id_asignacion")
+}
+
+model foros {
+  id_foro       Int             @id @default(autoincrement())
+  id_asignacion Int
+  titulo        String?         @db.VarChar(150)
+  creado_en     DateTime?       @default(now()) @db.DateTime(0)
+  asignaciones  asignaciones    @relation(fields: [id_asignacion], references: [id_asignacion], onDelete: NoAction, onUpdate: NoAction, map: "foros_ibfk_1")
+  mensajes_foro mensajes_foro[]
+
+  @@index([id_asignacion], map: "id_asignacion")
+}
+
+model logs_acciones {
+  id_log     Int       @id @default(autoincrement())
+  id_usuario Int
+  accion     String?   @db.VarChar(255)
+  fecha      DateTime? @default(now()) @db.DateTime(0)
+  usuarios   usuarios  @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "logs_acciones_ibfk_1")
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model materiales_estudio {
+  id_material   Int           @id @default(autoincrement())
+  id_asignacion Int?
+  titulo        String?       @db.VarChar(150)
+  descripcion   String?       @db.Text
+  archivo_url   String?       @db.VarChar(255)
+  fecha_subida  DateTime?     @db.Date
+  asignaciones  asignaciones? @relation(fields: [id_asignacion], references: [id_asignacion], onDelete: NoAction, onUpdate: NoAction, map: "materiales_estudio_ibfk_1")
+
+  @@index([id_asignacion], map: "id_asignacion")
+}
+
+model materias {
+  id_materia     Int            @id @default(autoincrement())
+  nombre_materia String         @db.VarChar(100)
+  carga_horaria  Int?
+  asignaciones   asignaciones[]
+}
+
+model mensajes {
+  id_mensaje                              Int       @id @default(autoincrement())
+  id_emisor                               Int
+  id_receptor                             Int
+  asunto                                  String?   @db.VarChar(150)
+  contenido                               String?   @db.Text
+  fecha_envio                             DateTime? @default(now()) @db.DateTime(0)
+  leido                                   Boolean?  @default(false)
+  usuarios_mensajes_id_emisorTousuarios   usuarios  @relation("mensajes_id_emisorTousuarios", fields: [id_emisor], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "mensajes_ibfk_1")
+  usuarios_mensajes_id_receptorTousuarios usuarios  @relation("mensajes_id_receptorTousuarios", fields: [id_receptor], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "mensajes_ibfk_2")
+
+  @@index([id_emisor], map: "id_emisor")
+  @@index([id_receptor], map: "id_receptor")
+}
+
+model mensajes_foro {
+  id         Int       @id @default(autoincrement())
+  id_foro    Int
+  id_usuario Int
+  mensaje    String?   @db.Text
+  fecha      DateTime? @default(now()) @db.DateTime(0)
+  foros      foros     @relation(fields: [id_foro], references: [id_foro], onDelete: NoAction, onUpdate: NoAction, map: "mensajes_foro_ibfk_1")
+  usuarios   usuarios  @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "mensajes_foro_ibfk_2")
+
+  @@index([id_foro], map: "id_foro")
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model notificaciones {
+  id_notificacion         Int                       @id @default(autoincrement())
+  titulo                  String                    @db.VarChar(150)
+  mensaje                 String                    @db.Text
+  fecha_envio             DateTime?                 @default(now()) @db.DateTime(0)
+  leido                   Boolean?                  @default(false)
+  notificaciones_usuarios notificaciones_usuarios[]
+}
+
+model notificaciones_usuarios {
+  id_notificacion Int
+  id_usuario      Int
+  leido           Boolean?       @default(false)
+  notificaciones  notificaciones @relation(fields: [id_notificacion], references: [id_notificacion], onDelete: NoAction, onUpdate: NoAction, map: "notificaciones_usuarios_ibfk_1")
+  usuarios        usuarios       @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "notificaciones_usuarios_ibfk_2")
+
+  @@id([id_notificacion, id_usuario])
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model padres_tutores {
+  id_tutor        Int               @id @default(autoincrement())
+  nombre          String            @db.VarChar(100)
+  apellido        String            @db.VarChar(100)
+  telefono        String?           @db.VarChar(20)
+  email           String?           @db.VarChar(150)
+  id_usuario      Int?
+  alumnos_tutores alumnos_tutores[]
+  usuarios        usuarios?         @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "padres_tutores_ibfk_1")
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model pendientes_docentes {
+  id              Int       @id @default(autoincrement())
+  nombre          String    @db.VarChar(100)
+  apellido        String    @db.VarChar(100)
+  id_usuario      Int
+  fecha_solicitud DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model permisos {
+  id_permiso     Int              @id @default(autoincrement())
+  nombre_permiso String           @db.VarChar(100)
+  descripcion    String?          @db.Text
+  roles_permisos roles_permisos[]
+}
+
+model roles {
+  id_rol         Int              @id @default(autoincrement())
+  nombre_rol     String           @db.VarChar(50)
+  descripcion    String?          @db.Text
+  roles_permisos roles_permisos[]
+  usuarios       usuarios[]
+}
+
+model roles_permisos {
+  id_rol     Int
+  id_permiso Int
+  roles      roles    @relation(fields: [id_rol], references: [id_rol], onDelete: NoAction, onUpdate: NoAction, map: "roles_permisos_ibfk_1")
+  permisos   permisos @relation(fields: [id_permiso], references: [id_permiso], onDelete: NoAction, onUpdate: NoAction, map: "roles_permisos_ibfk_2")
+
+  @@id([id_rol, id_permiso])
+  @@index([id_permiso], map: "id_permiso")
+}
+
+model tareas {
+  id_tarea        Int               @id @default(autoincrement())
+  id_asignacion   Int?
+  titulo          String?           @db.VarChar(150)
+  descripcion     String?           @db.Text
+  fecha_entrega   DateTime?         @db.Date
+  entregas_tareas entregas_tareas[]
+  asignaciones    asignaciones?     @relation(fields: [id_asignacion], references: [id_asignacion], onDelete: NoAction, onUpdate: NoAction, map: "tareas_ibfk_1")
+
+  @@index([id_asignacion], map: "id_asignacion")
+}
+
+model usuarios {
+  id_usuario                              Int                       @id @default(autoincrement())
+  nombre                                  String                    @db.VarChar(100)
+  apellido                                String                    @db.VarChar(100)
+  email                                   String                    @unique(map: "email") @db.VarChar(150)
+  contrase_a                              String                    @map("contraseña") @db.VarChar(255)
+  id_rol                                  Int?
+  estado                                  usuarios_estado?          @default(Activo)
+  creado_en                               DateTime                  @default(now()) @db.DateTime(0)
+  actualizado_en                          DateTime                  @default(now()) @db.DateTime(0)
+  alumnos                                 alumnos[]
+  docentes                                docentes[]
+  logs_acciones                           logs_acciones[]
+  mensajes_mensajes_id_emisorTousuarios   mensajes[]                @relation("mensajes_id_emisorTousuarios")
+  mensajes_mensajes_id_receptorTousuarios mensajes[]                @relation("mensajes_id_receptorTousuarios")
+  mensajes_foro                           mensajes_foro[]
+  notificaciones_usuarios                 notificaciones_usuarios[]
+  padres_tutores                          padres_tutores[]
+  roles                                   roles?                    @relation(fields: [id_rol], references: [id_rol], onDelete: NoAction, onUpdate: NoAction, map: "usuarios_ibfk_1")
+
+  @@index([id_rol], map: "id_rol")
+}
+
+enum calificaciones_tipo {
+  Examen
+  Tarea
+  Trabajo_Practico @map("Trabajo Practico")
+}
+
+enum cursos_turno {
+  Ma_ana @map("Mañana")
+  Tarde
+  Noche
+}
+
+enum asistencias_estado {
+  Presente
+  Ausente
+  Tarde
+}
+
+enum eventos_escolares_publico {
+  Alumnos
+  Docentes
+  Padres
+  Todos
+}
+
+enum usuarios_estado {
+  Activo
+  Inactivo
 }

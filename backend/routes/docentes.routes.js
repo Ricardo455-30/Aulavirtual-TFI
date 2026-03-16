@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { crearDocente, listarDocentes } from "../controllers/docentes.controller.js";
+import { 
+  crearDocente, 
+  listarDocentes, 
+  getMisAsignaciones // <-- Importamos la nueva función
+} from "../controllers/docentes.controller.js";
+
 import * as authMiddleware from "../middlewares/auth.middleware.js";
 const _verify = authMiddleware.verifyToken ?? authMiddleware.default ?? authMiddleware.auth ?? authMiddleware.verify ?? authMiddleware.ensureAuth;
 const verifyToken = typeof _verify === "function" ? _verify : (req, res, next) => {
@@ -16,20 +21,18 @@ const soloAdmin = typeof _solo === "function" ? _solo : (req, res, next) => {
 
 const router = Router();
 
-// POST /api/docentes -> crear docente
-router.post(
-  "/",
+// NUEVA: GET /api/docentes/mis-asignaciones -> El docente ve sus materias
+// Solo requiere estar logueado (verifyToken)
+router.get(
+  "/mis-asignaciones",
   verifyToken,
-  soloAdmin,
-  crearDocente
+  getMisAsignaciones
 );
 
+// POST /api/docentes -> crear docente
+router.post("/", verifyToken, soloAdmin, crearDocente);
+
 // GET /api/docentes -> listar docentes
-router.get(
-  "/",
-  verifyToken,
-  soloAdmin,
-  listarDocentes
-);
+router.get("/", verifyToken, soloAdmin, listarDocentes);
 
 export default router;
