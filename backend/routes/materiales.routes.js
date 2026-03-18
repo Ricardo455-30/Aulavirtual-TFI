@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { subirMaterial, listarMateriales } from "../controllers/materiales.controller.js";
+import { uploadCloud } from "../middlewares/uploadCloud.middleware.js"; // <-- Importamos el nuevo middleware
+
 import * as authMiddleware from "../middlewares/auth.middleware.js";
 const _verify = authMiddleware.verifyToken ?? authMiddleware.default ?? authMiddleware.auth ?? authMiddleware.verify ?? authMiddleware.ensureAuth;
 const verifyToken = typeof _verify === "function" ? _verify : (req, res, next) => {
@@ -16,11 +18,12 @@ const soloAdmin = typeof _solo === "function" ? _solo : (req, res, next) => {
 
 const router = Router();
 
-// POST /api/materiales -> docente sube material
+// POST /api/materiales -> docente sube material a la NUBE (Cloudinary)
 router.post(
   "/",
   verifyToken,
-  soloAdmin,
+  // soloAdmin, // Nota: Si un docente debe subir material, quizás debas revisar este middleware luego
+  uploadCloud.single("archivo"), // <-- "archivo" debe ser el nombre del campo que envíe el frontend
   subirMaterial
 );
 

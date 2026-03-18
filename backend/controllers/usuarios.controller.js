@@ -1,11 +1,26 @@
 import pool from "../config/db.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs"; // mejor usar bcryptjs para async/await consistente
 
 // CREAR USUARIO
 export const crearUsuario = async (req, res) => {
   try {
-    const { nombre, apellido, email, contraseña, id_rol } = req.body;
+    const { nombre, apellido, email, contraseña, rol } = req.body;
 
+    // Validación básica
+    if (!nombre || !email || !contraseña || !rol) {
+      return res.status(400).json({ message: "Faltan campos obligatorios" });
+    }
+
+    // Mapear rol a id_rol (suponiendo roles de la tabla)
+    const [rolDb] = await pool.query(
+      "SELECT id_rol FROM roles WHERE nombre_rol = ?",
+      [rol]
+    );
+    if (!rolDb.length) return res.status(400).json({ message: "Rol inválido" });
+
+    const id_rol = rolDb[0].id_rol;
+
+    // Hashear contraseña
     const hash = await bcrypt.hash(contraseña, 10);
 
     await pool.query(
@@ -15,15 +30,15 @@ export const crearUsuario = async (req, res) => {
       [nombre, apellido, email, hash, id_rol]
     );
 
-    res.status(201).json({ message: "Usuario creado" });
+    res.status(201).json({ message: "Usuario creado correctamente" });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error creando usuario" });
+    console.error("ERROR CREAR USUARIO:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
-// LISTAR USUARIOS (FORMATO COMPATIBLE CON FRONT)
+// LISTAR USUARIOS
 export const listarUsuarios = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -43,8 +58,8 @@ export const listarUsuarios = async (req, res) => {
     res.json(rows);
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error listando usuarios" });
+    console.error("ERROR LISTAR USUARIOS:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -63,8 +78,8 @@ export const cambiarEstado = async (req, res) => {
     res.json({ message: "Estado actualizado" });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error cambiando estado" });
+    console.error("ERROR CAMBIAR ESTADO:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -72,9 +87,11 @@ export const cambiarEstado = async (req, res) => {
 export const cambiarPassword = async (req, res) => {
   try {
     const { id } = req.params;
-    const { password } = req.body;
+    const { contraseña } = req.body;
 
-    const hash = await bcrypt.hash(password, 10);
+    if (!contraseña) return res.status(400).json({ message: "Contraseña requerida" });
+
+    const hash = await bcrypt.hash(contraseña, 10);
 
     await pool.query(
       `UPDATE usuarios 
@@ -83,10 +100,10 @@ export const cambiarPassword = async (req, res) => {
       [hash, id]
     );
 
-    res.json({ message: "Password actualizada" });
+    res.json({ message: "Contraseña actualizada" });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error cambiando password" });
+    console.error("ERROR CAMBIAR PASSWORD:", error);
+    res.status(500).json({ message: error.message });
   }
 };

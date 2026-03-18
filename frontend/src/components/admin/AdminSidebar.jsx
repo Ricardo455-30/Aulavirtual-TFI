@@ -11,7 +11,7 @@ const AdminSidebar = ({ setSection }) => {
     localStorage.removeItem("user");
 
     // 🔄 Redirigir a la Landing
-    navigate("/landing");
+    navigate("/");
   };
 
   return (

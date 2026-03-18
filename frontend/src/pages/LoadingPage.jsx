@@ -15,7 +15,16 @@ const LoadingPage = () => {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    const role = localStorage.getItem("userRole");
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    // Si no hay usuario guardado → volver al login
+    if (!usuario) {
+      navigate("/login");
+      return;
+    }
+
+    // Normalizamos el rol para evitar errores de mayúsculas/minúsculas
+    const role = usuario.rol?.toLowerCase();
 
     const textInterval = setInterval(() => {
       setIndex((prev) => (prev + 1) % messages.length);
@@ -27,18 +36,24 @@ const LoadingPage = () => {
       setTimeout(() => {
         switch (role) {
           case "admin":
+          case "administrador":
             navigate("/admin");
             break;
+
           case "docente":
             navigate("/docente");
             break;
+
           case "alumno":
             navigate("/alumno");
             break;
-          case "familia":
-            navigate("/familia");
+
+          case "directivo":
+            navigate("/directivo");
             break;
+
           default:
+            console.log("Rol no reconocido:", role);
             navigate("/login");
         }
       }, 600);
