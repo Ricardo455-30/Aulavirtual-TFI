@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 
-
 // Middlewares
 
 // Rutas
@@ -19,8 +18,8 @@ import examenesRoutes from "./routes/examenes.routes.js";
 import testRoutes from "./routes/test.routes.js";
 import entregasRoutes from "./routes/entregas.routes.js";
 import materiasRoutes from "./routes/materias.routes.js";
-
 import usuariosRoutes from "./routes/usuarios.routes.js";
+import directivosRoutes from "./routes/directivos.routes.js"; // <--- 1. NUEVA IMPORTACIÓN
 
 dotenv.config();
 
@@ -40,7 +39,6 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/test", testRoutes);
-
 app.use("/api/alumnos", alumnosRoutes);
 app.use("/api/docentes", docentesRoutes);
 app.use("/api/cursos", cursosRoutes);
@@ -52,6 +50,7 @@ app.use("/api/materiales", materialesRoutes);
 app.use("/api/examenes", examenesRoutes);
 app.use("/api/entregas", entregasRoutes);
 app.use("/api/users", usuariosRoutes);
+app.use("/api/directivos", directivosRoutes); // <--- 2. NUEVA RUTA REGISTRADA
 
 app.get("/", (req, res) => {
   res.json({ message: "API TFI funcionando correctamente ✅" });

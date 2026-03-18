@@ -12,6 +12,8 @@ import {
 import DirectivoDashboard from "../../../components/directivo/DirectivoDashboard";
 import GestionMaterias from "../../../components/directivo/GestionMaterias";
 import GestionUsuarios from "../../../components/directivo/GestionUsuarios";
+// 1. IMPORTAMOS EL NUEVO COMPONENTE QUE CREAMOS RECIÉN
+import AsignacionesForm from "../../../components/directivo/AsignacionesForm";
 
 import logo from "../../../assets/icono.png";
 import "../../../css/directivo/panelDirectivo.css";
@@ -29,7 +31,6 @@ const DirectivoPanel = () => {
 
       {/* 🔷 TOPBAR */}
       <header className="directivo-topbar">
-
         <div className="topbar-left">
           <div className="logo-container" onClick={() => navigate("/directivo")}>
             <img src={logo} alt="logo" />
@@ -62,7 +63,6 @@ const DirectivoPanel = () => {
             <LogOut size={18} /> Salir
           </button>
         </div>
-
       </header>
 
       {/* 🔷 CONTENIDO */}
@@ -70,8 +70,24 @@ const DirectivoPanel = () => {
         <Routes>
           <Route path="/" element={<DirectivoDashboard />} />
           <Route path="materias" element={<GestionMaterias />} />
-          <Route path="docentes" element={<GestionUsuarios rol="docente" />} />
-          <Route path="alumnos" element={<GestionUsuarios rol="alumno" />} />
+          
+          {/* 2. MODIFICAMOS ESTAS RUTAS PARA QUE MUESTREN EL FORMULARIO DE ASIGNACIÓN */}
+          <Route path="docentes" element={
+            <>
+              <GestionUsuarios rol="docente" />
+              <hr />
+              <AsignacionesForm tipo="docente" /> 
+            </>
+          } />
+          
+          <Route path="alumnos" element={
+            <>
+              <GestionUsuarios rol="alumno" />
+              <hr />
+              <AsignacionesForm tipo="alumno" />
+            </>
+          } />
+
           <Route path="tutores" element={<GestionUsuarios rol="tutor" />} />
           <Route path="*" element={<Navigate to="" />} />
         </Routes>
