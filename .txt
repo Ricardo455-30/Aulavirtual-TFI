@@ -240,3 +240,8 @@ estado enum('Activo','Inactivo')
 creado_en datetime 
 actualizado_en datetime
 
+
+
+
+3814017319
+ingeniero  raul

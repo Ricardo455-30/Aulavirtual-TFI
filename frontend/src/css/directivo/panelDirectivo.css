@@ -1,18 +1,21 @@
+/* ================= WRAPPER ================= */
 .directivo-wrapper {
   min-height: 100vh;
-  background: #f4f6f9;
+  background: #f0f2f5;
   display: flex;
   flex-direction: column;
+  font-family: 'Inter', sans-serif;
 }
 
-/* 🔷 TOPBAR */
+/* ================= TOPBAR ================= */
 .directivo-topbar {
-  background: #1e293b;
+  background: #1f2937;
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 30px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .topbar-left {
@@ -30,9 +33,9 @@
   gap: 6px;
   cursor: pointer;
   font-size: 14px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: 0.2s;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 .topbar-left button:hover {
@@ -49,92 +52,442 @@
 }
 
 .logo-container img {
-  width: 32px;
+  width: 36px;
 }
 
 .logout-btn {
   background: #ef4444;
   border: none;
-  padding: 6px 14px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: 0.2s;
+  gap: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .logout-btn:hover {
   background: #dc2626;
+  transform: scale(1.05);
 }
 
-/* 🔷 CONTENIDO */
+/* ================= CONTENIDO ================= */
 .directivo-content {
   padding: 30px;
 }
+
+/* ================= DASHBOARD GRID ================= */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  gap: 25px;
 }
 
 .dashboard-card {
   background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
   text-align: center;
-  transition: 0.2s;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.1);
 }
 
+/* ================= SECTIONS ================= */
 .section-container {
   background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 25px 30px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
 }
 
+/* ================= FORMULARIOS ================= */
 .form-inline {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
 }
 
 .form-inline input {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  flex: 1;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.form-inline input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+  outline: none;
 }
 
 .form-inline button {
   background: #2563eb;
   color: white;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.form-inline button:hover {
+  background: #1e40af;
+  transform: scale(1.05);
+}
+
+/* ================= TABLAS ================= */
+.table-container {
+  overflow-x: auto;
 }
 
 .table-container table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
 }
 
 .table-container th, td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.table-container th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+.table-container tr {
+  transition: all 0.2s ease;
+}
+
+.table-container tr:hover {
+  background: #f9fafb;
 }
 
 .delete-btn {
   background: #ef4444;
   color: white;
   border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* ================= KPI ================= */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.kpi-card {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.kpi-card:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+
+.kpi-card h2 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.kpi-card p {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* ================= ACTIVIDAD ================= */
+.activity-section {
+  margin-top: 40px;
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.activity-section h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+.activity-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity-section li {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.activity-section li:last-child {
+  border-bottom: none;
+}
+
+.activity-section li:hover {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+/* ================= PAGINACIÓN ================= */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination button:hover {
+  background: #f1f5f9;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* =========================
+   CONTENEDOR GENERAL
+   ========================= */
+.section-container {
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* =========================
+   HEADER
+   ========================= */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+/* =========================
+   FORMULARIO
+   ========================= */
+.form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.form-inline input,
+.form-inline select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+.form-inline input[type="file"] {
+  padding: 3px 8px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* =========================
+   TABLA
+   ========================= */
+.tabla-pro {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.tabla-pro th,
+.tabla-pro td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tabla-pro th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+}
+
+.tabla-pro tr:hover {
+  background-color: #f9fafb;
+}
+
+/* =========================
+   BADGES
+   ========================= */
+.badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+  text-transform: capitalize;
+}
+
+.badge-activa {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.badge-inactiva {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* =========================
+   PAGINACIÓN
+   ========================= */
+.pagination-pro {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #374151;
+}
+
+/* =========================
+   MODAL
+   ========================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(31, 41, 55, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #fff;
+  padding: 20px 25px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal input {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.modal .acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }

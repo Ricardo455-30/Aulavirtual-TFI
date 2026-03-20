@@ -1,87 +1,276 @@
 .docente-container {
   display: flex;
   min-height: 100vh;
-  background: #f4f6fa;
+  background: #f1f5f9;
+  font-family: 'Inter', sans-serif;
 }
 
+/* SIDEBAR */
 .docente-sidebar {
-  width: 250px;
-  background: #1e293b;
+  width: 260px;
+  background: #0f172a;
   color: white;
-  padding: 20px;
+  padding: 20px 15px;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-.docente-sidebar h2 {
-  margin-bottom: 30px;
+.docente-sidebar.collapsed {
+  width: 80px;
 }
 
-.docente-sidebar button {
-  background: none;
+/* BOTÓN TOGGLE */
+.toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: -12px;
+  background: #2563eb;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
   border: none;
   color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* LOGO / TITULO */
+.docente-sidebar h2 {
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 35px;
+  font-weight: 600;
+}
+
+.docente-sidebar.collapsed h2 {
+  display: none;
+}
+
+/* BOTONES */
+.docente-sidebar button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
   text-align: left;
-  padding: 12px;
+  padding: 12px 14px;
   margin-bottom: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 6px;
+  gap: 14px;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+  font-size: 14px;
 }
 
+/* ICONOS */
+.docente-sidebar button svg {
+  font-size: 18px;
+  min-width: 20px;
+}
+
+/* TEXTO */
+.docente-sidebar button span {
+  transition: opacity 0.3s;
+}
+
+/* COLAPSADO */
+.docente-sidebar.collapsed button span {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* HOVER */
 .docente-sidebar button:hover {
-  background: #334155;
+  background: rgba(37, 99, 235, 0.15);
+  color: #fff;
 }
 
+/* ACTIVO */
+.docente-sidebar button.active {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 5px 15px rgba(37,99,235,0.3);
+}
+
+/* CONTENT */
 .docente-content {
   flex: 1;
-  padding: 40px;
+  padding: 35px;
+  animation: fadeIn 0.3s ease;
 }
 
+/* ANIMACIÓN */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+/* CARDS */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
 }
 
 .stat-card {
   background: white;
   padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  text-align: center;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  transition: 0.3s;
 }
 
+.stat-card:hover {
+  transform: translateY(-4px);
+}
+
+/* TABLA */
 .tabla {
   width: 100%;
   border-collapse: collapse;
   background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.tabla th {
+  background: #f8fafc;
+  font-weight: 600;
 }
 
 .tabla th, .tabla td {
-  padding: 12px;
+  padding: 14px;
   border-bottom: 1px solid #eee;
 }
 
+/* INPUTS */
 input, textarea {
   padding: 10px;
-  margin-top: 10px;
-  margin-right: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* BOTONES */
 button {
-  padding: 10px 15px;
+  padding: 10px 16px;
   background: #2563eb;
   color: white;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
 }
 
 button:hover {
   background: #1d4ed8;
+}
+/* TITULOS */
+.section-title {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.section-subtitle {
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+/* GRID CURSOS */
+.cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* CARD CURSO */
+.curso-card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  cursor: pointer;
+  transition: 0.25s;
+  border: 1px solid #eee;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+}
+
+.curso-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.curso-titulo {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* TABLA PRO */
+.tabla-pro {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.tabla-pro th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+.tabla-pro th,
+.tabla-pro td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-pro tr:hover {
+  background: #f8fafc;
+}
+
+/* INPUT NOTA */
+.input-nota {
+  width: 50px;
+  padding: 6px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-weight: bold;
+}
+
+/* SELECT */
+.select-asistencia {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+/* BOTONES CONTENEDOR */
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* BOTONES */
+.btn-warning {
+  background: #f59e0b;
+}
+
+.btn-success {
+  background: #22c55e;
 }

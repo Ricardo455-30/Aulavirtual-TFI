@@ -4,19 +4,19 @@
 //   const token = localStorage.getItem("token");
 //   const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-//   // 🔐 No hay token
+//   //  No hay token
 //   if (!token) {
 //     return <Navigate to="/login" replace />;
 //   }
 
-//   // 🔐 No hay usuario guardado
+//   //  No hay usuario guardado
 //   if (!usuario) {
 //     return <Navigate to="/login" replace />;
 //   }
 //   if (!token || !usuario) {
 //   return <Navigate to="/login" replace />;
 // }
-//   // 🛡 Validación por rol
+//   //  Validación por rol
 //   if (rolesPermitidos && !rolesPermitidos.includes(usuario.rol)) {
 //     return <Navigate to="/no-autorizado" replace />;
 //   }

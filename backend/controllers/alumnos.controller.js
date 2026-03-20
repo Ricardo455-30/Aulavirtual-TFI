@@ -136,13 +136,35 @@ export const listarCursosDeAlumno = async (req, res) => {
     res.status(500).json({ message: "Error al listar cursos del alumno", error });
   }
 };
+export const getAlumnosPorCurso = async (req, res) => {
+  try {
+    const { id_curso } = req.params;
 
+    const [rows] = await pool.query(`
+      SELECT 
+        id_alumno,
+        nombre,
+        apellido,
+        dni
+      FROM alumnos
+      WHERE id_curso = ?
+      ORDER BY apellido, nombre
+    `, [id_curso]);
+
+    res.json(rows);
+
+  } catch (error) {
+    console.error("ERROR GET ALUMNOS POR CURSO:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
 export default {
   listarAlumnos,
   obtenerAlumno,
   crearAlumno,
   actualizarAlumno,
   eliminarAlumno,
-  listarCursosDeAlumno
+  listarCursosDeAlumno,
+  getAlumnosPorCurso
 };
 

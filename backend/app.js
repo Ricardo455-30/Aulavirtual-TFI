@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import path from "path";
 
 
 // Middlewares
@@ -33,8 +32,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static("uploads"));
 
 // ===== RUTAS =====
 
@@ -51,8 +49,7 @@ app.use("/api/materias", materiasRoutes);
 app.use("/api/materiales", materialesRoutes);
 app.use("/api/examenes", examenesRoutes);
 app.use("/api/entregas", entregasRoutes);
-app.use("/api/users", usuariosRoutes);
-
+app.use("/api/admin/usuarios", usuariosRoutes);
 app.get("/", (req, res) => {
   res.json({ message: "API TFI funcionando correctamente ✅" });
 });

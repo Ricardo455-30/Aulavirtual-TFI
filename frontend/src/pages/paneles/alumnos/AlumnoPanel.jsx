@@ -10,13 +10,13 @@ import {
   ClipboardList,
 } from "lucide-react";
 
-import AlumnoDashboard from "../../components/alumnos/AlumnoDashboard";
-import AlumnoMaterias from "../../components/alumnos/AlumnoMaterias";
-import MateriaDetalle from "../../components/alumnos/MateriaDetalle";
-import AlumnoTareas from "../../components/alumnos/TareasSection";
+import AlumnoDashboard from "../../../components/alumnos/AlumnoDashboard";
+import AlumnoMaterias from "../../../components/alumnos/AlumnoMaterias";
+import MateriaDetalle from "../../../components/alumnos/MateriaDetalle";
+import AlumnoTareas from "../../../components/alumnos/TareasSection";
 
-import logo from "../../assets/icono.png";
-import "../../css/alumno/alumno.css";
+import logo from "../../../assets/icono.png";
+import "../../../css/alumno/alumno.css";
 
 const AlumnoPanel = () => {
   const navigate = useNavigate();

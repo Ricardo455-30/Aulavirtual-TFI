@@ -1,62 +1,58 @@
 import { Router } from "express";
+import multer from "multer";
+
 import {
-  obtenerMaterias,
-  obtenerMateriaPorId,
-  crearMateria
+  crearMateria,
+  listarMaterias,
+  asignarMateria,
+  cambiarEstadoMateria,
+  editarMateria
 } from "../controllers/materias.controller.js";
+
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import { requireRole } from "../middlewares/role.middleware.js";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
 
 const router = Router();
 
-// =================================
-// Configuración de multer
-// =================================
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = "uploads/materias";
-    // Crear carpeta si no existe
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext);
-  },
-});
+// Multer básico (local)
+const upload = multer({ dest: "uploads/" });
 
-const upload = multer({ storage });
+// ==============================
+// RUTAS
+// ==============================
 
-// =================================
-// Rutas
-// =================================
+router.get("/", verifyToken, listarMaterias);
 
-// Listar materias activas (solo alumno o directivo)
-router.get(
-  "/",
-  verifyToken,
-  requireRole("alumno", "directivo"),
-  obtenerMaterias
-);
-
-// Ver detalle de una materia
-router.get(
-  "/:id",
-  verifyToken,
-  requireRole("alumno", "directivo"),
-  obtenerMateriaPorId
-);
-
-// Crear materia (con foto)
 router.post(
   "/",
   verifyToken,
-  requireRole("directivo"),
-  upload.single("foto"), // ⚠ Nombre del campo debe coincidir con FormData en React
+  requireRole("admin","directivo"),
+  upload.single("foto"),
   crearMateria
+);
+
+router.post(
+  "/:id/asignar",
+  verifyToken,  
+  requireRole("admin","directivo"),
+  asignarMateria
+);
+
+
+
+router.put(
+  "/:id",
+  verifyToken,
+  requireRole("admin","directivo"),
+  upload.single("foto"),
+  editarMateria
+);
+
+router.put(
+  "/:id/estado",
+  verifyToken,
+  requireRole("admin","directivo"),
+  cambiarEstadoMateria
 );
 
 export default router;

@@ -9,7 +9,7 @@ import AdminLayout from "./pages/paneles/admin/AdminPanel";
 import PanelDirectivo from "./pages/paneles/Directivos/PanelDirectivo";
 import TutorPanel from "./pages/paneles/Tutor/TutorPanel";
 import DocentePanel from "./pages/paneles/docente/DocentePanel";
-import AlumnoPanel from "./pages/alumnos/AlumnoPanel";
+import AlumnoPanel from "./pages/paneles/alumnos/AlumnoPanel";
 import AutoLogout from "../src/components/AutoLogout";
 import NoAutorizado from "./pages/NoAutorizado";
 // import ProtectedRoute from "./components/ProtectedRoute";

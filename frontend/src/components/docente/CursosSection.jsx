@@ -1,66 +1,84 @@
 import React, { useState, useEffect } from "react";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
+import axios from "axios";
 
 const CursosSection = () => {
   const [cursos, setCursos] = useState([]);
   const [nuevoCurso, setNuevoCurso] = useState({
-    nombre: "",
+    anio: "",
     division: "",
+    turno: "",
     materia: ""
   });
 
-  // Cargar desde localStorage
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("cursosDocente")) || [];
-    setCursos(data);
-  }, []);
+  const token = localStorage.getItem("token");
+  const BASE_URL = "http://localhost:8000/api";
+  const headers = { Authorization: `Bearer ${token}` };
 
-  // Guardar en localStorage
-  useEffect(() => {
-    localStorage.setItem("cursosDocente", JSON.stringify(cursos));
-  }, [cursos]);
-
-  const handleChange = (e) => {
-    setNuevoCurso({
-      ...nuevoCurso,
-      [e.target.name]: e.target.value
-    });
+  // =====================
+  // CARGAR CURSOS DEL DOCENTE
+  // =====================
+  const cargarCursos = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/docentes/mis-cursos`, { headers });
+      setCursos(res.data || []);
+    } catch (error) {
+      console.error("Error cargando cursos:", error);
+    }
   };
 
-  const agregarCurso = () => {
-    if (!nuevoCurso.nombre || !nuevoCurso.division || !nuevoCurso.materia) {
+  useEffect(() => {
+    cargarCursos();
+  }, []);
+
+  // =====================
+  // AGREGAR CURSO + MATERIA
+  // =====================
+  const handleChange = (e) => {
+    setNuevoCurso({ ...nuevoCurso, [e.target.name]: e.target.value });
+  };
+
+  const agregarCurso = async () => {
+    if (!nuevoCurso.anio || !nuevoCurso.division || !nuevoCurso.turno || !nuevoCurso.materia) {
       alert("Complete todos los campos ⚠️");
       return;
     }
 
-    const cursoConId = {
-      ...nuevoCurso,
-      id: Date.now()
-    };
-
-    setCursos([...cursos, cursoConId]);
-    setNuevoCurso({ nombre: "", division: "", materia: "" });
+    try {
+      const res = await axios.post(`${BASE_URL}/docentes/mis-cursos`, nuevoCurso, { headers });
+      // actualizar la lista con el curso agregado
+      cargarCursos();
+      setNuevoCurso({ anio: "", division: "", turno: "", materia: "" });
+    } catch (error) {
+      console.error("Error agregando curso:", error);
+    }
   };
 
-  const eliminarCurso = (id) => {
-    const nuevosCursos = cursos.filter(curso => curso.id !== id);
-    setCursos(nuevosCursos);
+  // =====================
+  // ELIMINAR CURSO
+  // =====================
+  const eliminarCurso = async (id) => {
+    try {
+      await axios.delete(`${BASE_URL}/docentes/mis-cursos/${id}`, { headers });
+      setCursos(cursos.filter(c => c.id_curso !== id));
+    } catch (error) {
+      console.error("Error eliminando curso:", error);
+    }
   };
 
   return (
     <div>
-      <h2>Gestión de Cursos</h2>
+      <h2>Gestión de Cursos y Materias</h2>
 
       {/* FORMULARIO */}
       <div className="curso-form">
         <input
-          type="text"
-          name="nombre"
-          placeholder="Ej: 1° Año"
-          value={nuevoCurso.nombre}
+          type="number"
+          name="anio"
+          placeholder="Ej: 1"
+          value={nuevoCurso.anio}
           onChange={handleChange}
         />
-
         <input
           type="text"
           name="division"
@@ -68,7 +86,12 @@ const CursosSection = () => {
           value={nuevoCurso.division}
           onChange={handleChange}
         />
-
+        <select name="turno" value={nuevoCurso.turno} onChange={handleChange}>
+          <option value="">Seleccionar turno</option>
+          <option value="Mañana">Mañana</option>
+          <option value="Tarde">Tarde</option>
+          <option value="Noche">Noche</option>
+        </select>
         <input
           type="text"
           name="materia"
@@ -86,29 +109,31 @@ const CursosSection = () => {
       <table className="tabla">
         <thead>
           <tr>
-            <th>Curso</th>
+            <th>Año</th>
             <th>División</th>
-            <th>Materia</th>
+            <th>Turno</th>
+            <th>Materias</th>
             <th>Acciones</th>
           </tr>
         </thead>
-
         <tbody>
           {cursos.length === 0 ? (
             <tr>
-              <td colSpan="4">No hay cursos cargados</td>
+              <td colSpan="5">No hay cursos asignados</td>
             </tr>
           ) : (
             cursos.map((curso) => (
-              <tr key={curso.id}>
-                <td>{curso.nombre}</td>
+              <tr key={curso.id_curso}>
+                <td>{curso.anio}</td>
                 <td>{curso.division}</td>
-                <td>{curso.materia}</td>
+                <td>{curso.turno}</td>
                 <td>
-                  <button
-                    className="btn-eliminar"
-                    onClick={() => eliminarCurso(curso.id)}
-                  >
+                  {curso.materias && curso.materias.length > 0
+                    ? curso.materias.map((m) => m.nombre_materia).join(", ")
+                    : "Sin materias"}
+                </td>
+                <td>
+                  <button className="btn-eliminar" onClick={() => eliminarCurso(curso.id_curso)}>
                     <FiTrash2 />
                   </button>
                 </td>

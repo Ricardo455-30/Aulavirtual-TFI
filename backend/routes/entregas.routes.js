@@ -34,7 +34,7 @@ router.get(
   verMisEntregas
 );
 
-// 🧑‍🏫 Docente ve todas las entregas de una tarea
+// Docente ve todas las entregas de una tarea
 router.get(
   "/tarea/:id_tarea",
   verifyToken,
@@ -42,7 +42,7 @@ router.get(
   verEntregasPorTarea
 );
 
-// 🧑‍🏫 Docente corrige una entrega específica
+//  Docente corrige una entrega específica
 router.put(
   "/corregir/:id_entrega",
   verifyToken,

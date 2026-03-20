@@ -1,21 +1,40 @@
 import { Router } from "express";
-import { login, register } from "../controllers/auth.controller.js";
 import {
-  
+  login,
+  register,
   solicitarRecuperacion,
   resetPassword,
+  perfil
 } from "../controllers/auth.controller.js";
+
+
+import { verifyToken } from "../middlewares/auth.middleware.js";
+
 const router = Router();
 
-// POST /api/auth/register
+// ==========================
+// 🔐 AUTH
+// ==========================
+
+// Registro
 router.post("/register", register);
 
-// POST /api/auth/login
+// Login
 router.post("/login", login);
 
-// POST /api/auth/solicitar-recuperacion
+// Recuperación de contraseña
 router.post("/recuperar", solicitarRecuperacion);
 
-// POST /api/auth/reset/:token
+// Resetear contraseña
 router.post("/reset/:token", resetPassword);
+
+// ==========================
+// 👤 USUARIO LOGUEADO
+// ==========================
+  
+router.get("/me", verifyToken, perfil);
+
+
+
+
 export default router;

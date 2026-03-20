@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { subirMaterial, listarMateriales } from "../controllers/materiales.controller.js";
+import { upload } from "../middlewares/upload.middleware.js"; 
+
 import * as authMiddleware from "../middlewares/auth.middleware.js";
 const _verify = authMiddleware.verifyToken ?? authMiddleware.default ?? authMiddleware.auth ?? authMiddleware.verify ?? authMiddleware.ensureAuth;
 const verifyToken = typeof _verify === "function" ? _verify : (req, res, next) => {
@@ -16,15 +18,15 @@ const soloAdmin = typeof _solo === "function" ? _solo : (req, res, next) => {
 
 const router = Router();
 
-// POST /api/materiales -> docente sube material
+// 📤 Subir material (LOCAL)
 router.post(
   "/",
   verifyToken,
-  soloAdmin,
+  upload.single("archivo"), // ✅ mismo nombre que el input del frontend
   subirMaterial
 );
 
-// GET /api/materiales/:id_asignacion -> listar materiales
+// 📄 Listar materiales
 router.get(
   "/:id_asignacion",
   verifyToken,

@@ -41,7 +41,7 @@ export const entregarTarea = async (req, res) => {
     const numero_intento = total_intentos + 1;
 
     const archivo_url = req.file
-      ? `uploads/${req.file.filename}`
+      ? req.file.path
       : null;
 
     await pool.query(

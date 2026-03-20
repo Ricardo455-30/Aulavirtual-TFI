@@ -193,7 +193,32 @@ console.log("PASSWORD:", contraseña);
   }
 };
 
+export const perfil = async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT 
+        u.id_usuario,
+        u.nombre,
+        u.apellido,
+        u.email,
+        r.nombre_rol AS rol
+       FROM usuarios u
+       JOIN roles r ON u.id_rol = r.id_rol
+       WHERE u.id_usuario = ?`,
+      [req.user.id] // 👈 viene del token
+    );
 
+    if (!rows.length) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json(rows[0]);
+
+  } catch (error) {
+    console.error("ERROR PERFIL:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 
 // ==================================================
