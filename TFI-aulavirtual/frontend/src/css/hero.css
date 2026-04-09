@@ -1,0 +1,162 @@
+/* HERO PRO */
+.hero-pro {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 80px 90px;
+  gap: 80px;
+
+  background: linear-gradient(
+    135deg,
+    #0c285a 0%,
+    #0c3c8a 50%,
+    #2563eb 100%
+  );
+
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glow decorativo */
+.hero-pro::before {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+  top: -150px;
+  right: -150px;
+}
+
+/* TEXTO */
+.hero-pro-content {
+  flex: 1;
+  max-width: 520px;
+  z-index: 2;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.hero-pro-content h1 {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 22px;
+}
+
+.hero-pro-content h1 span {
+  color: #93c5fd;
+}
+
+.hero-pro-content p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  opacity: 0.95;
+}
+
+/* BOTONES */
+.hero-pro-actions {
+  margin-top: 35px;
+  display: flex;
+  gap: 18px;
+}
+
+.btn-primary {
+  background: white;
+  color: #0c285a;
+  padding: 14px 30px;
+  border-radius: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255,255,255,0.7);
+  padding: 14px 30px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* IMAGEN */
+.hero-pro-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.hero-pro-image img {
+  max-width: 420px;
+  border-radius: 26px;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.35);
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ANIMACIÓN */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .hero-pro {
+    flex-direction: column;
+    text-align: center;
+    padding: 60px 25px;
+  }
+
+  .hero-pro-actions {
+    justify-content: center;
+  }
+
+  .hero-pro-image img {
+    max-width: 300px;
+  }
+}
+/* ✨ Animación botón "Conocer más" */
+.btn-outline.pulse {
+  animation: pulseScale 0.6s ease;
+}
+
+@keyframes pulseScale {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.92);
+  }
+  70% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

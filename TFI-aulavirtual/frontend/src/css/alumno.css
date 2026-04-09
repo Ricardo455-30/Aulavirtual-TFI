@@ -1,0 +1,233 @@
+.inscripcion-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.inscripcion-header {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  padding: 28px 30px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.inscripcion-header h2 {
+  font-size: 28px;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.inscripcion-header p {
+  color: #475569;
+  max-width: 760px;
+  line-height: 1.6;
+}
+
+.inscripcion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.inscripcion-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.inscripcion-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
+}
+
+.inscripcion-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.materia-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.materia-id {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.inscripcion-card h3 {
+  font-size: 21px;
+  color: #0f172a;
+  margin: 0;
+}
+
+.inscripcion-card p {
+  color: #475569;
+  line-height: 1.7;
+  min-height: 56px;
+  margin: 0;
+}
+
+.inscripcion-actions {
+  margin-top: auto;
+}
+
+.inscripcion-actions .btn {
+  width: 100%;
+}
+
+.inscripcion-empty,
+.alert {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  padding: 24px;
+  color: #475569;
+  text-align: center;
+}
+
+.alert-error {
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  background: #fef2f2;
+}
+
+@media (max-width: 768px) {
+  .inscripcion-section {
+    gap: 18px;
+  }
+
+  .inscripcion-header {
+    padding: 22px;
+  }
+
+  .inscripcion-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mis-materias-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mis-materias-header {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  padding: 28px 30px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.mis-materias-header h2 {
+  font-size: 28px;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.mis-materias-header p {
+  color: #475569;
+  line-height: 1.6;
+}
+
+.mis-materias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+.mis-materias-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.mis-materias-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
+}
+
+.mis-materias-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.materia-subtitle {
+  color: #64748b;
+  font-size: 14px;
+  margin: 6px 0 0;
+}
+
+.contenidos-list {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.contenidos-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.contenidos-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.contenidos-list li:last-child {
+  border-bottom: none;
+}
+
+.contenidos-list a {
+  display: inline-block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .mis-materias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mis-materias-card-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.materia-warning {
+  color: #b45309;
+  font-size: 13px;
+  margin-top: 10px;
+}

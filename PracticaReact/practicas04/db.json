@@ -1,0 +1,76 @@
+{
+  "productos": [
+    {
+      "id": 1,
+      "nombre": "Galletitas Oreo",
+      "categoria": "Golosinas",
+      "precio": 150.0,
+      "stock": 30
+    },
+    {
+      "id": 2,
+      "nombre": "Coca-Cola 500ml",
+      "categoria": "Bebidas",
+      "precio": 250.0,
+      "stock": 20
+    },
+    {
+      "id": 3,
+      "nombre": "Alfajor Jorgito",
+      "categoria": "Golosinas",
+      "precio": 120.0,
+      "stock": 50
+    },
+    {
+      "id": 4,
+      "nombre": "Chicles Topline",
+      "categoria": "Golosinas",
+      "precio": 80.0,
+      "stock": 40
+    },
+    {
+      "id": 5,
+      "nombre": "Agua Mineral 500ml",
+      "categoria": "Bebidas",
+      "precio": 180.0,
+      "stock": 25
+    }
+  ],
+  "usuarios": [
+    {
+      "id": 1,
+      "usuario": "admin",
+      "password": "admin123"
+    },
+    {
+      "id": 2,
+      "usuario": "juan",
+      "password": "juan456"
+    },
+    {
+      "id": 3,
+      "usuario": "maria",
+      "password": "maria789"
+    }
+  ],
+  "clientes": [
+    {
+      "id": 1,
+      "nombre": "Carlos Pérez",
+      "dni": "30123456",
+      "email": "carlos.perez@gmail.com"
+    },
+    {
+      "id": 2,
+      "nombre": "Laura Gómez",
+      "dni": "33222111",
+      "email": "laura.gomez@hotmail.com"
+    },
+    {
+      "id": 3,
+      "nombre": "Ricardo Díaz",
+      "dni": "29876543",
+      "email": "ricardo.diaz@yahoo.com"
+    }
+  ]
+}

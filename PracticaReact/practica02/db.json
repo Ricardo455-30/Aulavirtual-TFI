@@ -1,0 +1,29 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "name": "Admin user",
+      "contrasena": "1234"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "contrasena": "54321"
+    },
+    {
+      "id": 3,
+      "name": "Alice Johnson",
+      "contrasena": "password"
+    },
+    {
+      "id": 4,
+      "name": "Bob Brown",
+      "contrasena": "qwerty"
+    },
+    {
+      "id": 5,
+      "name": "Charlie White",
+      "contrasena": "hola123"
+    }
+  ]
+}

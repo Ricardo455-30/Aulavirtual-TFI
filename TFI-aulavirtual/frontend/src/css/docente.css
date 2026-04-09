@@ -1,0 +1,17 @@
+.docente-layout {
+  display: flex;
+  height: 100vh;
+}
+
+.docente-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.docente-content {
+  flex: 1;
+  padding: 20px;
+  background: #f5f7fb;
+  overflow-y: auto;
+}

@@ -1,0 +1,64 @@
+.asistencia-container {
+  padding: 20px;
+}
+
+.asistencia-filtros {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.asistencia-filtros select,
+.asistencia-filtros input {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.tabla-asistencia {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tabla-asistencia th,
+.tabla-asistencia td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.acciones {
+  display: flex;
+  gap: 10px;
+}
+
+.acciones button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #e5e7eb;
+}
+
+.presente.activo {
+  background: #22c55e;
+  color: white;
+}
+
+.ausente.activo {
+  background: #ef4444;
+  color: white;
+}
+
+.guardar-btn {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}

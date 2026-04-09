@@ -1,0 +1,73 @@
+/* LAYOUT */
+.directivo-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg-main);
+}
+
+/* SIDEBAR */
+.directivo-sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #0f172a, var(--primary-dark));
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+}
+
+/* MAIN */
+.directivo-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.directivo-header {
+  height: 70px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  box-shadow: var(--shadow-soft);
+}
+
+/* CONTENT */
+.directivo-content {
+  flex: 1;
+  padding: 25px;
+  background: var(--bg-content);
+  overflow-y: auto;
+}
+
+/* FOOTER */
+.directivo-footer {
+  height: 50px;
+  background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  font-size: 13px;
+}
+
+.card-icon.materias {
+  background: #f59e0b;
+}
+
+.card-icon.usuarios {
+  background: #3b82f6;
+}
+
+.card-icon.aprobacion {
+  background: #10b981;
+}
+
+.card-icon.reportes {
+  background: #8b5cf6;
+}
