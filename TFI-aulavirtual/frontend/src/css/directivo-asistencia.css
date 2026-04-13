@@ -1,8 +1,155 @@
 .asistencia-container {
   padding: 20px;
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
 }
 
+/* CARDS DE ALUMNO */
+.alumno-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.alumno-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+.alumno-card-header {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: #fff;
+  padding: 20px;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alumno-card-percentage {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ESTADÍSTICAS */
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.stat-present {
+  color: #4CAF50;
+}
+
+.stat-absent {
+  color: #f44336;
+}
+
+.stat-justified {
+  color: #FF9800;
+}
+
+.stat-unregistered {
+  color: #9e9e9e;
+}
+
+/* DETALLES */
+.card-details {
+  padding: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.card-details::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-details::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.card-details::-webkit-scrollbar-thumb {
+  background: #1976d2;
+  border-radius: 3px;
+}
+
+.card-details::-webkit-scrollbar-thumb:hover {
+  background: #1565c0;
+}
+
+.details-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.attendance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  border-left: 4px solid;
+}
+
+.attendance-item-info {
+  flex: 1;
+}
+
+.attendance-item-subject {
+  font-weight: 600;
+  color: #333;
+}
+
+.attendance-item-date {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.attendance-item-status {
+  background: #4CAF50;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* TABLA (fallback) */
 h2 {
   margin-bottom: 20px;
 }
@@ -11,12 +158,15 @@ h2 {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.filtros input {
-  padding: 8px;
+.filtros input,
+.filtros select {
+  padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 14px;
 }
 
 .filtros button {
@@ -24,23 +174,38 @@ h2 {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
 }
 
 button.excel {
   background: #27ae60;
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button.excel:hover {
+  background: #229954;
 }
 
 button.pdf {
   background: #c0392b;
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button.pdf:hover {
+  background: #a93226;
 }
 
 .tabla-container {
   background: white;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 table {
@@ -53,13 +218,18 @@ thead {
   color: white;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: left;
 }
 
 tr:nth-child(even) {
   background: #f9f9f9;
+}
+
+tr:hover {
+  background: #f0f7ff;
 }
 
 .alumno {
@@ -73,10 +243,11 @@ tr:nth-child(even) {
   padding: 5px 8px;
   border-radius: 6px;
   font-size: 12px;
+  font-weight: 600;
 }
 
 .badge.presente {
-  background: #2ecc71;
+  background: #4CAF50;
   color: white;
 }
 
@@ -88,4 +259,41 @@ tr:nth-child(even) {
 .badge.justificado {
   background: #f1c40f;
   color: black;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .alumno-card-header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .card-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filtros {
+    flex-direction: column;
+  }
+
+  .filtros input,
+  .filtros select,
+  .filtros button {
+    width: 100%;
+  }
+}
+
+/* ANIMACIÓN DE CARGA */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  animation: spin 1s linear infinite;
 }

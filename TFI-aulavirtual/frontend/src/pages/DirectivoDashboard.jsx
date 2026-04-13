@@ -19,23 +19,22 @@ const DirectivoDashboard = () => {
   const renderSection = () => {
     switch (section) {
       case "inicio":
-        return <Inicio />;
+        return <Inicio setSection={setSection} />;
 
-
-      case "aprobaciones":
+      case "aprobados":
         return <GestionCuentas />;
       
       case "materias":
         return <DirectivoMaterias />;
       
 
-      case "asignaciones":
+      case "dms":
         return <NotasAlumnos />;
 
       case "asignar-curso":
         return <AsignarCurso />;
 
-      case "reportes":
+      case "asistencia":
         return <DirectivoAsistencia />;
 
 

@@ -26,6 +26,48 @@ export const crearMateria = async (req, res) => {
   }
 };
 
+// ==============================
+// ✅ EDITAR MATERIA (DOCENTE)
+// ==============================
+export const editarMateria = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { descripcion, nombre } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID de materia requerido" });
+    }
+
+    const updateFields = [];
+    const updateValues = [];
+
+    if (nombre !== undefined) {
+      updateFields.push("nombre = ?");
+      updateValues.push(nombre);
+    }
+
+    if (descripcion !== undefined) {
+      updateFields.push("descripcion = ?");
+      updateValues.push(descripcion);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: "Debe proporcionar al menos un campo para actualizar" });
+    }
+
+    updateValues.push(id);
+
+    await pool.query(
+      `UPDATE materias SET ${updateFields.join(", ")} WHERE id_materia = ?`,
+      updateValues
+    );
+
+    res.json({ message: "Materia actualizada correctamente" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // ==========================================
 // ✅ ASIGNAR DOCENTE A MATERIA + CURSO
 // ==========================================
@@ -60,15 +102,19 @@ export const obtenerMateriasDocente = async (req, res) => {
   try {
     const id_usuario = req.user.id;
 
+    console.log("📚 obtenerMateriasDocente - id_usuario:", id_usuario);
+
     const [rows] = await pool.query(
       `SELECT 
         dmc.id,
-        m.nombre AS materia,
+        m.nombre,
         m.id_materia,
+        m.descripcion,
         c.nombre AS curso,
         c.id_curso,
         c.anio,
-        c.division
+        c.division,
+        d.id_docente
       FROM docente_materia_curso dmc
       JOIN materias m ON dmc.id_materia = m.id_materia
       JOIN cursos c ON dmc.id_curso = c.id_curso
@@ -77,8 +123,12 @@ export const obtenerMateriasDocente = async (req, res) => {
       [id_usuario]
     );
 
+    console.log("✅ Materias encontradas:", rows.length);
+    console.log("📋 Datos:", rows);
+
     res.json(rows);
   } catch (error) {
+    console.error("❌ Error en obtenerMateriasDocente:", error);
     res.status(500).json({ error: error.message });
   }
 };

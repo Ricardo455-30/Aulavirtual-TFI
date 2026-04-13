@@ -24,6 +24,15 @@ export const getDocentes = async (req, res) => {
 // 🎓 CURSOS
 // =============================
 export const getCursos = async (req, res) => {
-  const [rows] = await pool.query("SELECT * FROM cursos");
+  const [rows] = await pool.query(`
+    SELECT 
+      id_curso,
+      anio,
+      division,
+      nombre,
+      CONCAT(anio, '° ', division) AS curso_display
+    FROM cursos
+    ORDER BY anio ASC, division ASC
+  `);
   res.json(rows);
 };

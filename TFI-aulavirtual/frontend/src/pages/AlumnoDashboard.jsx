@@ -6,6 +6,7 @@ import AlumnoFooter from "../components/alumno/AlumnoFooter";
 import InicioAlumno from "../components/alumno/Inicoalumno";
 import InscripcionMaterias from "../components/alumno/InscripcionMaterias";
 import MisMaterias from "../components/alumno/AlumnoMaterias";
+import EnviarTareas from "../components/alumno/EnviarTareas";
 import MisNotas from "../components/alumno/Misnotas";
 
 import "../css/alumno.css"
@@ -19,13 +20,16 @@ const AlumnoDashboard = () => {
         return <InicioAlumno setSection={setSection} />;
 
       case "inscripciones":
-        return <InscripcionMaterias />;
+        return <InscripcionMaterias setSection={setSection} />;
 
       case "mis-materias":
-        return <MisMaterias />;
+        return <MisMaterias setSection={setSection} />;
+
+      case "enviar-tareas":
+        return <EnviarTareas setSection={setSection} />;
 
       case "notas":
-        return <MisNotas />;
+        return <MisNotas setSection={setSection} />;
 
       default:
         return <InicioAlumno setSection={setSection} />;

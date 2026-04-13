@@ -3,11 +3,11 @@ import React from "react";
 const DirectivoSidebar = ({ section, setSection }) => {
   const menuItems = [
     { id: "inicio", label: "Inicio" },
-    { id: "aprobaciones", label: "Aprobación de cuentas" },
+    { id: "aprobados", label: "Aprobación de cuentas" },
     { id: "materias", label: "Gestión de materias" },
-    { id: "asignaciones", label: "Notas" },
+    { id: "dms", label: "Notas" },
     { id: "asignar-curso", label: "Asignar curso" },
-    { id: "reportes", label: "Asistencias" },
+    { id: "asistencia", label: "Asistencias" },
   ];
 
   return (

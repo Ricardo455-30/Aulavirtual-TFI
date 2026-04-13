@@ -59,15 +59,9 @@ export const esAdmin = (req, res, next) => {
       });
     }
 
-    // ⚠️ Ajustar según tu DB
-    // En tu login guardás: usuario.nombre_rol
-    // Ejemplo: "Admin", "Docente", etc.
+    const rolMinuscula = req.user.rol?.toLowerCase();
 
-    if (
-      req.user.rol !== "Admin" &&
-      req.user.rol !== "admin" &&
-      req.user.rol !== "superadmin"
-    ) {
+    if (rolMinuscula !== "admin" && rolMinuscula !== "superadmin") {
       return res.status(403).json({
         message: "Acceso denegado"
       });
@@ -89,8 +83,11 @@ export const esAdmin = (req, res, next) => {
 // =======================
 
 export const soloDocente = (req, res, next) => {
-  if (req.user.rol !== "docente") {
-    return res.status(403).json({ error: "Acceso solo docentes" });
+  if (req.user?.rol?.toLowerCase() !== "docente") {
+    return res.status(403).json({ 
+      error: "Acceso solo docentes",
+      rolRecibido: req.user?.rol
+    });
   }
   next();
 };
@@ -99,8 +96,18 @@ export const soloDocente = (req, res, next) => {
 // MIDDLEWARE DIRECTIVO
 // =======================  
 export const soloDirectivo = (req, res, next) => {
-  if (req.user.rol !== "directivo") {
+  if (req.user.rol?.toLowerCase() !== "directivo") {
     return res.status(403).json({ error: "Acceso solo directivos" });
+  }
+  next();
+};
+
+/// =======================
+// MIDDLEWARE ALUMNO
+// =======================  
+export const soloAlumno = (req, res, next) => {
+  if (req.user.rol?.toLowerCase() !== "alumno") {
+    return res.status(403).json({ error: "Acceso solo alumnos" });
   }
   next();
 };

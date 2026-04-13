@@ -66,6 +66,30 @@ export const listarUsuarios = async (req, res) => {
 };
 
 // =======================
+// Obtener datos del usuario autenticado actual
+// =======================
+export const obtenerUsuarioActual = async (req, res) => {
+  try {
+    const id_usuario = req.user.id;
+
+    const [rows] = await pool.query(
+      `SELECT id_usuario, nombre, apellido, email, id_rol, estado
+       FROM usuarios WHERE id_usuario = ?`,
+      [id_usuario]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Error obtenerUsuarioActual:", error);
+    res.status(500).json({ error: "Error al obtener datos del usuario" });
+  }
+};
+
+// =======================
 // Cambiar estado de un usuario (rota entre estados)
 // =======================
 export const cambiarEstadoUsuario = async (req, res) => {

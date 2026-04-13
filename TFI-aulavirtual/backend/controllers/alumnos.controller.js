@@ -72,22 +72,40 @@ export const inscribirMateria = async (req, res) => {
 
 export const getMisMaterias = async (req, res) => {
   try {
-    if (req.user.rol?.toLowerCase() !== "alumno") {
-      return res.status(403).json({ error: "Acceso solo alumnos" });
+    console.log("📌 getMisMaterias - req.user:", req.user);
+    
+    if (!req.user) {
+      console.error("❌ No hay usuario en el request");
+      return res.status(401).json({ error: "No autenticado" });
+    }
+
+    const userRol = req.user.rol?.toLowerCase();
+    console.log("📌 Rol del usuario:", userRol);
+
+    if (userRol !== "alumno") {
+      console.error(`❌ Usuario no es alumno. Rol: ${userRol}`);
+      return res.status(403).json({ error: `Acceso solo alumnos. Tu rol es: ${userRol}` });
     }
 
     const id_usuario = req.user.id;
+    console.log("📌 Buscando alumno con id_usuario:", id_usuario);
+
     const [alumnoRows] = await pool.query(
       "SELECT id_alumno FROM alumnos WHERE id_usuario = ?",
       [id_usuario]
     );
 
+    console.log("📌 Alumno encontrado:", alumnoRows);
+
     if (alumnoRows.length === 0) {
+      console.error("❌ Alumno no encontrado en tabla alumnos");
       return res.status(404).json({ error: "Alumno no encontrado" });
     }
 
     const id_alumno = alumnoRows[0].id_alumno;
+    console.log("📌 id_alumno:", id_alumno);
 
+    // Obtener materias donde el alumno está inscrito
     const [rows] = await pool.query(
       `SELECT 
          m.id_materia,
@@ -99,18 +117,20 @@ export const getMisMaterias = async (req, res) => {
          c.division,
          am.estado
        FROM alumno_materia am
-       JOIN materias m ON am.id_materia = m.id_materia
-       JOIN alumnos a ON am.id_alumno = a.id_alumno
+       INNER JOIN materias m ON am.id_materia = m.id_materia
+       INNER JOIN alumnos a ON am.id_alumno = a.id_alumno
        LEFT JOIN cursos c ON c.id_curso = a.id_curso
-       WHERE am.id_alumno = ?
-       AND am.estado = 'Cursando'`,
+       WHERE am.id_alumno = ?`,
       [id_alumno]
     );
 
+    console.log(" Materias encontradas:", rows.length);
+    console.log(" Datos retornados:", JSON.stringify(rows, null, 2));
+    
     res.json(rows);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al obtener materias inscritas" });
+    console.error(" Error en getMisMaterias:", error);
+    res.status(500).json({ error: "Error al obtener materias inscritas", details: error.message });
   }
 };
 

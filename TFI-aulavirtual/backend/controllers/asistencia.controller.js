@@ -173,55 +173,128 @@ export const obtenerPlanilla = async (req, res) => {
 };
 
 //
-// 📊 5. REPORTE PARA DIRECTIVO
+// 📊 5. REPORTE PARA DIRECTIVO (MEJORADO)
 //
 export const reporteAsistencia = async (req, res) => {
   try {
     const { cursoId, materiaId, desde, hasta } = req.query;
 
-    let query = `
-      SELECT 
-        u.nombre,
-        u.apellido,
-        c.anio,
-        c.division,
-        m.nombre AS materia,
-        cl.fecha,
-        a.estado
-      FROM asistencia a
-      INNER JOIN clases cl ON a.id_clase = cl.id_clase
-      INNER JOIN alumnos al ON a.id_alumno = al.id_alumno
-      INNER JOIN usuarios u ON al.id_usuario = u.id
-      INNER JOIN cursos c ON cl.id_curso = c.id_curso
-      INNER JOIN materias m ON cl.id_materia = m.id_materia
-      WHERE 1=1
-    `;
-
-    const params = [];
-
-    if (cursoId) {
-      query += " AND c.id_curso = ?";
-      params.push(cursoId);
+    // 📌 Primero verificamos que el curso existe
+    if (!cursoId) {
+      return res.status(400).json({ error: "cursoId es requerido" });
     }
 
+    const [cursoCheck] = await pool.query(
+      `SELECT id_curso FROM cursos WHERE id_curso = ?`,
+      [cursoId]
+    );
+
+    if (cursoCheck.length === 0) {
+      return res.status(404).json({ error: "Curso no encontrado" });
+    }
+
+    // 📌 Obtener estudiantes del curso (SOLO ALUMNOS CON CURSO ASIGNADO)
+    const [alumnos] = await pool.query(
+      `SELECT DISTINCT al.id_alumno, u.nombre, u.apellido, u.id_usuario
+       FROM alumnos al
+       JOIN usuarios u ON u.id_usuario = al.id_usuario
+       WHERE al.id_curso = ?
+       ORDER BY u.apellido`,
+      [cursoId]
+    );
+
+    if (alumnos.length === 0) {
+      console.warn("⚠️ No hay alumnos en este curso");
+      return res.json([]);
+    }
+
+    console.log(`✅ Encontrados ${alumnos.length} alumnos en el curso ${cursoId}`);
+
+    // 📌 Obtener todas las clases del curso
+    let queryClases = `
+      SELECT cl.id_clase, cl.id_materia, cl.fecha, m.nombre AS materia
+      FROM clases cl
+      JOIN materias m ON m.id_materia = cl.id_materia
+      WHERE cl.id_curso = ?
+    `;
+    const paramsClases = [cursoId];
+
     if (materiaId) {
-      query += " AND m.id_materia = ?";
-      params.push(materiaId);
+      queryClases += " AND cl.id_materia = ?";
+      paramsClases.push(materiaId);
     }
 
     if (desde && hasta) {
-      query += " AND cl.fecha BETWEEN ? AND ?";
-      params.push(desde, hasta);
+      queryClases += " AND cl.fecha BETWEEN ? AND ?";
+      paramsClases.push(desde, hasta);
     }
 
-    query += " ORDER BY c.anio, c.division, u.apellido, cl.fecha";
+    queryClases += " ORDER BY cl.fecha DESC";
 
-    const [rows] = await pool.query(query, params);
+    const [clases] = await pool.query(queryClases, paramsClases);
 
-    res.json(rows);
+    // ✅ Si NO hay clases, igualmente retornamos alumnos (para visualización)
+    if (clases.length === 0) {
+      console.warn("⚠️ No hay clases registradas, retornando alumnos del curso sin asistencia");
+      
+      // Retornar alumnos del curso sin asistencias (para que se vea el listado)
+      const resultado = alumnos.map(alumno => ({
+        nombre: alumno.nombre,
+        apellido: alumno.apellido,
+        id_usuario: alumno.id_usuario,
+        id_alumno: alumno.id_alumno,
+        materia: "Sin clases registradas",
+        fecha: new Date().toISOString().split("T")[0],
+        estado: "sin registrar"
+      }));
+      
+      console.log(`📊 Total de alumnos sin clases: ${resultado.length}`);
+      return res.json(resultado);
+    }
+
+    console.log(`✅ Encontradas ${clases.length} clases`);
+
+    // 📌 Obtener asistencias
+    const [asistencias] = await pool.query(
+      `SELECT a.id_alumno, a.id_clase, a.estado
+       FROM asistencia a
+       JOIN clases cl ON cl.id_clase = a.id_clase
+       WHERE cl.id_curso = ? ${materiaId ? "AND cl.id_materia = ?" : ""}
+       ${desde && hasta ? "AND cl.fecha BETWEEN ? AND ?" : ""}`,
+      materiaId && desde && hasta
+        ? [cursoId, materiaId, desde, hasta]
+        : materiaId ? [cursoId, materiaId]
+        : desde && hasta ? [cursoId, desde, hasta]
+        : [cursoId]
+    );
+
+    console.log(`✅ Encontrados ${asistencias.length} registros de asistencia`);
+
+    // 📌 Construir respuesta
+    const resultado = [];
+    alumnos.forEach(alumno => {
+      clases.forEach(clase => {
+        const asistencia = asistencias.find(
+          a => a.id_alumno === alumno.id_alumno && a.id_clase === clase.id_clase
+        );
+
+        resultado.push({
+          nombre: alumno.nombre,
+          apellido: alumno.apellido,
+          id_usuario: alumno.id_usuario,
+          id_alumno: alumno.id_alumno,
+          materia: clase.materia,
+          fecha: clase.fecha,
+          estado: asistencia?.estado || null
+        });
+      });
+    });
+
+    console.log(`📊 Total de registros en reporte: ${resultado.length}`);
+    res.json(resultado);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error en reporte" });
+    console.error("❌ Error en reporte:", error.message);
+    res.status(500).json({ error: "Error en reporte", message: error.message });
   }
 };
 
@@ -232,26 +305,27 @@ export const resumenAsistencia = async (req, res) => {
   try {
     const { cursoId, materiaId } = req.query;
 
+    if (!cursoId) {
+      return res.status(400).json({ error: "cursoId es requerido" });
+    }
+
     const [rows] = await pool.query(
       `
       SELECT 
         al.id_alumno,
         u.nombre,
         u.apellido,
-        COUNT(a.id) AS total_clases,
-        SUM(a.estado = 'Presente') AS presentes,
-        SUM(a.estado = 'Ausente') AS ausentes,
-        SUM(a.estado = 'Justificado') AS justificados
+        COUNT(DISTINCT cl.id_clase) AS total_clases,
+        SUM(CASE WHEN a.estado = 'Presente' THEN 1 ELSE 0 END) AS presentes,
+        SUM(CASE WHEN a.estado = 'Ausente' THEN 1 ELSE 0 END) AS ausentes,
+        SUM(CASE WHEN a.estado = 'Justificado' THEN 1 ELSE 0 END) AS justificados
       FROM alumnos al
-      INNER JOIN usuarios u ON al.id_usuario = u.id
-      LEFT JOIN clases cl 
-        ON cl.id_curso = al.id_curso
+      INNER JOIN usuarios u ON al.id_usuario = u.id_usuario
+      LEFT JOIN clases cl ON cl.id_curso = al.id_curso
         ${materiaId ? "AND cl.id_materia = ?" : ""}
-      LEFT JOIN asistencia a 
-        ON a.id_clase = cl.id_clase 
-        AND a.id_alumno = al.id_alumno
+      LEFT JOIN asistencia a ON a.id_clase = cl.id_clase AND a.id_alumno = al.id_alumno
       WHERE al.id_curso = ?
-      GROUP BY al.id_alumno
+      GROUP BY al.id_alumno, u.nombre, u.apellido
       ORDER BY u.apellido
       `,
       materiaId ? [materiaId, cursoId] : [cursoId]
@@ -259,7 +333,77 @@ export const resumenAsistencia = async (req, res) => {
 
     res.json(rows);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error en resumen" });
+    console.error("❌ Error en resumen:", error.message);
+    res.status(500).json({ message: "Error en resumen", error: error.message });
+  }
+};
+
+//
+// 🔍 7. DIAGNÓSTICO - VER QUÉ DATOS HAY EN LA BD
+//
+export const diagnostico = async (req, res) => {
+  try {
+    // 1️⃣ Verificar cursos
+    const [cursos] = await pool.query(
+      `SELECT id_curso, anio, division, nombre FROM cursos ORDER BY id_curso`
+    );
+
+    // 2️⃣ Verificar alumnos y sus cursos
+    const [alumnos] = await pool.query(
+      `SELECT al.id_alumno, al.id_curso, u.nombre, u.apellido 
+       FROM alumnos al 
+       JOIN usuarios u ON u.id_usuario = al.id_usuario
+       ORDER BY al.id_curso, u.apellido`
+    );
+
+    // 3️⃣ Verificar clases
+    const [clases] = await pool.query(
+      `SELECT cl.id_clase, cl.id_curso, cl.id_materia, cl.fecha, m.nombre AS materia
+       FROM clases cl
+       JOIN materias m ON m.id_materia = cl.id_materia
+       ORDER BY cl.fecha DESC LIMIT 50`
+    );
+
+    // 4️⃣ Verificar asistencias
+    const [asistencias] = await pool.query(
+      `SELECT a.id, a.id_clase, a.id_alumno, a.estado
+       FROM asistencia a
+       ORDER BY a.id DESC LIMIT 100`
+    );
+
+    // 5️⃣ Verificar si la clase 2 existe y qué datos tiene
+    const [clase2] = await pool.query(
+      `SELECT cl.id_clase, cl.id_curso, cl.id_materia, cl.fecha, m.nombre AS materia
+       FROM clases cl
+       JOIN materias m ON m.id_materia = cl.id_materia
+       WHERE cl.id_clase = 2`
+    );
+
+    // 6️⃣ Verificar alumno 2
+    const [alumno2] = await pool.query(
+      `SELECT al.id_alumno, al.id_curso, u.nombre, u.apellido 
+       FROM alumnos al 
+       JOIN usuarios u ON u.id_usuario = al.id_usuario
+       WHERE al.id_alumno = 2`
+    );
+
+    res.json({
+      info: "Diagnóstico de la BD - Verifica si hay datos relacionados",
+      resumen: {
+        total_cursos: cursos.length,
+        total_alumnos: alumnos.length,
+        total_clases: clases.length,
+        total_asistencias: asistencias.length
+      },
+      cursos,
+      alumnos,
+      clases_primeras_20: clases.slice(0, 20),
+      asistencias_primeras_20: asistencias.slice(0, 20),
+      debug_clase2: clase2.length > 0 ? clase2[0] : "❌ Clase 2 NO EXISTE",
+      debug_alumno2: alumno2.length > 0 ? alumno2[0] : "❌ Alumno 2 NO EXISTE"
+    });
+  } catch (error) {
+    console.error("❌ Error en diagnóstico:", error.message);
+    res.status(500).json({ error: error.message });
   }
 };

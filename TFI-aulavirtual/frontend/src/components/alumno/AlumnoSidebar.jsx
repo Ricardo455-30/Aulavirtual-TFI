@@ -1,5 +1,5 @@
 import React from "react";
-import { FiHome, FiBook, FiPlusCircle, FiBarChart2 } from "react-icons/fi";
+import { FiHome, FiBook, FiPlusCircle, FiBarChart2, FiUpload } from "react-icons/fi";
 import "../../css/sidebar.css";
 
 const AlumnoSidebar = ({ section, setSection }) => {
@@ -7,6 +7,7 @@ const AlumnoSidebar = ({ section, setSection }) => {
     { id: "inicio", label: "Inicio", icon: <FiHome /> },
     { id: "inscripciones", label: "Inscribirse", icon: <FiPlusCircle /> },
     { id: "mis-materias", label: "Mis Materias", icon: <FiBook /> },
+    { id: "enviar-tareas", label: "Enviar Tareas", icon: <FiUpload /> },
     { id: "notas", label: "Mis Notas", icon: <FiBarChart2 /> },
   ];
 

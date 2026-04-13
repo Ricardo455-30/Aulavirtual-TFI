@@ -1,11 +1,13 @@
 import React from "react";
-import { FiHome, FiBook, FiEdit, FiClipboard } from "react-icons/fi";
+import { FiHome, FiBook, FiEdit, FiClipboard, FiPlus, FiUpload } from "react-icons/fi";
 import "../../css/sidebar.css";
 
 const DocenteSidebar = ({ section, setSection }) => {
   const menuItems = [
     { id: "inicio", label: "Inicio", icon: <FiHome /> },
     { id: "materias", label: "Mis Materias", icon: <FiBook /> },
+    { id: "crear-tareas", label: "Crear Tareas", icon: <FiPlus /> },
+    { id: "tareas", label: "Recibir Tareas", icon: <FiUpload /> },
     { id: "notas", label: "Cargar Notas", icon: <FiEdit /> },
     { id: "asistencia", label: "Asistencia", icon: <FiClipboard /> },
   ];

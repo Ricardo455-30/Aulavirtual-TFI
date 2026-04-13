@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { FiDownload, FiX, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import "../../css/UsersSection.css";
 
 // Roles sincronizados con DB
@@ -25,6 +28,11 @@ const formatearFecha = (fecha) => {
   });
 };
 
+const formatearFechaCorta = (fecha) => {
+  if (!fecha) return "-";
+  return new Date(fecha).toLocaleDateString("es-AR");
+};
+
 const UsersSection = () => {
   const navigate = useNavigate();
   const [usuarios, setUsuarios] = useState([]);
@@ -35,6 +43,9 @@ const UsersSection = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mostrarExport, setMostrarExport] = useState(false);
+  const [exportando, setExportando] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const getToken = () => {
     const token = localStorage.getItem("token");
@@ -44,6 +55,11 @@ const UsersSection = () => {
       return null;
     }
     return token;
+  };
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
   };
 
   const obtenerUsuarios = async (pagina = page) => {
@@ -62,7 +78,7 @@ const UsersSection = () => {
       });
 
       const res = await fetch(
-        `http://localhost:8000/api/admin1/usuarios?${params.toString()}`,
+        `http://localhost:8000/api/usuarios?${params.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -117,7 +133,7 @@ const UsersSection = () => {
       const token = getToken();
       if (!token) return;
 
-      await fetch(`http://localhost:8000/api/admin1/usuarios/${id}/estado`, {
+      await fetch(`http://localhost:8000/api/usuarios/${id}/estado`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -136,7 +152,7 @@ const UsersSection = () => {
       const token = getToken();
       if (!token) return;
 
-      await fetch(`http://localhost:8000/api/admin1/usuarios/${id}/password`, {
+      await fetch(`http://localhost:8000/api/usuarios/${id}/password`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -152,111 +168,363 @@ const UsersSection = () => {
   };
 
 
-const exportarExcel = () => {
-  try {
-    const usuariosFiltrados = usuarios
-      .filter((u) =>
-        u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
-        u.email.toLowerCase().includes(busqueda.toLowerCase())
-      )
-      .filter((u) =>
-        filtroEstado ? u.estado.toLowerCase() === filtroEstado.toLowerCase() : true
-      );
+const exportarExcel = async () => {
+    try {
+      setExportando(true);
+      
+      const usuariosFiltrados = usuarios
+        .filter((u) =>
+          u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+          u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
+          u.email.toLowerCase().includes(busqueda.toLowerCase())
+        )
+        .filter((u) =>
+          filtroEstado ? u.estado.toLowerCase() === filtroEstado.toLowerCase() : true
+        );
 
-    const data = usuariosFiltrados.map((u, index) => ({
-      "N°": index + 1,
-      Nombre: u.nombre,
-      Apellido: u.apellido,
-      Email: u.email,
-      Rol: u.rol.charAt(0).toUpperCase() + u.rol.slice(1),
-      Estado: u.estado,
-      "Fecha de Creación": formatearFecha(u.createdAt),
-    }));
+      if (usuariosFiltrados.length === 0) {
+        showToast("No hay datos para exportar", "error");
+        setExportando(false);
+        return;
+      }
 
-    // Crear worksheet
-    const worksheet = XLSX.utils.json_to_sheet(data, { origin: 2 }); // empezar en fila 3 para dejar espacio al título y encabezado
+      // HOJA 1: Datos Detallados
+      const dataDetallada = usuariosFiltrados.map((u, index) => ({
+        "N°": index + 1,
+        Nombre: u.nombre,
+        Apellido: u.apellido,
+        Email: u.email,
+        Rol: u.rol.charAt(0).toUpperCase() + u.rol.slice(1),
+        Estado: u.estado,
+        "Fecha Creación": formatearFechaCorta(u.createdAt),
+      }));
 
-    // Título
-    XLSX.utils.sheet_add_aoa(
-      worksheet,
-      [["Reporte de Usuarios - Sistema Institucional"]],
-      { origin: "A1" }
-    );
-    worksheet["!merges"] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: Object.keys(data[0]).length - 1 } },
-    ];
-    worksheet["A1"].s = {
-      font: { name: "Arial", sz: 16, bold: true, color: { rgb: "FFFFFFFF" } },
-      fill: { fgColor: { rgb: "FF0D47A1" } }, // azul oscuro
-      alignment: { horizontal: "center", vertical: "center" },
-    };
-
-    // Encabezado
-    const headerColor = "FF1976D2"; // azul medio
-    const headerFont = { name: "Arial", sz: 12, bold: true, color: { rgb: "FFFFFFFF" } };
-
-    Object.keys(data[0]).forEach((key, colIdx) => {
-      const cellRef = XLSX.utils.encode_cell({ r: 2, c: colIdx }); // encabezado fila 3
-      if (!worksheet[cellRef]) return;
-      worksheet[cellRef].s = {
-        fill: { fgColor: { rgb: headerColor } },
-        font: headerFont,
-        alignment: { horizontal: "center", vertical: "center" },
-        border: {
-          top: { style: "thin", color: { rgb: "FF000000" } },
-          bottom: { style: "thin", color: { rgb: "FF000000" } },
-          left: { style: "thin", color: { rgb: "FF000000" } },
-          right: { style: "thin", color: { rgb: "FF000000" } },
-        },
+      // HOJA 2: Resumen Estadísticas
+      const estadisticas = {
+        "Total Usuarios": usuariosFiltrados.length,
+        "Activos": usuariosFiltrados.filter(u => u.estado === "Activo").length,
+        "Inactivos": usuariosFiltrados.filter(u => u.estado === "Inactivo").length,
+        "Pendientes": usuariosFiltrados.filter(u => u.estado === "Pendiente").length,
+        "Rechazados": usuariosFiltrados.filter(u => u.estado === "Rechazado").length,
       };
-    });
 
-    // Estilo filas con degradé azul
-    const startRow = 3; // fila de datos
-    data.forEach((row, rowIdx) => {
-      const colorIntensity = 240 - rowIdx * 5; // degradé: más claro hacia abajo
-      const hex = colorIntensity.toString(16).padStart(2, "0");
-      const bgColor = `FF${hex}${hex}FF`; // azul claro variando el azul
-      Object.keys(row).forEach((key, colIdx) => {
-        const cellRef = XLSX.utils.encode_cell({ r: startRow + rowIdx, c: colIdx });
-        if (!worksheet[cellRef]) return;
-        worksheet[cellRef].s = {
-          fill: { fgColor: { rgb: bgColor } },
-          alignment: { horizontal: "left", vertical: "center" },
-          font: { name: "Arial", sz: 11 },
-          border: {
-            top: { style: "thin", color: { rgb: "FF000000" } },
-            bottom: { style: "thin", color: { rgb: "FF000000" } },
-            left: { style: "thin", color: { rgb: "FF000000" } },
-            right: { style: "thin", color: { rgb: "FF000000" } },
-          },
-        };
+      const rolesCount = roles.map(rol => ({
+        "Rol": rol.charAt(0).toUpperCase() + rol.slice(1),
+        "Cantidad": usuariosFiltrados.filter(u => u.rol === rol).length
+      }));
+
+      // Crear workbook
+      const wb = XLSX.utils.book_new();
+
+      // === HOJA 1: Datos ===
+      const ws1 = XLSX.utils.json_to_sheet(dataDetallada);
+      
+      // Título
+      XLSX.utils.sheet_add_aoa(ws1, [["REPORTE DE USUARIOS - " + rolActivo.toUpperCase()]], { origin: "A1" });
+      XLSX.utils.sheet_add_aoa(ws1, [["Generado: " + formatearFecha(new Date())]], { origin: "A2" });
+      XLSX.utils.sheet_add_aoa(ws1, [[""]], { origin: "A3" }); // espacio
+      
+      ws1["!merges"] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }
+      ];
+
+      // Estilos título
+      ["A1", "A2"].forEach(cell => {
+        if (ws1[cell]) {
+          ws1[cell].s = {
+            font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
+            fill: { fgColor: { rgb: "FF1F4E78" } },
+            alignment: { horizontal: "center", vertical: "center" }
+          };
+        }
       });
-    });
 
-    // Ajustar ancho de columnas
-    const maxWidths = data[0]
-      ? Object.keys(data[0]).map((key) => {
-          return Math.max(
-            key.length,
-            ...data.map((row) => (row[key] ? row[key].toString().length : 0))
-          );
-        })
-      : [];
-    worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 5 }));
+      // Estilos encabezado
+      Object.keys(dataDetallada[0]).forEach((key, colIdx) => {
+        const cellRef = XLSX.utils.encode_cell({ r: 4, c: colIdx });
+        if (ws1[cellRef]) {
+          ws1[cellRef].s = {
+            font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFFFF" } },
+            fill: { fgColor: { rgb: "FF366092" } },
+            alignment: { horizontal: "center", vertical: "center", wrapText: true },
+            border: {
+              top: { style: "thin", color: { rgb: "FF000000" } },
+              bottom: { style: "thin", color: { rgb: "FF000000" } },
+              left: { style: "thin", color: { rgb: "FF000000" } },
+              right: { style: "thin", color: { rgb: "FF000000" } }
+            }
+          };
+        }
+      });
 
-    // Crear workbook y exportar
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios");
+      // Estilos datos
+      dataDetallada.forEach((row, rowIdx) => {
+        Object.keys(row).forEach((key, colIdx) => {
+          const cellRef = XLSX.utils.encode_cell({ r: 5 + rowIdx, c: colIdx });
+          if (ws1[cellRef]) {
+            const bgColor = rowIdx % 2 === 0 ? "FFEBF4f7" : "FFD9E8F5";
+            ws1[cellRef].s = {
+              font: { name: "Calibri", sz: 10 },
+              fill: { fgColor: { rgb: bgColor } },
+              alignment: { horizontal: key === "Email" ? "left" : "center", vertical: "center" },
+              border: {
+                top: { style: "thin", color: { rgb: "FFB4C7E7" } },
+                bottom: { style: "thin", color: { rgb: "FFB4C7E7" } },
+                left: { style: "thin", color: { rgb: "FFB4C7E7" } },
+                right: { style: "thin", color: { rgb: "FFB4C7E7" } }
+              }
+            };
+          }
+        });
+      });
 
-    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array", cellStyles: true });
-    const blob = new Blob([wbout], { type: "application/octet-stream" });
-    saveAs(blob, `Reporte_Usuarios_${rolActivo}_pagina${page}.xlsx`);
-  } catch (error) {
-    console.error("Error exportando Excel:", error);
-  }
-};
+      ws1["!cols"] = [
+        { wch: 5 }, { wch: 18 }, { wch: 18 }, { wch: 25 }, 
+        { wch: 12 }, { wch: 12 }, { wch: 15 }
+      ];
+      ws1["!rows"] = [{ hpx: 25 }, { hpx: 20 }, { hpx: 5 }];
+
+      XLSX.utils.book_append_sheet(wb, ws1, "Usuarios");
+
+      // === HOJA 2: Estadísticas ===
+      const ws2 = XLSX.utils.json_to_sheet([]);
+      XLSX.utils.sheet_add_aoa(ws2, [["ESTADÍSTICAS DE USUARIOS"]], { origin: "A1" });
+      XLSX.utils.sheet_add_aoa(ws2, [[""]], { origin: "A2" });
+      XLSX.utils.sheet_add_aoa(ws2, [["ESTADO"]], { origin: "A3" });
+      
+      let row = 4;
+      Object.entries(estadisticas).forEach(([label, value]) => {
+        XLSX.utils.sheet_add_aoa(ws2, [[label, value]], { origin: `A${row}` });
+        row++;
+      });
+
+      XLSX.utils.sheet_add_aoa(ws2, [[""]], { origin: `A${row}` });
+      row++;
+      XLSX.utils.sheet_add_aoa(ws2, [["POR ROL"]], { origin: `A${row}` });
+      row++;
+
+      rolesCount.forEach(item => {
+        XLSX.utils.sheet_add_aoa(ws2, [[item.Rol, item.Cantidad]], { origin: `A${row}` });
+        row++;
+      });
+
+      // Estilos hoja 2
+      ws2["A1"].s = {
+        font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FF1F4E78" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      ws2["!cols"] = [{ wch: 25 }, { wch: 15 }];
+
+      XLSX.utils.book_append_sheet(wb, ws2, "Estadísticas");
+
+      // Exportar
+      XLSX.writeFile(wb, `Reporte_Usuarios_${rolActivo}_${new Date().toISOString().split('T')[0]}.xlsx`);
+      showToast("Archivo Excel exportado correctamente ✓", "success");
+      setMostrarExport(false);
+    } catch (error) {
+      console.error("Error exportando Excel:", error);
+      showToast("Error al exportar Excel", "error");
+    } finally {
+      setExportando(false);
+    }
+  };
+
+  // ========== EXPORTAR A PDF ==========
+  const exportarPDF = async () => {
+    try {
+      setExportando(true);
+
+      const usuariosFiltrados = usuarios
+        .filter((u) =>
+          u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+          u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
+          u.email.toLowerCase().includes(busqueda.toLowerCase())
+        )
+        .filter((u) =>
+          filtroEstado ? u.estado.toLowerCase() === filtroEstado.toLowerCase() : true
+        );
+
+      if (usuariosFiltrados.length === 0) {
+        showToast("No hay datos para exportar", "error");
+        setExportando(false);
+        return;
+      }
+
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4"
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+
+      // Página 1: Portada
+      pdf.setFillColor(31, 78, 120);
+      pdf.rect(0, 0, pageWidth, 50, "F");
+      
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(28);
+      pdf.text("REPORTE DE USUARIOS", pageWidth / 2, 20, { align: "center" });
+      
+      pdf.setFontSize(14);
+      pdf.text(rolActivo.toUpperCase(), pageWidth / 2, 35, { align: "center" });
+
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFontSize(11);
+      pdf.text(`Generado: ${formatearFecha(new Date())}`, margin, pageHeight - 20);
+      pdf.text(`Total de registros: ${usuariosFiltrados.length}`, margin, pageHeight - 15);
+
+      // Página 2: Datos en tabla
+      pdf.addPage();
+      pdf.setTextColor(31, 78, 120);
+      pdf.setFontSize(16);
+      pdf.text("Detalle de Usuarios", margin, margin);
+
+      const columns = ["#", "Nombre", "Apellido", "Email", "Rol", "Estado", "Fecha"];
+      const data = usuariosFiltrados.map((u, idx) => [
+        idx + 1,
+        u.nombre,
+        u.apellido,
+        u.email,
+        u.rol.charAt(0).toUpperCase() + u.rol.slice(1),
+        u.estado,
+        formatearFechaCorta(u.createdAt)
+      ]);
+
+      pdf.autoTable({
+        columns: columns,
+        body: data,
+        startY: margin + 8,
+        theme: "grid",
+        headStyles: {
+          fillColor: [54, 96, 146],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          fontSize: 10,
+          halign: "center"
+        },
+        bodyStyles: {
+          textColor: [60, 60, 60],
+          fontSize: 9
+        },
+        alternateRowStyles: {
+          fillColor: [235, 244, 247]
+        },
+        columnStyles: {
+          0: { halign: "center", cellWidth: 10 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 35 },
+          4: { halign: "center", cellWidth: 15 },
+          5: { halign: "center", cellWidth: 15 },
+          6: { halign: "center", cellWidth: 20 }
+        },
+        margin: { top: margin, right: margin, bottom: 20, left: margin }
+      });
+
+      // Página 3: Estadísticas
+      pdf.addPage();
+      pdf.setTextColor(31, 78, 120);
+      pdf.setFontSize(16);
+      pdf.text("Estadísticas", margin, margin);
+
+      // Estadísticas por estado
+      let yPos = margin + 15;
+      pdf.setFontSize(12);
+      pdf.setTextColor(31, 78, 120);
+      pdf.text("Por Estado:", margin, yPos);
+      yPos += 8;
+
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const estados = ["Activo", "Inactivo", "Pendiente", "Rechazado"];
+      estados.forEach(estado => {
+        const count = usuariosFiltrados.filter(u => u.estado === estado).length;
+        pdf.text(`${estado}: ${count}`, margin + 10, yPos);
+        yPos += 7;
+      });
+
+      // Estadísticas por rol
+      yPos += 5;
+      pdf.setFontSize(12);
+      pdf.setTextColor(31, 78, 120);
+      pdf.text("Por Rol:", margin, yPos);
+      yPos += 8;
+
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      roles.forEach(rol => {
+        const count = usuariosFiltrados.filter(u => u.rol === rol).length;
+        pdf.text(`${rol.charAt(0).toUpperCase() + rol.slice(1)}: ${count}`, margin + 10, yPos);
+        yPos += 7;
+      });
+
+      pdf.save(`Reporte_Usuarios_${rolActivo}_${new Date().toISOString().split('T')[0]}.pdf`);
+      showToast("Archivo PDF exportado correctamente ✓", "success");
+      setMostrarExport(false);
+    } catch (error) {
+      console.error("Error exportando PDF:", error);
+      showToast("Error al exportar PDF", "error");
+    } finally {
+      setExportando(false);
+    }
+  };
+
+  // ========== EXPORTAR A CSV ==========
+  const exportarCSV = async () => {
+    try {
+      setExportando(true);
+
+      const usuariosFiltrados = usuarios
+        .filter((u) =>
+          u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+          u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
+          u.email.toLowerCase().includes(busqueda.toLowerCase())
+        )
+        .filter((u) =>
+          filtroEstado ? u.estado.toLowerCase() === filtroEstado.toLowerCase() : true
+        );
+
+      if (usuariosFiltrados.length === 0) {
+        showToast("No hay datos para exportar", "error");
+        setExportando(false);
+        return;
+      }
+
+      const headers = ["#", "Nombre", "Apellido", "Email", "Rol", "Estado", "Fecha Creación"];
+      const rows = usuariosFiltrados.map((u, idx) => [
+        idx + 1,
+        `"${u.nombre}"`,
+        `"${u.apellido}"`,
+        `"${u.email}"`,
+        u.rol,
+        u.estado,
+        formatearFechaCorta(u.createdAt)
+      ]);
+
+      const csvContent = [
+        headers.join(","),
+        ...rows.map(row => row.join(","))
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      saveAs(blob, `Usuarios_${rolActivo}_${new Date().toISOString().split('T')[0]}.csv`);
+      
+      showToast("Archivo CSV exportado correctamente ✓", "success");
+      setMostrarExport(false);
+    } catch (error) {
+      console.error("Error exportando CSV:", error);
+      showToast("Error al exportar CSV", "error");
+    } finally {
+      setExportando(false);
+    }
+  };
+
 
   const cambiarPagina = (nuevaPagina) => {
     if (nuevaPagina < 1 || nuevaPagina > totalPages) return;
@@ -282,6 +550,16 @@ const exportarExcel = () => {
 
   return (
     <div className="users-section">
+      {/* TOAST */}
+      {toast && (
+        <div className={`toast toast-${toast.type}`}>
+          <div className="toast-icon">
+            {toast.type === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
+          </div>
+          <div className="toast-message">{toast.message}</div>
+        </div>
+      )}
+
       <h2>Gestión de Usuarios</h2>
       {error && <div className="error-msg">{error}</div>}
       {loading && <div>Cargando usuarios...</div>}
@@ -331,14 +609,77 @@ const exportarExcel = () => {
               <option value="Pendiente">Pendiente</option>
               <option value="Rechazado">Rechazado</option>
             </select>
+          </div>
+
+          <div className="actions-bar">
             <button className="btn-refresh" onClick={() => obtenerUsuarios(page)}>
               Actualizar
             </button>
+            <button className="btn-export" onClick={() => setMostrarExport(!mostrarExport)} disabled={exportando}>
+              <FiDownload /> Exportar {exportando ? "..." : ""}
+            </button>
           </div>
 
-          <button className="btn-export" onClick={exportarExcel}>
-            Exportar Reporte
-          </button>
+          {/* MODAL DE EXPORTACIÓN */}
+          {mostrarExport && (
+            <div className="export-modal-overlay" onClick={() => setMostrarExport(false)}>
+              <div className="export-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="export-header">
+                  <h3>📊 Opciones de Exportación</h3>
+                  <button className="close-btn" onClick={() => setMostrarExport(false)}>
+                    <FiX />
+                  </button>
+                </div>
+
+                <div className="export-options">
+                  <button 
+                    className="export-option excel" 
+                    onClick={exportarExcel}
+                    disabled={exportando}
+                  >
+                    <div className="export-icon">📋</div>
+                    <div className="export-content">
+                      <h4>Excel (.xlsx)</h4>
+                      <p>Datos en 2 hojas: Usuarios y Estadísticas</p>
+                    </div>
+                    <div className="export-arrow">→</div>
+                  </button>
+
+                  <button 
+                    className="export-option pdf" 
+                    onClick={exportarPDF}
+                    disabled={exportando}
+                  >
+                    <div className="export-icon">📄</div>
+                    <div className="export-content">
+                      <h4>PDF (.pdf)</h4>
+                      <p>Reporte profesional de 3 páginas</p>
+                    </div>
+                    <div className="export-arrow">→</div>
+                  </button>
+
+                  <button 
+                    className="export-option csv" 
+                    onClick={exportarCSV}
+                    disabled={exportando}
+                  >
+                    <div className="export-icon">📑</div>
+                    <div className="export-content">
+                      <h4>CSV (.csv)</h4>
+                      <p>Formato compatible con cualquier base de datos</p>
+                    </div>
+                    <div className="export-arrow">→</div>
+                  </button>
+                </div>
+
+                <div className="export-footer">
+                  <p>💡 Selecciona el formato que mejor se ajuste a tus necesidades</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="section-divider"></div>
 
           <table className="users-table">
             <thead>

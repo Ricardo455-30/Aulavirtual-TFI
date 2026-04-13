@@ -1,0 +1,325 @@
+/* ============================
+   INSCRIPCIÓN DE MATERIAS
+   ============================ */
+
+.inscripcion-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* ENCABEZADO */
+.inscripcion-header {
+  margin-bottom: 40px;
+}
+
+.inscripcion-header h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inscripcion-header h2 svg {
+  font-size: 36px;
+  color: #667eea;
+}
+
+.inscripcion-header p {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ALERTAS */
+.alert {
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.alert svg {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.alert-error {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #d32f2f;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #4caf50;
+}
+
+.alert-warning {
+  background-color: #fff3e0;
+  color: #e65100;
+  border-left: 4px solid #ff9800;
+}
+
+/* ESTADO VACÍO / CARGANDO */
+.inscripcion-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  color: #666;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.inscripcion-empty svg {
+  font-size: 48px;
+  color: #999;
+  margin-right: 16px;
+}
+
+/* GRID DE MATERIAS */
+.inscripcion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 30px;
+}
+
+/* TARJETA DE MATERIA */
+.inscripcion-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.inscripcion-card:hover {
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
+  transform: translateY(-4px);
+}
+
+/* HEADER DE LA TARJETA */
+.inscripcion-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.materia-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.materia-tag svg {
+  font-size: 14px;
+}
+
+.materia-id {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+/* TÍTULO Y DESCRIPCIÓN */
+.inscripcion-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.inscripcion-card p {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+  flex-grow: 1;
+}
+
+/* ACCIONES */
+.inscripcion-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* BOTÓN */
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  flex: 1;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3f8e 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary svg {
+  font-size: 16px;
+}
+
+/* LOADING SPINNER */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .inscripcion-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .inscripcion-header h2 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .inscripcion-section {
+    padding: 30px 15px;
+  }
+
+  .inscripcion-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .inscripcion-header h2 {
+    font-size: 24px;
+  }
+
+  .inscripcion-header p {
+    font-size: 14px;
+  }
+
+  .inscripcion-card {
+    padding: 20px;
+  }
+
+  .inscripcion-card h3 {
+    font-size: 18px;
+  }
+
+  .inscripcion-card p {
+    font-size: 13px;
+  }
+
+  .btn {
+    font-size: 13px;
+    padding: 10px 16px;
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inscripcion-section {
+    padding: 20px 12px;
+  }
+
+  .inscripcion-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .inscripcion-header h2 {
+    font-size: 20px;
+  }
+
+  .inscripcion-header h2 svg {
+    font-size: 28px;
+  }
+
+  .inscripcion-header p {
+    font-size: 13px;
+  }
+
+  .inscripcion-card {
+    padding: 16px;
+  }
+
+  .inscripcion-card h3 {
+    font-size: 16px;
+  }
+
+  .inscripcion-card p {
+    font-size: 12px;
+  }
+
+  .materia-tag {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .btn {
+    font-size: 12px;
+    padding: 10px 12px;
+    min-height: 38px;
+  }
+}

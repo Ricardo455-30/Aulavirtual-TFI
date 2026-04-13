@@ -1,0 +1,446 @@
+/* ALUMNO NOTAS */
+.mis-notas-section {
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.mis-notas-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+.mis-notas-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.mis-notas-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mis-notas-header h2 svg {
+  font-size: 32px;
+  color: #1976d2;
+}
+
+.mis-notas-header p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ALERTS */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.alert {
+  background: #e3f2fd;
+  color: #1976d2;
+  border-left: 4px solid #1976d2;
+}
+
+.alert svg {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.alert-error {
+  background: #ffebee;
+  color: #d32f2f;
+  border-left-color: #d32f2f;
+}
+
+.alert-warning {
+  background: #fff3cd;
+  color: #856404;
+  border-left-color: #ffc107;
+}
+
+/* FILTROS */
+.mis-notas-filtros {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filtro-grupo {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.filtro-grupo label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+}
+
+.filtro-grupo select {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.filtro-grupo select:hover,
+.filtro-grupo select:focus {
+  border-color: #1976d2;
+  outline: none;
+}
+
+/* STATS */
+.mis-notas-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-icon.promedio {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-icon.evaluaciones {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-info h3 {
+  margin: 0;
+  font-size: 12px;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stat-info .valor {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1976d2;
+  margin-top: 3px;
+}
+
+/* GRID DE NOTAS */
+.mis-notas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* CARD DE NOTA */
+.mis-notas-card {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 5px solid #1976d2;
+  display: flex;
+  flex-direction: column;
+}
+
+.mis-notas-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* CARD HEADER */
+.mis-notas-card-header {
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.mis-notas-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.mis-notas-card-header span {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* CARD BODY */
+.mis-notas-card-body {
+  padding: 16px;
+  flex: 1;
+}
+
+.mis-notas-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mis-notas-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.mis-notas-info-item label {
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  flex: 1;
+}
+
+.mis-notas-info-item value {
+  color: #333;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* NOTA GRANDE */
+.mis-notas-nota-grande {
+  text-align: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  margin: 12px 0 0 0;
+  border: 2px solid #e0e0e0;
+}
+
+.mis-notas-nota-grande .numero {
+  display: block;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+.mis-notas-nota-grande .label {
+  display: block;
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* BADGE ESTADO */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-excelente {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-bueno {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-regular {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badge-reprobado {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* DESCRIPCION */
+.mis-notas-descripcion {
+  margin-top: 12px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #666;
+  border-left: 3px solid #ffc107;
+}
+
+.mis-notas-descripcion strong {
+  display: block;
+  color: #333;
+  margin-bottom: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+/* FECHA */
+.mis-notas-fecha {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mis-notas-fecha svg {
+  font-size: 14px;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state svg {
+  font-size: 48px;
+  color: #ccc;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.empty-state p {
+  color: #999;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* LOADING */
+.loading-state {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-state svg {
+  animation: spin 1s linear infinite;
+  font-size: 28px;
+}
+
+/* ANIMATIONS */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .mis-notas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .mis-notas-section {
+    padding: 20px 10px;
+  }
+
+  .mis-notas-header h2 {
+    font-size: 22px;
+  }
+
+  .mis-notas-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mis-notas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .mis-notas-card-body {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mis-notas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mis-notas-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .mis-notas-header h2 {
+    font-size: 18px;
+  }
+
+  .mis-notas-filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-grupo select {
+    width: 100%;
+  }
+}

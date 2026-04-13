@@ -1,6 +1,7 @@
 import express from "express";
 import {
   crearMateria,
+  editarMateria,
   asignarDocenteMateriaCurso,
   obtenerMateriasDocente,
   subirContenido,
@@ -24,15 +25,8 @@ import {uploadContenido}  from "../middlewares/upload.js";
 
 const router = express.Router();
 
-// 📘 materias
-router.post("/materias", verifyToken, soloDirectivo, crearMateria);
-router.get("/", verifyToken, getMaterias);
-router.get("/materias", verifyToken, getMaterias);
-
-// 👨‍🏫 asignación
-router.post("/asignar", verifyToken, soloDirectivo, asignarDocenteMateriaCurso);
-
-// 👨‍🏫 docente
+// 📘 materias - RUTAS MÁS ESPECÍFICAS PRIMERO
+router.get("/materias/asignaciones", verifyToken, obtenerMateriasConAsignaciones);
 router.get("/docente", verifyToken, soloDocente, obtenerMateriasDocente);
 
 // 📂 contenidos
@@ -50,17 +44,20 @@ router.get(
   obtenerContenidos
 );
 
-router.get(
-  "/materias/asignaciones",
-  verifyToken,
-  obtenerMateriasConAsignaciones
-);
-
-router.put("/asignacion/:id", verifyToken, editarAsignacion);
-
 router.delete("/contenidos/:id", verifyToken, soloDocente, eliminarContenido);
 
 router.put("/contenidos/:id", verifyToken, soloDocente, editarContenido);
+
+router.put("/asignacion/:id", verifyToken, editarAsignacion);
+
+// 👨‍🏫 asignación
+router.post("/asignar", verifyToken, soloDirectivo, asignarDocenteMateriaCurso);
+
+// RUTAS GENERALES - AL FINAL
+router.post("/materias", verifyToken, soloDirectivo, crearMateria);
+router.put("/:id", verifyToken, editarMateria);
+router.get("/", verifyToken, getMaterias);
+router.get("/materias", verifyToken, getMaterias);
 
 // 📊 datos
 router.get("/docentes", verifyToken, getDocentes);

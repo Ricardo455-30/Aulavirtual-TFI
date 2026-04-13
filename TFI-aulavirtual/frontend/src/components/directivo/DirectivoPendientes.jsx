@@ -29,21 +29,33 @@ const AdminPendientes = forwardRef(({ recargarListas }, ref) => {
   }));
 
   const aprobar = async (id) => {
-    await fetch(`http://localhost:8000/api/auth/aprobar/${id}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    recargarListas();
+    try {
+      await fetch(`http://localhost:8000/api/auth/aprobar/${id}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      // Remover de la lista local
+      setUsuarios(usuarios.filter(u => u.id !== id));
+      recargarListas();
+    } catch (error) {
+      console.error("Error al aprobar:", error);
+    }
   };
 
   const rechazar = async (id) => {
-    await fetch(`http://localhost:8000/api/auth/rechazar/${id}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      await fetch(`http://localhost:8000/api/auth/rechazar/${id}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    recargarListas();
+      // Remover de la lista local
+      setUsuarios(usuarios.filter(u => u.id !== id));
+      recargarListas();
+    } catch (error) {
+      console.error("Error al rechazar:", error);
+    }
   };
 
   return (

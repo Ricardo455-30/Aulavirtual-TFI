@@ -9,7 +9,9 @@ import DocenteFooter from "../components/docente/DocenteFooter";
 // Secciones
 import InicioDocente from "../components/docente/InicioDocente";
 import MisMaterias from "../components/docente/MisMaterias";
-import CargarNotas from "../components/docente/MisMaterias";
+import CrearTareas from "../components/docente/CrearTareas";
+import RecibirTarea from "../components/docente/RecibirTarea";
+import CargarNotas from "../components/docente/CargarNotas";
 import AsistenciaDocente from "../components/docente/AsistenciaDocente";
 
 const DocenteDashboard = () => {
@@ -18,16 +20,22 @@ const DocenteDashboard = () => {
   const renderSection = () => {
     switch (section) {
       case "inicio":
-        return <InicioDocente />;
+        return <InicioDocente setSection={setSection} />;
 
       case "materias":
-        return <MisMaterias />;
+        return <MisMaterias setSection={setSection} />;
+
+      case "crear-tareas":
+        return <CrearTareas setSection={setSection} />;
+
+      case "tareas":
+        return <RecibirTarea setSection={setSection} />;
 
       case "notas":
-        return <CargarNotas />;
+        return <CargarNotas setSection={setSection} />;
 
       case "asistencia":
-        return <AsistenciaDocente />;
+        return <AsistenciaDocente setSection={setSection} />;
 
       default:
         return (

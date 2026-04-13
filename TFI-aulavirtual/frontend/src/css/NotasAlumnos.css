@@ -1,0 +1,458 @@
+/* 📊 NOTAS ALUMNOS - ESTILOS MEJORADOS */
+
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #1e40af;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --bg-light: #f9fafb;
+  --bg-white: #ffffff;
+  --text-dark: #1f2937;
+  --text-light: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
+}
+
+.notas-container {
+  padding: 30px;
+  background: #f3f4f6;
+  border-radius: 12px;
+}
+
+/* ===== HEADER ===== */
+.notas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.header-info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.notas-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 8px 0;
+}
+
+.notas-title .icon {
+  color: var(--primary);
+  font-size: 32px;
+}
+
+.notas-subtitle {
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.btn-descargar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: linear-gradient(135deg, var(--success), #059669);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-descargar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-descargar:active {
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+/* ===== SELECTOR ===== */
+.selector-wrapper {
+  margin-bottom: 30px;
+}
+
+.selector-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+}
+
+.label-icon {
+  color: var(--primary);
+  font-size: 18px;
+}
+
+.select-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 400px;
+}
+
+.select-curso {
+  width: 100%;
+  padding: 12px 16px;
+  padding-right: 40px;
+  font-size: 14px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: var(--transition);
+  appearance: none;
+}
+
+.select-curso:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.select-curso:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+  font-size: 18px;
+}
+
+/* ===== ESTADOS ===== */
+.estado-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 30px;
+  gap: 16px;
+}
+
+.estado-container.empty {
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed var(--border);
+}
+
+.empty-icon {
+  font-size: 48px;
+  color: var(--text-light);
+}
+
+.estado-container p {
+  font-size: 16px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== GRID DE ALUMNOS ===== */
+.alumnos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  gap: 20px;
+}
+
+/* ===== TARJETA DE ALUMNO ===== */
+.alumno-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.alumno-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.alumno-card.expanded {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== HEADER TARJETA ===== */
+.alumno-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.alumno-header:hover {
+  background: linear-gradient(135deg, var(--primary-dark), #1e3a8a);
+}
+
+.alumno-info {
+  flex: 1;
+}
+
+.alumno-nombre {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.promedio-badge {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.promedio-badge strong {
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ===== HEADER ACTIONS ===== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.estado-promedio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+}
+
+.estado-promedio.aprobado {
+  background: rgba(16, 185, 129, 0.3);
+  color: #d1fae5;
+}
+
+.estado-promedio.desaprobado {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fee2e2;
+}
+
+.expand-icon {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.expand-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* ===== CONTENIDO EXPANDIBLE ===== */
+.alumno-content {
+  padding: 20px;
+  background: #f9fafb;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== TABLA DE NOTAS ===== */
+.tabla-notas {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tabla-notas thead {
+  background: var(--bg-light);
+  border-bottom: 2px solid var(--border);
+}
+
+.tabla-notas th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.tabla-notas tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.tabla-notas tbody tr:hover {
+  background: #f3f4f6;
+}
+
+.tabla-notas tbody tr:last-child {
+  border-bottom: none;
+}
+
+.tabla-notas td {
+  padding: 12px;
+}
+
+.materia-nombre {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* ===== NOTAS CON COLORES ===== */
+.nota {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  background: var(--bg-light);
+  color: var(--text-light);
+  transition: var(--transition);
+}
+
+.nota.aprobado {
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+}
+
+.nota.desaprobado {
+  background: rgba(239, 68, 68, 0.1);
+  color: #7f1d1d;
+}
+
+.nota.neutral {
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--text-light);
+}
+
+.nota.final {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .notas-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .alumnos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .select-container {
+    max-width: 100%;
+  }
+
+  .tabla-notas {
+    font-size: 12px;
+  }
+
+  .tabla-notas th,
+  .tabla-notas td {
+    padding: 8px;
+  }
+
+  .alumno-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .notas-container {
+    padding: 15px;
+  }
+
+  .notas-title {
+    font-size: 24px;
+  }
+
+  .tabla-notas {
+    font-size: 11px;
+  }
+
+  .tabla-notas th,
+  .tabla-notas td {
+    padding: 6px 4px;
+  }
+
+  .nota {
+    min-width: 32px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .estado-promedio {
+    display: none;
+  }
+}

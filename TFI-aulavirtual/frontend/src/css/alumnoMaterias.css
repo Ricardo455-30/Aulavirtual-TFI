@@ -1,0 +1,356 @@
+/* ALUMNO MATERIAS */
+.mis-materias-section {
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.mis-materias-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+.mis-materias-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.mis-materias-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mis-materias-header h2 svg {
+  font-size: 32px;
+  color: #1976d2;
+}
+
+.mis-materias-header p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ALERTS */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.alert {
+  background: #e3f2fd;
+  color: #1976d2;
+  border-left: 4px solid #1976d2;
+}
+
+.alert svg {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.alert-error {
+  background: #ffebee;
+  color: #d32f2f;
+  border-left-color: #d32f2f;
+}
+
+.alert-success {
+  background: #e8f5e9;
+  color: #388e3c;
+  border-left-color: #388e3c;
+}
+
+/* GRID DE MATERIAS */
+.mis-materias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* CARD DE MATERIA */
+.mis-materias-card {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.mis-materias-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+  border-color: #1976d2;
+}
+
+.mis-materias-card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  position: relative;
+}
+
+.mis-materias-card-header-icon {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  font-size: 28px;
+  opacity: 0.2;
+}
+
+.mis-materias-card-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.mis-materias-card-header .curso-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.mis-materias-card-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.mis-materias-card-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.9;
+}
+
+.mis-materias-card-meta svg {
+  font-size: 13px;
+}
+
+/* CARD BODY */
+.mis-materias-card-body {
+  padding: 15px 20px;
+}
+
+.mis-materias-card-body p {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.mis-materias-card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* BOTONES */
+.mis-materias-card-footer {
+  padding: 0 20px 15px 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-expandir {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #1976d2;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.btn-expandir:hover {
+  background: #1565c0;
+  transform: scale(1.02);
+}
+
+.btn-expandir:active {
+  transform: scale(0.98);
+}
+
+.btn-expandir svg {
+  font-size: 15px;
+}
+
+/* CONTENIDOS */
+.contenidos-list {
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.contenidos-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contenidos-list li {
+  padding: 12px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s;
+}
+
+.contenidos-list li:hover {
+  background: #f0f0f0;
+}
+
+.contenidos-list li:last-child {
+  border-bottom: none;
+}
+
+.contenidos-list strong {
+  display: block;
+  color: #222;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.contenidos-list p {
+  color: #666;
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+.contenidos-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1976d2;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 6px;
+  transition: all 0.2s;
+}
+
+.contenidos-list a:hover {
+  color: #1565c0;
+  text-decoration: underline;
+}
+
+.contenidos-list a svg {
+  font-size: 11px;
+}
+
+/* LOADING */
+.loading-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-content svg {
+  animation: spin 1s linear infinite;
+  font-size: 18px;
+}
+
+/* EMPTY STATE */
+.empty-content {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+
+.empty-content svg {
+  font-size: 32px;
+  margin-bottom: 10px;
+  opacity: 0.5;
+  display: block;
+}
+
+/* ANIMATIONS */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .mis-materias-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .mis-materias-section {
+    padding: 20px 10px;
+  }
+
+  .mis-materias-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .mis-materias-header h2 {
+    font-size: 22px;
+  }
+
+  .mis-materias-card-header {
+    padding: 15px;
+  }
+
+  .mis-materias-card-body {
+    padding: 12px 15px;
+  }
+
+  .mis-materias-card-footer {
+    padding: 0 15px 12px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mis-materias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mis-materias-header h2 {
+    font-size: 18px;
+  }
+
+  .btn-expandir {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}

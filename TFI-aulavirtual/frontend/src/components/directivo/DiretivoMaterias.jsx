@@ -6,6 +6,11 @@ import {
   FaSearch,
   FaChevronLeft,
   FaChevronRight,
+  FaBook,
+  FaPlus,
+  FaGraduationCap,
+  FaSpinner,
+  FaExclamationCircle,
 } from "react-icons/fa";
 
 import "../../css/DirectivoMaterias.css";
@@ -83,7 +88,7 @@ const AdminMaterias = () => {
 
     const dataMateria = await resMateria.json();
 
-    await fetch("http://localhost:8000/api/materias/materias/asignar", {
+    await fetch("http://localhost:8000/api/materias/asignar", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -139,187 +144,237 @@ const AdminMaterias = () => {
 
   return (
     <div className="container">
-      <h1 className="title">Gestión de Materias</h1>
+      <div className="header-section">
+        <div className="header-content">
+          <div className="header-icon">
+            <FaGraduationCap />
+          </div>
+          <div className="header-text">
+            <h1 className="title">Gestión de Materias</h1>
+            <p className="subtitle">Crea y administra las materias de tu institución</p>
+          </div>
+        </div>
+      </div>
 
       {/* FORM */}
-      <div className="card">
-        <input
-          className="input"
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={(e) =>
-            setForm({ ...form, nombre: e.target.value })
-          }
-        />
+      <div className="card form-card">
+        <h2 className="card-title">
+          <FaBook /> Nueva Materia
+        </h2>
+        <div className="form-grid">
+          <input
+            className="input"
+            placeholder="Nombre de la materia"
+            value={form.nombre}
+            onChange={(e) =>
+              setForm({ ...form, nombre: e.target.value })
+            }
+          />
 
-        <textarea
-          className="input"
-          placeholder="Descripción"
-          value={form.descripcion}
-          onChange={(e) =>
-            setForm({ ...form, descripcion: e.target.value })
-          }
-        />
+          <textarea
+            className="input textarea"
+            placeholder="Descripción (opcional)"
+            value={form.descripcion}
+            onChange={(e) =>
+              setForm({ ...form, descripcion: e.target.value })
+            }
+          />
 
-        <select
-          className="input"
-          value={form.id_docente}
-          onChange={(e) =>
-            setForm({ ...form, id_docente: e.target.value })
-          }
-        >
-          <option value="">Docente</option>
-          {docentes.map((d) => (
-            <option key={d.id_docente} value={d.id_docente}>
-              {d.nombre} {d.apellido}
-            </option>
-          ))}
-        </select>
+          <select
+            className="input"
+            value={form.id_docente}
+            onChange={(e) =>
+              setForm({ ...form, id_docente: e.target.value })
+            }
+          >
+            <option value="">Seleccionar Docente</option>
+            {docentes.map((d) => (
+              <option key={d.id_docente} value={d.id_docente}>
+                {d.nombre} {d.apellido}
+              </option>
+            ))}
+          </select>
 
-        <select
-          className="input"
-          value={form.id_curso}
-          onChange={(e) =>
-            setForm({ ...form, id_curso: e.target.value })
-          }
-        >
-          <option value="">Curso</option>
-          {cursos.map((c) => (
-            <option key={c.id_curso} value={c.id_curso}>
-              {c.nombre} {c.division}
-            </option>
-          ))}
-        </select>
+          <select
+            className="input"
+            value={form.id_curso}
+            onChange={(e) =>
+              setForm({ ...form, id_curso: e.target.value })
+            }
+          >
+            <option value="">Seleccionar Curso</option>
+            {cursos.map((c) => (
+              <option key={c.id_curso} value={c.id_curso}>
+                {c.nombre} {c.division}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <button className="button" onClick={handleSubmit}>
-          {loading ? "Procesando..." : "Crear"}
+        <button className="button button-primary" onClick={handleSubmit} disabled={loading}>
+          {loading ? (
+            <>
+              <FaSpinner className="spinner-icon" /> Procesando...
+            </>
+          ) : (
+            <>
+              <FaPlus /> Crear Materia
+            </>
+          )}
         </button>
       </div>
 
       {/* FILTROS */}
-      <div className="filtros">
-        <div style={{ position: "relative", flex: 1 }}>
-          <FaSearch style={{ position: "absolute", top: 14, left: 10 }} />
-          <input
-            className="input"
-            style={{ paddingLeft: "35px" }}
-            placeholder="Buscar..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
-        </div>
+      <div className="card filtros-card">
+        <h3 className="filtros-title">Filtros</h3>
+        <div className="filtros">
+          <div className="search-container">
+            <FaSearch className="search-icon" />
+            <input
+              className="input"
+              placeholder="Buscar por materia, docente..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+          </div>
 
-        <select
-          className="input"
-          value={filtroCurso}
-          onChange={(e) => setFiltroCurso(e.target.value)}
-        >
-          <option value="">Todos los cursos</option>
-          {cursos.map((c) => (
-            <option key={c.id_curso} value={c.id_curso}>
-              {c.nombre} {c.division}
-            </option>
-          ))}
-        </select>
+          <select
+            className="input"
+            value={filtroCurso}
+            onChange={(e) => setFiltroCurso(e.target.value)}
+          >
+            <option value="">Todos los cursos</option>
+            {cursos.map((c) => (
+              <option key={c.id_curso} value={c.id_curso}>
+                {c.nombre} {c.division}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* TABLA */}
       <div className="card table-container">
+        <h3 className="table-title">Materias Registradas ({materiasFiltradas.length})</h3>
         {loadingTabla ? (
-          <p>Cargando...</p>
+          <div className="loading">
+            <FaSpinner className="loading-icon" />
+            <p>Cargando materias...</p>
+          </div>
+        ) : datos.length === 0 ? (
+          <div className="empty-state">
+            <FaExclamationCircle className="empty-icon" />
+            <p>No hay materias registradas</p>
+          </div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Materia</th>
-                <th>Docente</th>
-                <th>Curso</th>
-                <th></th>
-              </tr>
-            </thead>
+          <>
+            <div className="table-wrapper">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Materia</th>
+                    <th>Docente</th>
+                    <th>Curso</th>
+                    <th className="actions-col">Acciones</th>
+                  </tr>
+                </thead>
 
-            <tbody>
-              {datos.map((m) => (
-                <tr key={m.id}>
-                  <td>{m.materia}</td>
+                <tbody>
+                  {datos.map((m) => (
+                    <tr key={m.id}>
+                      <td className="materia-cell">
+                        <strong>{m.materia}</strong>
+                      </td>
 
-                  <td>
-                    {editando === m.id ? (
-                      <select
-                        value={editForm.id_docente}
-                        onChange={(e) =>
-                          setEditForm({
-                            id_docente: e.target.value,
-                          })
-                        }
-                      >
-                        {docentes.map((d) => (
-                          <option key={d.id_docente} value={d.id_docente}>
-                            {d.nombre} {d.apellido}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      `${m.docente_nombre} ${m.docente_apellido}`
-                    )}
-                  </td>
+                      <td>
+                        {editando === m.id ? (
+                          <select
+                            className="input-edit"
+                            value={editForm.id_docente}
+                            onChange={(e) =>
+                              setEditForm({
+                                id_docente: e.target.value,
+                              })
+                            }
+                          >
+                            {docentes.map((d) => (
+                              <option key={d.id_docente} value={d.id_docente}>
+                                {d.nombre} {d.apellido}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="docente-badge">
+                            {m.docente_nombre} {m.docente_apellido}
+                          </span>
+                        )}
+                      </td>
 
-                  <td>
-                    {m.curso} {m.division}
-                  </td>
+                      <td>
+                        <span className="curso-badge">
+                          {m.curso} {m.division}
+                        </span>
+                      </td>
 
-                  <td>
-                    {editando === m.id ? (
-                      <>
-                        <button
-                          className="btn btn-save"
-                          onClick={() => guardarEdicion(m.id)}
-                        >
-                          <FaSave />
-                        </button>
+                      <td className="actions-cell">
+                        {editando === m.id ? (
+                          <div className="action-buttons">
+                            <button
+                              className="btn btn-save"
+                              title="Guardar"
+                              onClick={() => guardarEdicion(m.id)}
+                            >
+                              <FaSave />
+                            </button>
 
-                        <button
-                          className="btn btn-cancel"
-                          onClick={() => setEditando(null)}
-                        >
-                          <FaTimes />
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        className="btn btn-edit"
-                        onClick={() => iniciarEdicion(m)}
-                      >
-                        <FaEdit />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                            <button
+                              className="btn btn-cancel"
+                              title="Cancelar"
+                              onClick={() => setEditando(null)}
+                            >
+                              <FaTimes />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn btn-edit"
+                            title="Editar"
+                            onClick={() => iniciarEdicion(m)}
+                          >
+                            <FaEdit />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* PAGINACIÓN */}
+            <div className="paginacion">
+              <button
+                className="paginacion-btn"
+                disabled={pagina === 1}
+                onClick={() => setPagina(pagina - 1)}
+              >
+                <FaChevronLeft />
+              </button>
+
+              <span className="paginacion-info">
+                Página {pagina} de {totalPaginas || 1}
+              </span>
+
+              <button
+                className="paginacion-btn"
+                disabled={pagina === totalPaginas || totalPaginas === 0}
+                onClick={() => setPagina(pagina + 1)}
+              >
+                <FaChevronRight />
+              </button>
+            </div>
+          </>
         )}
-
-        {/* PAGINACIÓN */}
-        <div className="paginacion">
-          <button
-            disabled={pagina === 1}
-            onClick={() => setPagina(pagina - 1)}
-          >
-            <FaChevronLeft />
-          </button>
-
-          <span>
-            {pagina} / {totalPaginas || 1}
-          </span>
-
-          <button
-            disabled={pagina === totalPaginas || totalPaginas === 0}
-            onClick={() => setPagina(pagina + 1)}
-          >
-            <FaChevronRight />
-          </button>
-        </div>
       </div>
     </div>
   );
