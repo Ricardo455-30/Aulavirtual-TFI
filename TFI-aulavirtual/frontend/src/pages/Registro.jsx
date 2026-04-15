@@ -194,7 +194,7 @@ const Registro = () => {
         {/* DNI */}
         <div className="dropzone" onDrop={(e) => handleDrop(e, "dni")} onDragOver={(e) => e.preventDefault()}>
           <FiUpload />
-          <p>DNI (imagen o PDF)</p>
+          <p>DNI FRENTE (imagen o PDF)</p>
           <input type="file" accept="image/*,application/pdf" onChange={(e) => handleFile(e.target.files[0], "dni")} />
           {nombresArchivos.dni && <small>{nombresArchivos.dni}</small>}
           {preview.dni && (preview.dni === "pdf" ? <div className="pdf-preview">📄 PDF cargado</div> : <img src={preview.dni} alt="dni" />)}
@@ -204,10 +204,10 @@ const Registro = () => {
         {/* PERFIL */}
         <div className="dropzone" onDrop={(e) => handleDrop(e, "perfil")} onDragOver={(e) => e.preventDefault()}>
           <FiUpload />
-          <p>Foto de perfil</p>
-          <input type="file" accept="image/*" onChange={(e) => handleFile(e.target.files[0], "perfil")} />
+          <p>DNI REVERSO (imagen o PDF)</p>
+          <input type="file" accept="image/*,application/pdf" onChange={(e) => handleFile(e.target.files[0], "perfil")} />
           {nombresArchivos.perfil && <small>{nombresArchivos.perfil}</small>}
-          {preview.perfil && <img src={preview.perfil} alt="perfil" />}
+          {preview.perfil && (preview.perfil === "pdf" ? <div className="pdf-preview">📄 PDF cargado</div> : <img src={preview.perfil} alt="perfil" />)}
           {archivos.perfil && <FiX onClick={() => removeFile("perfil")} />}
         </div>
 

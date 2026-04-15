@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import { FiDownload, FiX, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import "../../css/UsersSection.css";
 
@@ -38,7 +38,7 @@ const UsersSection = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [rolActivo, setRolActivo] = useState("alumno");
   const [busqueda, setBusqueda] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("ACTIVO");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -334,146 +334,143 @@ const exportarExcel = async () => {
 
   // ========== EXPORTAR A PDF ==========
   const exportarPDF = async () => {
-    try {
-      setExportando(true);
+  try {
+    setExportando(true);
 
-      const usuariosFiltrados = usuarios
-        .filter((u) =>
-          u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-          u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
-          u.email.toLowerCase().includes(busqueda.toLowerCase())
-        )
-        .filter((u) =>
-          filtroEstado ? u.estado.toLowerCase() === filtroEstado.toLowerCase() : true
-        );
+    const usuariosFiltrados = usuarios
+      .filter((u) =>
+        u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
+        u.email.toLowerCase().includes(busqueda.toLowerCase())
+      )
+      .filter((u) =>
+        filtroEstado ? u.estado.toLowerCase() === filtroEstado.toLowerCase() : true
+      );
 
-      if (usuariosFiltrados.length === 0) {
-        showToast("No hay datos para exportar", "error");
-        setExportando(false);
-        return;
-      }
-
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4"
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-
-      // Página 1: Portada
-      pdf.setFillColor(31, 78, 120);
-      pdf.rect(0, 0, pageWidth, 50, "F");
-      
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(28);
-      pdf.text("REPORTE DE USUARIOS", pageWidth / 2, 20, { align: "center" });
-      
-      pdf.setFontSize(14);
-      pdf.text(rolActivo.toUpperCase(), pageWidth / 2, 35, { align: "center" });
-
-      pdf.setTextColor(100, 100, 100);
-      pdf.setFontSize(11);
-      pdf.text(`Generado: ${formatearFecha(new Date())}`, margin, pageHeight - 20);
-      pdf.text(`Total de registros: ${usuariosFiltrados.length}`, margin, pageHeight - 15);
-
-      // Página 2: Datos en tabla
-      pdf.addPage();
-      pdf.setTextColor(31, 78, 120);
-      pdf.setFontSize(16);
-      pdf.text("Detalle de Usuarios", margin, margin);
-
-      const columns = ["#", "Nombre", "Apellido", "Email", "Rol", "Estado", "Fecha"];
-      const data = usuariosFiltrados.map((u, idx) => [
-        idx + 1,
-        u.nombre,
-        u.apellido,
-        u.email,
-        u.rol.charAt(0).toUpperCase() + u.rol.slice(1),
-        u.estado,
-        formatearFechaCorta(u.createdAt)
-      ]);
-
-      pdf.autoTable({
-        columns: columns,
-        body: data,
-        startY: margin + 8,
-        theme: "grid",
-        headStyles: {
-          fillColor: [54, 96, 146],
-          textColor: [255, 255, 255],
-          fontStyle: "bold",
-          fontSize: 10,
-          halign: "center"
-        },
-        bodyStyles: {
-          textColor: [60, 60, 60],
-          fontSize: 9
-        },
-        alternateRowStyles: {
-          fillColor: [235, 244, 247]
-        },
-        columnStyles: {
-          0: { halign: "center", cellWidth: 10 },
-          1: { cellWidth: 25 },
-          2: { cellWidth: 25 },
-          3: { cellWidth: 35 },
-          4: { halign: "center", cellWidth: 15 },
-          5: { halign: "center", cellWidth: 15 },
-          6: { halign: "center", cellWidth: 20 }
-        },
-        margin: { top: margin, right: margin, bottom: 20, left: margin }
-      });
-
-      // Página 3: Estadísticas
-      pdf.addPage();
-      pdf.setTextColor(31, 78, 120);
-      pdf.setFontSize(16);
-      pdf.text("Estadísticas", margin, margin);
-
-      // Estadísticas por estado
-      let yPos = margin + 15;
-      pdf.setFontSize(12);
-      pdf.setTextColor(31, 78, 120);
-      pdf.text("Por Estado:", margin, yPos);
-      yPos += 8;
-
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      const estados = ["Activo", "Inactivo", "Pendiente", "Rechazado"];
-      estados.forEach(estado => {
-        const count = usuariosFiltrados.filter(u => u.estado === estado).length;
-        pdf.text(`${estado}: ${count}`, margin + 10, yPos);
-        yPos += 7;
-      });
-
-      // Estadísticas por rol
-      yPos += 5;
-      pdf.setFontSize(12);
-      pdf.setTextColor(31, 78, 120);
-      pdf.text("Por Rol:", margin, yPos);
-      yPos += 8;
-
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      roles.forEach(rol => {
-        const count = usuariosFiltrados.filter(u => u.rol === rol).length;
-        pdf.text(`${rol.charAt(0).toUpperCase() + rol.slice(1)}: ${count}`, margin + 10, yPos);
-        yPos += 7;
-      });
-
-      pdf.save(`Reporte_Usuarios_${rolActivo}_${new Date().toISOString().split('T')[0]}.pdf`);
-      showToast("Archivo PDF exportado correctamente ✓", "success");
-      setMostrarExport(false);
-    } catch (error) {
-      console.error("Error exportando PDF:", error);
-      showToast("Error al exportar PDF", "error");
-    } finally {
+    if (usuariosFiltrados.length === 0) {
+      showToast("No hay datos para exportar", "error");
       setExportando(false);
+      return;
     }
-  };
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4"
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+
+    // ===== PORTADA =====
+    pdf.setFillColor(31, 78, 120);
+    pdf.rect(0, 0, pageWidth, 50, "F");
+
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(28);
+    pdf.text("REPORTE DE USUARIOS", pageWidth / 2, 20, { align: "center" });
+
+    pdf.setFontSize(14);
+    pdf.text(rolActivo.toUpperCase(), pageWidth / 2, 35, { align: "center" });
+
+    pdf.setTextColor(100, 100, 100);
+    pdf.setFontSize(11);
+    pdf.text(`Generado: ${formatearFecha(new Date())}`, margin, pageHeight - 20);
+    pdf.text(`Total de registros: ${usuariosFiltrados.length}`, margin, pageHeight - 15);
+
+    // ===== TABLA =====
+    pdf.addPage();
+
+    pdf.setTextColor(31, 78, 120);
+    pdf.setFontSize(16);
+    pdf.text("Detalle de Usuarios", margin, margin);
+
+    const columns = ["#", "Nombre", "Apellido", "Email", "Rol", "Estado", "Fecha"];
+
+    const data = usuariosFiltrados.map((u, idx) => [
+      idx + 1,
+      u.nombre,
+      u.apellido,
+      u.email,
+      u.rol.charAt(0).toUpperCase() + u.rol.slice(1),
+      u.estado,
+      formatearFechaCorta(u.createdAt)
+    ]);
+
+    // ✅ USO CORRECTO
+    autoTable(pdf, {
+      head: [columns],
+      body: data,
+      startY: margin + 8,
+      theme: "grid",
+      headStyles: {
+        fillColor: [54, 96, 146],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        halign: "center"
+      },
+      bodyStyles: {
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [235, 244, 247]
+      },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 10 },
+        4: { halign: "center" },
+        5: { halign: "center" },
+        6: { halign: "center" }
+      }
+    });
+
+    // ===== ESTADÍSTICAS =====
+    pdf.addPage();
+
+    pdf.setTextColor(31, 78, 120);
+    pdf.setFontSize(16);
+    pdf.text("Estadísticas", margin, margin);
+
+    let yPos = margin + 15;
+
+    const estados = ["Activo", "Inactivo", "Pendiente", "Rechazado"];
+
+    pdf.setFontSize(12);
+    pdf.text("Por Estado:", margin, yPos);
+    yPos += 8;
+
+    pdf.setFontSize(10);
+    estados.forEach(estado => {
+      const count = usuariosFiltrados.filter(u => u.estado === estado).length;
+      pdf.text(`${estado}: ${count}`, margin + 10, yPos);
+      yPos += 7;
+    });
+
+    yPos += 5;
+
+    pdf.setFontSize(12);
+    pdf.text("Por Rol:", margin, yPos);
+    yPos += 8;
+
+    pdf.setFontSize(10);
+    roles.forEach(rol => {
+      const count = usuariosFiltrados.filter(u => u.rol === rol).length;
+      pdf.text(`${rol.charAt(0).toUpperCase() + rol.slice(1)}: ${count}`, margin + 10, yPos);
+      yPos += 7;
+    });
+
+    pdf.save(`Reporte_Usuarios_${rolActivo}_${new Date().toISOString().split('T')[0]}.pdf`);
+
+    showToast("Archivo PDF exportado correctamente ✓", "success");
+    setMostrarExport(false);
+
+  } catch (error) {
+    console.error("Error exportando PDF:", error);
+    showToast("Error al exportar PDF", "error");
+  } finally {
+    setExportando(false);
+  }
+};
 
   // ========== EXPORTAR A CSV ==========
   const exportarCSV = async () => {
@@ -601,14 +598,14 @@ const exportarExcel = async () => {
               onChange={(e) => setBusqueda(e.target.value)}
             />
             <select
-              value={filtroEstado}
-              onChange={(e) => setFiltroEstado(e.target.value)}
-            >
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-              <option value="Pendiente">Pendiente</option>
-              <option value="Rechazado">Rechazado</option>
-            </select>
+  value={filtroEstado}
+  onChange={(e) => setFiltroEstado(e.target.value)}
+>
+  <option value="Activo">Activo</option>
+  <option value="Inactivo">Inactivo</option>
+  <option value="Pendiente">Pendiente</option>
+  <option value="Rechazado">Rechazado</option>
+</select>
           </div>
 
           <div className="actions-bar">
