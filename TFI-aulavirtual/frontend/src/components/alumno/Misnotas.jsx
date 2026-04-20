@@ -11,12 +11,22 @@ import {
 } from "react-icons/fi";
 import "../../css/alumnoNotas.css";
 
-const MisNotas = ({ setSection }) => {
+const MisNotas = ({ setSection, idCiclo }) => {
   const [notas, setNotas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroTrimestre, setFiltroTrimestre] = useState("");
+
+  if (!idCiclo) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
+        <h3>Selecciona un ciclo lectivo</h3>
+        <p>Elige un ciclo lectivo para ver tus notas.</p>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const fetchNotas = async () => {
@@ -39,6 +49,9 @@ const MisNotas = ({ setSection }) => {
           `http://localhost:8000/api/notas/alumno/${alumnoId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
+            params: {
+              id_ciclo: idCiclo || undefined,
+            },
           }
         );
         setNotas(res.data || []);
@@ -53,7 +66,7 @@ const MisNotas = ({ setSection }) => {
     };
 
     fetchNotas();
-  }, []);
+  }, [idCiclo]);
 
   // Obtener tipos y trimestres únicos
   const tiposUnicos = [...new Set(notas.map((n) => n.tipo).filter(Boolean))];

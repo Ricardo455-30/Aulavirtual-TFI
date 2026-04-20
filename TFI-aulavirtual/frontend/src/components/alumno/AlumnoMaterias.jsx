@@ -13,7 +13,7 @@ import {
 } from "react-icons/fi";
 import "../../css/alumnoMaterias.css";
 
-const MisMaterias = ({ setSection }) => {
+const MisMaterias = ({ setSection, idCiclo }) => {
   const [materias, setMaterias] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -36,6 +36,9 @@ const MisMaterias = ({ setSection }) => {
 
         const res = await axios.get("http://localhost:8000/api/alumnos/mis-materias", {
           headers,
+          params: {
+            id_ciclo: idCiclo || undefined,
+          },
         });
 
         setMaterias(res.data || []);
@@ -61,7 +64,7 @@ const MisMaterias = ({ setSection }) => {
     };
 
     fetchMaterias();
-  }, []);
+  }, [idCiclo]);
 
   const toggleContenidos = async (materia) => {
     if (expandedMateria === materia.id_materia) {
@@ -107,6 +110,16 @@ const MisMaterias = ({ setSection }) => {
           <FiLoader />
           <span>Cargando materias...</span>
         </div>
+      </div>
+    );
+  }
+
+  if (!idCiclo) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
+        <h3>Selecciona un ciclo lectivo</h3>
+        <p>Elige un ciclo lectivo para ver tus materias inscritas.</p>
       </div>
     );
   }

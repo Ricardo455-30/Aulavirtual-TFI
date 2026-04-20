@@ -1,5 +1,6 @@
 // controllers/alumnos.controller.js
 import { pool } from "../config/db.js";
+import { ensureCicloLectivo } from "../utils/cicloLectivo.js";
 
 export const crearAlumno = async (req, res) => {
   try {
@@ -28,6 +29,7 @@ export const getAlumnos = async (req, res) => {
 export const inscribirMateria = async (req, res) => {
   try {
     const id_materia = req.params.id;
+    const { id_ciclo } = req.body;
     const id_usuario = req.user.id;
 
     if (!id_materia) {
@@ -37,6 +39,8 @@ export const inscribirMateria = async (req, res) => {
     if (req.user.rol?.toLowerCase() !== "alumno") {
       return res.status(403).json({ error: "Acceso solo alumnos" });
     }
+
+    const ciclo = await ensureCicloLectivo(id_ciclo);
 
     const [alumnoRows] = await pool.query(
       "SELECT id_alumno FROM alumnos WHERE id_usuario = ?",
@@ -59,8 +63,8 @@ export const inscribirMateria = async (req, res) => {
     }
 
     await pool.query(
-      "INSERT INTO alumno_materia (id_alumno, id_materia, estado) VALUES (?, ?, 'Cursando')",
-      [id_alumno, id_materia]
+      "INSERT INTO alumno_materia (id_alumno, id_materia, estado, id_ciclo) VALUES (?, ?, 'Cursando', ?)",
+      [id_alumno, id_materia, ciclo.id_ciclo]
     );
 
     res.json({ message: "Inscripción realizada correctamente" });
@@ -106,6 +110,9 @@ export const getMisMaterias = async (req, res) => {
     console.log("📌 id_alumno:", id_alumno);
 
     // Obtener materias donde el alumno está inscrito
+    const { id_ciclo } = req.query;
+    const ciclo = await ensureCicloLectivo(id_ciclo);
+
     const [rows] = await pool.query(
       `SELECT 
          m.id_materia,
@@ -120,8 +127,9 @@ export const getMisMaterias = async (req, res) => {
        INNER JOIN materias m ON am.id_materia = m.id_materia
        INNER JOIN alumnos a ON am.id_alumno = a.id_alumno
        LEFT JOIN cursos c ON c.id_curso = a.id_curso
-       WHERE am.id_alumno = ?`,
-      [id_alumno]
+       WHERE am.id_alumno = ?
+       AND am.id_ciclo = ?`,
+      [id_alumno, ciclo.id_ciclo]
     );
 
     console.log(" Materias encontradas:", rows.length);
@@ -153,12 +161,15 @@ export const getMateriasDisponibles = async (req, res) => {
     const { id_alumno, id_curso } = alumnoRows[0];
 
     // Materias asignadas al curso
+    const { id_ciclo } = req.query;
+    const ciclo = await ensureCicloLectivo(id_ciclo);
+
     const [materiasCurso] = await pool.query(
       `SELECT DISTINCT m.id_materia, m.nombre, m.descripcion
        FROM docente_materia_curso dmc
        JOIN materias m ON dmc.id_materia = m.id_materia
-       WHERE dmc.id_curso = ?`,
-      [id_curso]
+       WHERE dmc.id_curso = ? AND dmc.id_ciclo = ?`,
+      [id_curso, ciclo.id_ciclo]
     );
 
     // Materias inscritas

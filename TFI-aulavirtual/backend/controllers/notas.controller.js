@@ -1,4 +1,5 @@
 import { pool } from "../config/db.js";
+import { ensureCicloLectivo } from "../utils/cicloLectivo.js";
 
 
 // ==========================================
@@ -6,7 +7,9 @@ import { pool } from "../config/db.js";
 // ==========================================
 export const obtenerNotas = async (req, res) => {
   try {
-    const [rows] = await pool.query(`
+    const { id_ciclo } = req.query;
+    const params = [];
+    let query = `
       SELECT 
         n.id,
         u.id_usuario AS id_alumno,
@@ -18,12 +21,20 @@ export const obtenerNotas = async (req, res) => {
         n.descripcion,
         n.fecha,
         n.trimestre,
-        n.es_promocion
+        n.es_promocion,
+        n.id_ciclo
       FROM notas n
       JOIN usuarios u ON u.id_usuario = n.id_alumno
-      JOIN materias m ON m.id_materia = n.id_materia
-      ORDER BY u.apellido ASC
-    `);
+      JOIN materias m ON m.id_materia = n.id_materia`;
+
+    if (id_ciclo) {
+      query += " WHERE n.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += " ORDER BY u.apellido ASC";
+
+    const [rows] = await pool.query(query, params);
 
     res.json(rows);
   } catch (error) {
@@ -46,16 +57,19 @@ export const crearNota = async (req, res) => {
       nota,
       trimestre,
       es_promocion,
+      id_ciclo,
     } = req.body;
 
     if (!id_alumno || !id_materia || nota === undefined) {
       return res.status(400).json({ error: "Faltan datos obligatorios" });
     }
 
+    const ciclo = await ensureCicloLectivo(id_ciclo);
+
     await pool.query(
       `INSERT INTO notas 
-      (id_alumno, id_materia, tipo, descripcion, nota, fecha, trimestre, es_promocion)
-      VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)`,
+      (id_alumno, id_materia, tipo, descripcion, nota, fecha, trimestre, es_promocion, id_ciclo)
+      VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?)`,
       [
         id_alumno,
         id_materia,
@@ -64,6 +78,7 @@ export const crearNota = async (req, res) => {
         nota,
         trimestre || 1,
         es_promocion || 0,
+        ciclo.id_ciclo,
       ]
     );
 
@@ -80,7 +95,9 @@ export const crearNota = async (req, res) => {
 // ==========================================
 export const guardarNotas = async (req, res) => {
   try {
-    const { materiaId, tipo, trimestre, notas } = req.body;
+    const { materiaId, tipo, trimestre, notas, id_ciclo } = req.body;
+
+    const ciclo = await ensureCicloLectivo(id_ciclo);
 
     for (const idUsuario in notas) {
       const notaData = notas[idUsuario];
@@ -116,8 +133,9 @@ export const guardarNotas = async (req, res) => {
            WHERE id_alumno = ? 
            AND id_materia = ? 
            AND tipo = ? 
-           AND trimestre = ?`,
-          [idAlumno, materiaId, tipo, trimestre]
+           AND trimestre = ?
+           AND id_ciclo = ?`,
+          [idAlumno, materiaId, tipo, trimestre, ciclo.id_ciclo]
         );
 
         if (existe.length > 0) {
@@ -138,8 +156,8 @@ export const guardarNotas = async (req, res) => {
           // INSERT nuevo
           await pool.query(
             `INSERT INTO notas 
-            (id_alumno, id_materia, tipo, descripcion, nota, fecha, trimestre, es_promocion)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            (id_alumno, id_materia, tipo, descripcion, nota, fecha, trimestre, es_promocion, id_ciclo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               idAlumno,
               materiaId,
@@ -149,6 +167,7 @@ export const guardarNotas = async (req, res) => {
               fecha || new Date().toISOString(),
               trimestre,
               es_promocion,
+              ciclo.id_ciclo,
             ]
           );
         }
@@ -164,8 +183,8 @@ export const guardarNotas = async (req, res) => {
         await pool.query(
           `UPDATE alumno_materia 
            SET estado = ?
-           WHERE id_alumno = ? AND id_materia = ?`,
-          [estado, idAlumno, materiaId]
+           WHERE id_alumno = ? AND id_materia = ? AND id_ciclo = ?`,
+          [estado, idAlumno, materiaId, ciclo.id_ciclo]
         );
       }
     }
@@ -186,8 +205,10 @@ export const obtenerAlumnosConNotas = async (req, res) => {
     const { id } = req.params; // id_materia
     const { tipo, trimestre } = req.query;
 
-    const [rows] = await pool.query(
-      `SELECT 
+    const { id_ciclo } = req.query;
+    const params = [tipo, trimestre, id];
+
+    let query = `SELECT 
         u.id_usuario AS id,
         u.nombre,
         u.apellido,
@@ -205,10 +226,14 @@ export const obtenerAlumnosConNotas = async (req, res) => {
         AND n.id_materia = am.id_materia
         AND n.tipo = ?
         AND n.trimestre = ?
-      WHERE am.id_materia = ?
-      ORDER BY u.apellido ASC`,
-      [tipo, trimestre, id]
-    );
+        ${id_ciclo ? "AND n.id_ciclo = ?" : ""}
+      WHERE am.id_materia = ?`;
+
+    if (id_ciclo) {
+      params.push(id_ciclo);
+    }
+
+    const [rows] = await pool.query(query + " ORDER BY u.apellido ASC", params);
 
     res.json(rows);
   } catch (error) {
@@ -271,8 +296,9 @@ export const obtenerNotasAlumno = async (req, res) => {
 
     console.log("✅ id_alumno resuelto:", id_alumno);
 
-    const [rows] = await pool.query(
-      `SELECT 
+    const { id_ciclo } = req.query;
+
+    let query = `SELECT 
         m.nombre AS materia,
         n.tipo,
         n.nota,
@@ -282,10 +308,17 @@ export const obtenerNotasAlumno = async (req, res) => {
         n.es_promocion
       FROM notas n
       JOIN materias m ON m.id_materia = n.id_materia
-      WHERE n.id_alumno = ?
-      ORDER BY m.nombre, n.trimestre`,
-      [id_alumno]
-    );
+      WHERE n.id_alumno = ?`;
+    const params = [id_alumno];
+
+    if (id_ciclo) {
+      query += " AND n.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += " ORDER BY m.nombre, n.trimestre";
+
+    const [rows] = await pool.query(query, params);
 
     console.log("✅ Notas encontradas:", rows.length);
     res.json(rows);
@@ -303,8 +336,9 @@ export const obtenerAlumnosPorMateria = async (req, res) => {
   try {
     const { id_materia } = req.params;
 
-    const [rows] = await pool.query(
-      `SELECT 
+    const { id_ciclo } = req.query;
+    const params = [id_materia];
+    let query = `SELECT 
         u.id_usuario AS id,
         u.nombre,
         u.apellido,
@@ -312,10 +346,16 @@ export const obtenerAlumnosPorMateria = async (req, res) => {
       FROM alumno_materia am
       JOIN alumnos a ON a.id_alumno = am.id_alumno
       JOIN usuarios u ON u.id_usuario = a.id_usuario
-      WHERE am.id_materia = ?
-      ORDER BY u.apellido ASC`,
-      [id_materia]
-    );
+      WHERE am.id_materia = ?`;
+
+    if (id_ciclo) {
+      query += " AND am.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += " ORDER BY u.apellido ASC";
+
+    const [rows] = await pool.query(query, params);
 
     res.json(rows);
   } catch (error) {

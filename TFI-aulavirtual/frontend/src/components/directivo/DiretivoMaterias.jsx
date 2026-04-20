@@ -15,7 +15,7 @@ import {
 
 import "../../css/DirectivoMaterias.css";
 
-const AdminMaterias = () => {
+const AdminMaterias = ({ selectedCiclo }) => {
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
@@ -42,16 +42,28 @@ const AdminMaterias = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    cargarSelects();
-    cargarMaterias();
-  }, []);
+    if (selectedCiclo) {
+      cargarSelects();
+      cargarMaterias();
+    }
+  }, [selectedCiclo]);
+
+  if (!selectedCiclo) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+        <FaExclamationCircle size={48} style={{ marginBottom: "16px", opacity: 0.6, color: "#64748b" }} />
+        <h3>Selecciona un ciclo lectivo</h3>
+        <p>Elige un ciclo lectivo para gestionar las materias.</p>
+      </div>
+    );
+  }
 
   const cargarSelects = async () => {
     const [docRes, curRes] = await Promise.all([
       fetch("http://localhost:8000/api/docentes", {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      fetch("http://localhost:8000/api/cursos", {
+      fetch(`http://localhost:8000/api/cursos?id_ciclo=${selectedCiclo || ""}`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
     ]);
@@ -64,7 +76,7 @@ const AdminMaterias = () => {
     setLoadingTabla(true);
 
     const res = await fetch(
-      "http://localhost:8000/api/materias/materias/asignaciones",
+      `http://localhost:8000/api/materias/materias/asignaciones?id_ciclo=${selectedCiclo || ""}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -76,6 +88,7 @@ const AdminMaterias = () => {
     if (!form.nombre || !form.id_docente || !form.id_curso) return;
 
     setLoading(true);
+    const cicloId = selectedCiclo ? Number(selectedCiclo) : undefined;
 
     const resMateria = await fetch("http://localhost:8000/api/materias/materias", {
       method: "POST",
@@ -83,12 +96,20 @@ const AdminMaterias = () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        id_ciclo: cicloId,
+      }),
     });
 
     const dataMateria = await resMateria.json();
 
-    await fetch("http://localhost:8000/api/materias/asignar", {
+    if (!resMateria.ok) {
+      setLoading(false);
+      return alert(dataMateria.error || "Error al crear la materia");
+    }
+
+    const resAsignacion = await fetch("http://localhost:8000/api/materias/asignar", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -98,8 +119,16 @@ const AdminMaterias = () => {
         id_docente: form.id_docente,
         id_materia: dataMateria.id_materia,
         id_curso: form.id_curso,
+        id_ciclo: cicloId,
       }),
     });
+
+    const dataAsignacion = await resAsignacion.json();
+
+    if (!resAsignacion.ok) {
+      setLoading(false);
+      return alert(dataAsignacion.error || "Error al asignar la materia al ciclo lectivo");
+    }
 
     setForm({ nombre: "", descripcion: "", id_docente: "", id_curso: "" });
     await cargarMaterias();

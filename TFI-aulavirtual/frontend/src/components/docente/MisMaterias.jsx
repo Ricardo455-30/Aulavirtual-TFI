@@ -13,11 +13,12 @@ import {
   FiX,
   FiAlertCircle,
   FiCheckCircle,
-  FiLoader
+  FiLoader,
+  FiInfo
 } from "react-icons/fi";
 import Modal from "../Modal.jsx";
 
-const MisMaterias = () => {
+const MisMaterias = ({ selectedCiclo }) => {
   const [materias, setMaterias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -32,6 +33,16 @@ const MisMaterias = () => {
   const [nuevaDescripcion, setNuevaDescripcion] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: null, texto: "" });
+
+  if (!selectedCiclo) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
+        <h3>Selecciona un ciclo lectivo</h3>
+        <p>Elige un ciclo lectivo para ver tus materias asignadas.</p>
+      </div>
+    );
+  }
 
   const openModal = (materia) => {
     setSelectedMateria(materia);
@@ -133,6 +144,9 @@ const MisMaterias = () => {
 
     try {
       const token = localStorage.getItem("token");
+      if (selectedCiclo) {
+        formData.append("id_ciclo", selectedCiclo);
+      }
       await axios.post(
         "http://localhost:8000/api/materias/contenidos",
         formData,
@@ -162,6 +176,9 @@ const MisMaterias = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
+            params: {
+              id_ciclo: selectedCiclo || undefined,
+            },
           }
         );
 
@@ -174,7 +191,7 @@ const MisMaterias = () => {
     };
 
     fetchMaterias();
-  }, []);
+  }, [selectedCiclo]);
 
   if (loading) {
     return (

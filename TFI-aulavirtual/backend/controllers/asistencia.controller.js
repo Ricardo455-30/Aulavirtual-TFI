@@ -1,16 +1,18 @@
 import { pool } from "../config/db.js";
+import { ensureCicloLectivo } from "../utils/cicloLectivo.js";
 
 //
 // 🧱 1. CREAR CLASE
 //
 export const crearClase = async (req, res) => {
   try {
-    const { id_curso, id_materia, fecha } = req.body;
+    const { id_curso, id_materia, fecha, id_ciclo } = req.body;
+    const ciclo = await ensureCicloLectivo(id_ciclo);
 
     const [result] = await pool.query(
-      `INSERT INTO clases (id_curso, id_materia, fecha)
-       VALUES (?, ?, ?)`,
-      [id_curso, id_materia, fecha]
+      `INSERT INTO clases (id_curso, id_materia, fecha, id_ciclo)
+       VALUES (?, ?, ?, ?)`,
+      [id_curso, id_materia, fecha, ciclo.id_ciclo]
     );
 
     res.json({
@@ -37,6 +39,7 @@ export const crearClase = async (req, res) => {
 export const obtenerAlumnosPorCursoMateria = async (req, res) => {
   try {
     const { id } = req.params; // id de docente_materia_curso
+    const { id_ciclo } = req.query;
 
     // Obtener id_materia desde docente_materia_curso
     const [dmcRows] = await pool.query(
@@ -51,8 +54,7 @@ export const obtenerAlumnosPorCursoMateria = async (req, res) => {
     const { id_materia } = dmcRows[0];
     console.log('id_materia:', id_materia);
 
-    const [rows] = await pool.query(
-      `
+    const query = `
       SELECT 
         al.id_alumno,
         u.nombre,
@@ -62,10 +64,13 @@ export const obtenerAlumnosPorCursoMateria = async (req, res) => {
       INNER JOIN alumno_materia am 
         ON am.id_alumno = al.id_alumno
       WHERE am.id_materia = ?
-      AND am.estado = 'Cursando'
+      AND am.estado = 'Cursando'` + (id_ciclo ? " AND am.id_ciclo = ?" : "") + `
       ORDER BY u.apellido
-      `,
-      [id_materia]
+      `;
+
+    const [rows] = await pool.query(
+      query,
+      id_ciclo ? [id_materia, id_ciclo] : [id_materia]
     );
 
     console.log('Alumnos encontrados:', rows.length);
@@ -81,11 +86,11 @@ export const obtenerAlumnosPorCursoMateria = async (req, res) => {
 //
 export const registrarAsistencia = async (req, res) => {
   try {
-    const { dmc_id, fecha, asistencias } = req.body;
+    const { dmc_id, fecha, asistencias, id_ciclo } = req.body;
 
-    // Obtener id_curso e id_materia desde docente_materia_curso
+    // Obtener id_curso, id_materia e id_ciclo desde docente_materia_curso
     const [dmcRows] = await pool.query(
-      `SELECT id_curso, id_materia FROM docente_materia_curso WHERE id = ?`,
+      `SELECT id_curso, id_materia, id_ciclo FROM docente_materia_curso WHERE id = ?`,
       [dmc_id]
     );
 
@@ -93,19 +98,20 @@ export const registrarAsistencia = async (req, res) => {
       return res.status(404).json({ message: "Asignación no encontrada" });
     }
 
-    const { id_curso, id_materia } = dmcRows[0];
+    const { id_curso, id_materia, id_ciclo: dmcCiclo } = dmcRows[0];
+    const ciclo = await ensureCicloLectivo(id_ciclo || dmcCiclo);
 
     // Crear clase si no existe
     let [claseRows] = await pool.query(
-      `SELECT id_clase FROM clases WHERE id_curso = ? AND id_materia = ? AND fecha = ?`,
-      [id_curso, id_materia, fecha]
+      `SELECT id_clase FROM clases WHERE id_curso = ? AND id_materia = ? AND fecha = ? AND id_ciclo = ?`,
+      [id_curso, id_materia, fecha, ciclo.id_ciclo]
     );
 
     let id_clase;
     if (claseRows.length === 0) {
       const [result] = await pool.query(
-        `INSERT INTO clases (id_curso, id_materia, fecha) VALUES (?, ?, ?)`,
-        [id_curso, id_materia, fecha]
+        `INSERT INTO clases (id_curso, id_materia, fecha, id_ciclo) VALUES (?, ?, ?, ?)`,
+        [id_curso, id_materia, fecha, ciclo.id_ciclo]
       );
       id_clase = result.insertId;
     } else {
@@ -117,13 +123,14 @@ export const registrarAsistencia = async (req, res) => {
       id_clase,
       a.alumno_id,
       a.estado,
+      ciclo.id_ciclo, // Agregar id_ciclo
     ]);
 
     await pool.query(
       `
-      INSERT INTO asistencia (id_clase, id_alumno, estado)
+      INSERT INTO asistencia (id_clase, id_alumno, estado, id_ciclo)
       VALUES ?
-      ON DUPLICATE KEY UPDATE estado = VALUES(estado)
+      ON DUPLICATE KEY UPDATE estado = VALUES(estado), id_ciclo = VALUES(id_ciclo)
       `,
       [values]
     );
@@ -140,10 +147,10 @@ export const registrarAsistencia = async (req, res) => {
 //
 export const obtenerPlanilla = async (req, res) => {
   try {
-    const { id_materia } = req.query;
+    const { id_materia, id_ciclo } = req.query;
 
-    const [rows] = await pool.query(
-      `
+    const params = [id_materia];
+    let query = `
       SELECT 
         al.id_alumno,
         u.nombre,
@@ -159,11 +166,16 @@ export const obtenerPlanilla = async (req, res) => {
       LEFT JOIN asistencia a 
         ON a.id_clase = cl.id_clase 
         AND a.id_alumno = al.id_alumno
-      WHERE am.id_materia = ?
-      ORDER BY u.apellido, cl.fecha
-      `,
-      [id_materia]
-    );
+      WHERE am.id_materia = ?`;
+
+    if (id_ciclo) {
+      query += " AND am.id_ciclo = ? AND cl.id_ciclo = ?";
+      params.push(id_ciclo, id_ciclo);
+    }
+
+    query += " ORDER BY u.apellido, cl.fecha";
+
+    const [rows] = await pool.query(query, params);
 
     res.json(rows);
   } catch (error) {
@@ -177,7 +189,7 @@ export const obtenerPlanilla = async (req, res) => {
 //
 export const reporteAsistencia = async (req, res) => {
   try {
-    const { cursoId, materiaId, desde, hasta } = req.query;
+    const { cursoId, materiaId, desde, hasta, id_ciclo } = req.query;
 
     // 📌 Primero verificamos que el curso existe
     if (!cursoId) {
@@ -193,15 +205,30 @@ export const reporteAsistencia = async (req, res) => {
       return res.status(404).json({ error: "Curso no encontrado" });
     }
 
-    // 📌 Obtener estudiantes del curso (SOLO ALUMNOS CON CURSO ASIGNADO)
-    const [alumnos] = await pool.query(
+    // 📌 Obtener estudiantes que han tenido asistencias en clases del curso seleccionado
+    let [alumnos] = await pool.query(
       `SELECT DISTINCT al.id_alumno, u.nombre, u.apellido, u.id_usuario
        FROM alumnos al
        JOIN usuarios u ON u.id_usuario = al.id_usuario
-       WHERE al.id_curso = ?
+       JOIN asistencia a ON a.id_alumno = al.id_alumno
+       JOIN clases cl ON cl.id_clase = a.id_clase
+       WHERE cl.id_curso = ?
        ORDER BY u.apellido`,
       [cursoId]
     );
+
+    // Si no hay alumnos con asistencias, obtener alumnos del curso para mostrar que no hay registros
+    if (alumnos.length === 0) {
+      console.warn("⚠️ No hay asistencias registradas, obteniendo alumnos del curso");
+      [alumnos] = await pool.query(
+        `SELECT DISTINCT al.id_alumno, u.nombre, u.apellido, u.id_usuario
+         FROM alumnos al
+         JOIN usuarios u ON u.id_usuario = al.id_usuario
+         WHERE al.id_curso = ?
+         ORDER BY u.apellido`,
+        [cursoId]
+      );
+    }
 
     if (alumnos.length === 0) {
       console.warn("⚠️ No hay alumnos en este curso");
@@ -222,6 +249,12 @@ export const reporteAsistencia = async (req, res) => {
     if (materiaId) {
       queryClases += " AND cl.id_materia = ?";
       paramsClases.push(materiaId);
+    }
+
+    // Solo filtrar por id_ciclo si se proporciona y es válido
+    if (id_ciclo && id_ciclo !== '' && id_ciclo !== 'undefined') {
+      queryClases += " AND cl.id_ciclo = ?";
+      paramsClases.push(id_ciclo);
     }
 
     if (desde && hasta) {
@@ -260,12 +293,23 @@ export const reporteAsistencia = async (req, res) => {
        FROM asistencia a
        JOIN clases cl ON cl.id_clase = a.id_clase
        WHERE cl.id_curso = ? ${materiaId ? "AND cl.id_materia = ?" : ""}
+       ${id_ciclo && id_ciclo !== '' && id_ciclo !== 'undefined' ? "AND cl.id_ciclo = ?" : ""}
        ${desde && hasta ? "AND cl.fecha BETWEEN ? AND ?" : ""}`,
-      materiaId && desde && hasta
-        ? [cursoId, materiaId, desde, hasta]
-        : materiaId ? [cursoId, materiaId]
-        : desde && hasta ? [cursoId, desde, hasta]
-        : [cursoId]
+      materiaId && id_ciclo && id_ciclo !== '' && id_ciclo !== 'undefined' && desde && hasta
+        ? [cursoId, materiaId, id_ciclo, desde, hasta]
+        : materiaId && id_ciclo && id_ciclo !== '' && id_ciclo !== 'undefined'
+          ? [cursoId, materiaId, id_ciclo]
+          : id_ciclo && id_ciclo !== '' && id_ciclo !== 'undefined' && desde && hasta
+            ? [cursoId, id_ciclo, desde, hasta]
+            : materiaId && desde && hasta
+              ? [cursoId, materiaId, desde, hasta]
+              : materiaId
+                ? [cursoId, materiaId]
+                : id_ciclo && id_ciclo !== '' && id_ciclo !== 'undefined'
+                  ? [cursoId, id_ciclo]
+                  : desde && hasta
+                    ? [cursoId, desde, hasta]
+                    : [cursoId]
     );
 
     console.log(`✅ Encontrados ${asistencias.length} registros de asistencia`);
@@ -303,14 +347,13 @@ export const reporteAsistencia = async (req, res) => {
 //
 export const resumenAsistencia = async (req, res) => {
   try {
-    const { cursoId, materiaId } = req.query;
+    const { cursoId, materiaId, id_ciclo } = req.query;
 
     if (!cursoId) {
       return res.status(400).json({ error: "cursoId es requerido" });
     }
 
-    const [rows] = await pool.query(
-      `
+    const query = `
       SELECT 
         al.id_alumno,
         u.nombre,
@@ -323,13 +366,19 @@ export const resumenAsistencia = async (req, res) => {
       INNER JOIN usuarios u ON al.id_usuario = u.id_usuario
       LEFT JOIN clases cl ON cl.id_curso = al.id_curso
         ${materiaId ? "AND cl.id_materia = ?" : ""}
+        ${id_ciclo ? "AND cl.id_ciclo = ?" : ""}
       LEFT JOIN asistencia a ON a.id_clase = cl.id_clase AND a.id_alumno = al.id_alumno
       WHERE al.id_curso = ?
       GROUP BY al.id_alumno, u.nombre, u.apellido
       ORDER BY u.apellido
-      `,
-      materiaId ? [materiaId, cursoId] : [cursoId]
-    );
+      `;
+
+    const params = [];
+    if (materiaId) params.push(materiaId);
+    if (id_ciclo) params.push(id_ciclo);
+    params.push(cursoId);
+
+    const [rows] = await pool.query(query, params);
 
     res.json(rows);
   } catch (error) {

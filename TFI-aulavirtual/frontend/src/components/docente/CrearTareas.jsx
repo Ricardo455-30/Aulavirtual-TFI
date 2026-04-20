@@ -16,7 +16,7 @@ import {
 } from "react-icons/fi";
 import Modal from "../Modal.jsx";
 
-const CrearTareas = () => {
+const CrearTareas = ({ selectedCiclo }) => {
   // Estados principales
   const [materias, setMaterias] = useState([]);
   const [tareas, setTareas] = useState([]);
@@ -51,6 +51,9 @@ const CrearTareas = () => {
           "http://localhost:8000/api/materias/docente",
           {
             headers: { Authorization: `Bearer ${token}` },
+            params: {
+              id_ciclo: selectedCiclo || undefined,
+            },
           }
         );
         setMaterias(res.data || []);
@@ -80,9 +83,14 @@ const CrearTareas = () => {
 
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `http://localhost:8000/api/tareas?id_materia=${id_materia}&id_curso=${id_curso}`,
+        "http://localhost:8000/api/tareas",
         {
           headers: { Authorization: `Bearer ${token}` },
+          params: {
+            id_materia,
+            id_curso,
+            id_ciclo: selectedCiclo || undefined,
+          },
         }
       );
       setTareas(res.data || []);
@@ -119,6 +127,7 @@ const CrearTareas = () => {
           descripcion: descripcion.trim() || null,
           fecha_entrega: fechaEntrega || null,
           fecha_creacion: new Date().toISOString(),
+          id_ciclo: selectedCiclo || undefined,
         },
         {
           headers: { Authorization: `Bearer ${token}` },

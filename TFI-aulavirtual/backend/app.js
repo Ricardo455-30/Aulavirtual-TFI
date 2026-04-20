@@ -16,7 +16,7 @@ import boletinroutes from "./routes/boletin.routes.js";
 import asistenciaRoutes from "./routes/asistencia.routes.js";
 import tareasRoutes from "./routes/tareas.routes.js";
 import entregasTareasRoutes from "./routes/entregas_tareas.routes.js";
-
+import cicloLectivoRoutes from "./routes/ciclo_lectivo.routes.js";
 
 const app = express();
 
@@ -48,6 +48,7 @@ app.use("/api/notas", notasRoutes);
 app.use("/api/asistencia", asistenciaRoutes);
 app.use("/api/tareas", tareasRoutes);
 app.use("/api/entregas", entregasTareasRoutes);
+app.use("/api/ciclo_lectivo", cicloLectivoRoutes);
 
 // error handler for multer and generic errors
 app.use((err, req, res, next) => {

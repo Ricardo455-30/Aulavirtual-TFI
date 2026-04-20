@@ -13,6 +13,7 @@ import {
   FiLoader,
   FiRefreshCw,
   FiGrid,
+  FiInfo,
 } from "react-icons/fi";
 
 const tipoColores = {
@@ -28,7 +29,7 @@ const estadoConfig = {
   Cursando: { color: "#9e9e9e", icon: <FiClock /> },
 };
 
-const CargarNotas = () => {
+const CargarNotas = ({ selectedCiclo }) => {
   const [materias, setMaterias] = useState([]);
   const [materiaSeleccionada, setMateriaSeleccionada] = useState(null);
   const [alumnos, setAlumnos] = useState([]);
@@ -40,6 +41,16 @@ const CargarNotas = () => {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
   const [exito, setExito] = useState(false);
+
+  if (!selectedCiclo) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
+        <h3>Selecciona un ciclo lectivo</h3>
+        <p>Elige un ciclo lectivo para cargar notas.</p>
+      </div>
+    );
+  }
 
   // =========================
   //  MATERIAS
@@ -55,6 +66,9 @@ const CargarNotas = () => {
           "http://localhost:8000/api/materias/docente",
           {
             headers: { Authorization: `Bearer ${token}` },
+            params: {
+              id_ciclo: selectedCiclo || undefined,
+            },
           }
         );
 
@@ -68,7 +82,7 @@ const CargarNotas = () => {
     };
 
     fetchMaterias();
-  }, []);
+  }, [selectedCiclo]);
 
   // Recargar alumnos cuando cambie tipo o trimestre
   useEffect(() => {
@@ -105,9 +119,14 @@ const CargarNotas = () => {
       if (resAlumnos.data && resAlumnos.data.length > 0) {
         try {
           const resNotas = await axios.get(
-            `http://localhost:8000/api/notas/materia/${id}?tipo=${tipo}&trimestre=${trimestre}`,
+            `http://localhost:8000/api/notas/materia/${id}`,
             {
               headers: { Authorization: `Bearer ${token}` },
+              params: {
+                tipo,
+                trimestre,
+                id_ciclo: selectedCiclo || undefined,
+              },
             }
           );
 
@@ -185,7 +204,7 @@ const CargarNotas = () => {
 
       await axios.post(
         "http://localhost:8000/api/notas",
-        { materiaId: materiaSeleccionada, tipo, trimestre, notas },
+        { materiaId: materiaSeleccionada, tipo, trimestre, notas, id_ciclo: selectedCiclo },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -245,8 +264,8 @@ const CargarNotas = () => {
                 }}
                 className="filtro-select"
               >
-                <option>Parcial</option>
-                <option>Final</option>
+                <option>Trimestral</option>
+                <option>Mesa Libre</option>
                 <option>TP</option>
                 <option>Recuperatorio</option>
               </select>

@@ -24,15 +24,30 @@ export const getDocentes = async (req, res) => {
 // 🎓 CURSOS
 // =============================
 export const getCursos = async (req, res) => {
-  const [rows] = await pool.query(`
-    SELECT 
-      id_curso,
-      anio,
-      division,
-      nombre,
-      CONCAT(anio, '° ', division) AS curso_display
-    FROM cursos
-    ORDER BY anio ASC, division ASC
-  `);
-  res.json(rows);
+  try {
+    const { id_ciclo } = req.query;
+    let query = `
+      SELECT 
+        id_curso,
+        anio,
+        division,
+        nombre,
+        CONCAT(anio, '° ', division) AS curso_display
+      FROM cursos`;
+    const params = [];
+
+    if (id_ciclo) {
+      query += " WHERE id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += `
+      ORDER BY anio ASC, division ASC
+    `;
+
+    const [rows] = await pool.query(query, params);
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener cursos" });
+  }
 };

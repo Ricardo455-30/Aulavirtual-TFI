@@ -6,7 +6,16 @@ import { pool } from "../config/db.js";
 // ==========================
 export const obtenerCursos = async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM cursos");
+    const { id_ciclo } = req.query;
+    let query = "SELECT * FROM cursos";
+    const params = [];
+
+    if (id_ciclo) {
+      query += " WHERE id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    const [rows] = await pool.query(query, params);
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener cursos" });
@@ -82,8 +91,9 @@ export const crearNota = async (req, res) => {
 export const obtenerNotasAlumno = async (req, res) => {
   try {
     const { id_alumno } = req.params;
+    const { id_ciclo } = req.query;
 
-    const [rows] = await pool.query(`
+    let query = `
       SELECT 
         m.nombre AS materia,
         n.nota,
@@ -92,8 +102,15 @@ export const obtenerNotasAlumno = async (req, res) => {
         n.es_promocion
       FROM notas n
       JOIN materias m ON n.id_materia = m.id_materia
-      WHERE n.id_alumno = ?
-    `, [id_alumno]);
+      WHERE n.id_alumno = ?`;
+    const params = [id_alumno];
+
+    if (id_ciclo) {
+      query += " AND n.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    const [rows] = await pool.query(query, params);
 
     res.json(rows);
   } catch (error) {
@@ -138,8 +155,9 @@ export const obtenerBoletinAlumno = async (req, res) => {
 export const obtenerBoletinCurso = async (req, res) => {
   try {
     const { id_curso } = req.params;
+    const { id_ciclo } = req.query;
 
-    const [rows] = await pool.query(`
+    let query = `
       SELECT 
         a.id_alumno,
         u.nombre,
@@ -157,10 +175,20 @@ export const obtenerBoletinCurso = async (req, res) => {
       LEFT JOIN notas n 
         ON n.id_alumno = a.id_alumno 
         AND n.id_materia = m.id_materia
-      WHERE a.id_curso = ?
+      WHERE a.id_curso = ?`;
+    const params = [id_curso];
+
+    if (id_ciclo) {
+      query += " AND am.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += `
       GROUP BY a.id_alumno, u.nombre, u.apellido, m.id_materia, m.nombre
       ORDER BY u.apellido
-    `, [id_curso]);
+    `;
+
+    const [rows] = await pool.query(query, params);
 
     res.json(rows);
   } catch (error) {

@@ -1,15 +1,20 @@
 import { pool } from "../config/db.js";
+import { ensureCicloLectivo } from "../utils/cicloLectivo.js";
 
 // ==============================
 // ✅ CREAR MATERIA (DIRECTIVO)
 // ==============================
 export const crearMateria = async (req, res) => {
   try {
-    const { nombre, descripcion } = req.body;
+    const { nombre, descripcion, id_ciclo } = req.body;
     const creado_por = req.user.id; // viene del middleware JWT
 
     if (!nombre) {
       return res.status(400).json({ error: "El nombre es obligatorio" });
+    }
+
+    if (id_ciclo) {
+      await ensureCicloLectivo(id_ciclo);
     }
 
     const [result] = await pool.query(
@@ -20,8 +25,12 @@ export const crearMateria = async (req, res) => {
     res.json({
       message: "Materia creada correctamente",
       id_materia: result.insertId,
+      id_ciclo: id_ciclo || null,
     });
   } catch (error) {
+    if (error.code === "CICLO_NO_ENCONTRADO" || error.code === "SIN_CICLO_ACTIVO") {
+      return res.status(400).json({ error: error.message });
+    }
     res.status(500).json({ error: error.message });
   }
 };
@@ -73,23 +82,28 @@ export const editarMateria = async (req, res) => {
 // ==========================================
 export const asignarDocenteMateriaCurso = async (req, res) => {
   try {
-    const { id_docente, id_materia, id_curso } = req.body;
+    const { id_docente, id_materia, id_curso, id_ciclo } = req.body;
 
     if (!id_docente || !id_materia || !id_curso) {
       return res.status(400).json({ error: "Faltan datos" });
     }
 
+    const ciclo = await ensureCicloLectivo(id_ciclo);
+
     await pool.query(
       `INSERT INTO docente_materia_curso 
-      (id_docente, id_materia, id_curso)
-      VALUES (?, ?, ?)`,
-      [id_docente, id_materia, id_curso]
+      (id_docente, id_materia, id_curso, id_ciclo)
+      VALUES (?, ?, ?, ?)`,
+      [id_docente, id_materia, id_curso, ciclo.id_ciclo]
     );
 
-    res.json({ message: "Asignación realizada correctamente" });
+    res.json({ message: "Asignación realizada correctamente", id_ciclo: ciclo.id_ciclo });
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
       return res.status(400).json({ error: "Ya está asignado" });
+    }
+    if (error.code === "CICLO_NO_ENCONTRADO" || error.code === "SIN_CICLO_ACTIVO") {
+      return res.status(400).json({ error: error.message });
     }
     res.status(500).json({ error: error.message });
   }
@@ -101,11 +115,11 @@ export const asignarDocenteMateriaCurso = async (req, res) => {
 export const obtenerMateriasDocente = async (req, res) => {
   try {
     const id_usuario = req.user.id;
+    const { id_ciclo } = req.query;
 
     console.log("📚 obtenerMateriasDocente - id_usuario:", id_usuario);
 
-    const [rows] = await pool.query(
-      `SELECT 
+    let query = `SELECT 
         dmc.id,
         m.nombre,
         m.id_materia,
@@ -114,14 +128,21 @@ export const obtenerMateriasDocente = async (req, res) => {
         c.id_curso,
         c.anio,
         c.division,
-        d.id_docente
+        d.id_docente,
+        dmc.id_ciclo
       FROM docente_materia_curso dmc
       JOIN materias m ON dmc.id_materia = m.id_materia
       JOIN cursos c ON dmc.id_curso = c.id_curso
       JOIN docentes d ON dmc.id_docente = d.id_docente
-      WHERE d.id_usuario = ?`,
-      [id_usuario]
-    );
+      WHERE d.id_usuario = ?`;
+    const params = [id_usuario];
+
+    if (id_ciclo) {
+      query += " AND dmc.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    const [rows] = await pool.query(query, params);
 
     console.log("✅ Materias encontradas:", rows.length);
     console.log("📋 Datos:", rows);
@@ -181,11 +202,13 @@ export const subirContenido = async (req, res) => {
     }
 
     console.log("[subirContenido] Insertando contenido...");
+    const ciclo = await ensureCicloLectivo(id_ciclo || validacion[0].id_ciclo);
+
     await pool.query(
       `INSERT INTO contenidos
-      (id_materia, titulo, descripcion, archivo, subido_por)
-      VALUES (?, ?, ?, ?, ?)`,
-      [id_materia, titulo, descripcion, archivo, id_docente]
+      (id_materia, titulo, descripcion, archivo, subido_por, id_ciclo)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+      [id_materia, titulo, descripcion, archivo, id_docente, ciclo.id_ciclo]
     );
     console.log("[subirContenido] Contenido insertado exitosamente");
 
@@ -201,19 +224,27 @@ export const subirContenido = async (req, res) => {
 export const obtenerContenidos = async (req, res) => {
   try {
     const { id_materia } = req.params;
+    const { id_ciclo } = req.query;
 
-    const [rows] = await pool.query(
-      `SELECT
+    const params = [id_materia];
+    let query = `SELECT
         c.id_contenido,
         c.titulo,
         c.descripcion,
         c.archivo,
-        c.creado_en
+        c.creado_en,
+        c.id_ciclo
       FROM contenidos c
-      WHERE c.id_materia = ?
-      ORDER BY c.creado_en DESC`,
-      [id_materia]
-    );
+      WHERE c.id_materia = ?`;
+
+    if (id_ciclo) {
+      query += " AND c.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += " ORDER BY c.creado_en DESC";
+
+    const [rows] = await pool.query(query, params);
 
     res.json(rows);
   } catch (error) {
@@ -261,7 +292,8 @@ export const editarContenido = async (req, res) => {
 
 export const obtenerMateriasConAsignaciones = async (req, res) => {
   try {
-    const [rows] = await pool.query(`
+    const { id_ciclo } = req.query;
+    let query = `
       SELECT 
   m.id_materia,
   m.nombre AS materia,
@@ -271,6 +303,7 @@ export const obtenerMateriasConAsignaciones = async (req, res) => {
   c.division,
   dmc.id,
   dmc.id_docente,
+  dmc.id_ciclo,
   u.nombre AS docente_nombre,
   u.apellido AS docente_apellido
 FROM materias m
@@ -281,9 +314,17 @@ LEFT JOIN cursos c
 LEFT JOIN docentes d 
   ON dmc.id_docente = d.id_docente
 LEFT JOIN usuarios u 
-  ON d.id_usuario = u.id_usuario
-ORDER BY m.id_materia DESC;
-    `);
+  ON d.id_usuario = u.id_usuario`;
+    const params = [];
+
+    if (id_ciclo) {
+      query += " WHERE dmc.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += " ORDER BY m.id_materia DESC";
+
+    const [rows] = await pool.query(query, params);
 
     res.json(rows);
   } catch (error) {
@@ -294,7 +335,7 @@ ORDER BY m.id_materia DESC;
 export const editarAsignacion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { id_docente, id_curso } = req.body;
+    const { id_docente, id_curso, id_ciclo } = req.body;
 
     const campos = [];
     const valores = [];
@@ -307,6 +348,15 @@ export const editarAsignacion = async (req, res) => {
     if (id_curso) {
       campos.push("id_curso = ?");
       valores.push(id_curso);
+    }
+
+    if (id_ciclo) {
+      campos.push("id_ciclo = ?");
+      valores.push(id_ciclo);
+    }
+
+    if (campos.length === 0) {
+      return res.status(400).json({ error: "Debe proporcionar al menos un campo para actualizar" });
     }
 
     valores.push(id);

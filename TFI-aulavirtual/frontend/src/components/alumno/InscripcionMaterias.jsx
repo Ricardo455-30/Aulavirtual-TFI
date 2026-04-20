@@ -9,7 +9,7 @@ import {
   FiUserPlus,
 } from "react-icons/fi";
 
-const InscripcionMaterias = () => {
+const InscripcionMaterias = ({ idCiclo }) => {
   const [materias, setMaterias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,7 +46,7 @@ const InscripcionMaterias = () => {
       const token = localStorage.getItem("token");
       await axios.post(
         `http://localhost:8000/api/alumnos/inscribirse/${id_materia}`,
-        {},
+        { id_ciclo: idCiclo },
         {
           headers: {
             Authorization: `Bearer ${token}`,

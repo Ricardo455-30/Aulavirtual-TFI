@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import AlumnoHeader from "../components/alumno/AlumnoHeader";
 import AlumnoSidebar from "../components/alumno/AlumnoSidebar";
 import AlumnoFooter from "../components/alumno/AlumnoFooter";
+import CicloFiltro from "../components/common/CicloFiltro";
 
 import InicioAlumno from "../components/alumno/Inicoalumno";
 import InscripcionMaterias from "../components/alumno/InscripcionMaterias";
@@ -13,6 +14,7 @@ import "../css/alumno.css"
 
 const AlumnoDashboard = () => {
   const [section, setSection] = useState("inicio");
+  const [selectedCiclo, setSelectedCiclo] = useState("");
 
   const renderSection = () => {
     switch (section) {
@@ -20,16 +22,16 @@ const AlumnoDashboard = () => {
         return <InicioAlumno setSection={setSection} />;
 
       case "inscripciones":
-        return <InscripcionMaterias setSection={setSection} />;
+        return <InscripcionMaterias setSection={setSection} idCiclo={selectedCiclo} />;
 
       case "mis-materias":
-        return <MisMaterias setSection={setSection} />;
+        return <MisMaterias setSection={setSection} idCiclo={selectedCiclo} />;
 
       case "enviar-tareas":
-        return <EnviarTareas setSection={setSection} />;
+        return <EnviarTareas setSection={setSection} idCiclo={selectedCiclo} />;
 
       case "notas":
-        return <MisNotas setSection={setSection} />;
+        return <MisNotas setSection={setSection} idCiclo={selectedCiclo} />;
 
       default:
         return <InicioAlumno setSection={setSection} />;
@@ -45,6 +47,10 @@ const AlumnoDashboard = () => {
       <div className="admin-main">
         {/* Header */}
         <AlumnoHeader section={section} />
+
+        <div style={{ padding: "0 24px 24px" }}>
+          <CicloFiltro selectedCiclo={selectedCiclo} onChange={setSelectedCiclo} />
+        </div>
 
         {/* Contenido */}
         <div className="admin-content">

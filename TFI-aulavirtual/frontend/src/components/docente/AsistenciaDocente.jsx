@@ -12,9 +12,10 @@ import {
   FiUser,
   FiCheck,
   FiX,
+  FiInfo,
 } from "react-icons/fi";
 
-const AsistenciaDocente = () => {
+const AsistenciaDocente = ({ selectedCiclo }) => {
   const [materias, setMaterias] = useState([]);
   const [materiaSeleccionada, setMateriaSeleccionada] = useState("");
   const [alumnos, setAlumnos] = useState([]);
@@ -38,6 +39,9 @@ const AsistenciaDocente = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
+            params: {
+              id_ciclo: selectedCiclo || undefined,
+            },
           }
         );
 
@@ -51,7 +55,7 @@ const AsistenciaDocente = () => {
     };
 
     fetchMaterias();
-  }, []);
+  }, [selectedCiclo]);
 
   // Obtener alumnos según materia
   useEffect(() => {
@@ -67,6 +71,9 @@ const AsistenciaDocente = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+            },
+            params: {
+              id_ciclo: selectedCiclo || undefined,
             },
           }
         );
@@ -91,6 +98,16 @@ const AsistenciaDocente = () => {
 
     fetchAlumnos();
   }, [materiaSeleccionada]);
+
+  if (!selectedCiclo) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
+        <h3>Selecciona un ciclo lectivo</h3>
+        <p>Elige un ciclo lectivo para gestionar la asistencia.</p>
+      </div>
+    );
+  }
 
   // Cambiar estado
   const cambiarEstado = (id_alumno, estado) => {
@@ -127,6 +144,7 @@ const AsistenciaDocente = () => {
       const payload = {
         dmc_id: materiaSeleccionada,
         fecha,
+        id_ciclo: selectedCiclo,
         asistencias: Object.entries(asistencia).map(([alumno_id, estado]) => ({
           alumno_id,
           estado,

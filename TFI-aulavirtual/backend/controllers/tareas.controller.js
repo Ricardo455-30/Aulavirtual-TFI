@@ -1,11 +1,12 @@
 import { pool } from "../config/db.js";
+import { ensureCicloLectivo } from "../utils/cicloLectivo.js";
 
 // ==============================
 // ✅ CREAR TAREA (DOCENTE)
 // ==============================
 export const crearTarea = async (req, res) => {
   try {
-    const { id_materia, id_curso, titulo, descripcion, fecha_entrega } = req.body;
+    const { id_materia, id_curso, titulo, descripcion, fecha_entrega, id_ciclo } = req.body;
     const id_usuario = req.user.id;
 
     // Validar campos requeridos
@@ -41,9 +42,11 @@ export const crearTarea = async (req, res) => {
       });
     }
 
+    const ciclo = await ensureCicloLectivo(id_ciclo || docenteMateria[0].id_ciclo);
+
     const [result] = await pool.query(
-      "INSERT INTO tareas (id_materia, id_curso, titulo, descripcion, fecha_entrega) VALUES (?, ?, ?, ?, ?)",
-      [id_materia, id_curso, titulo, descripcion || null, fecha_entrega || null]
+      "INSERT INTO tareas (id_materia, id_curso, titulo, descripcion, fecha_entrega, id_ciclo) VALUES (?, ?, ?, ?, ?, ?)",
+      [id_materia, id_curso, titulo, descripcion || null, fecha_entrega || null, ciclo.id_ciclo]
     );
 
     res.json({
@@ -69,7 +72,7 @@ export const crearTarea = async (req, res) => {
 // ==============================
 export const obtenerTareas = async (req, res) => {
   try {
-    const { id_materia, id_curso } = req.query;
+    const { id_materia, id_curso, id_ciclo } = req.query;
 
     if (!id_materia || !id_curso) {
       return res.status(400).json({ 
@@ -77,10 +80,17 @@ export const obtenerTareas = async (req, res) => {
       });
     }
 
-    const [tareas] = await pool.query(
-      "SELECT * FROM tareas WHERE id_materia = ? AND id_curso = ? ORDER BY fecha_creacion DESC",
-      [id_materia, id_curso]
-    );
+    const params = [id_materia, id_curso];
+    let query = "SELECT * FROM tareas WHERE id_materia = ? AND id_curso = ?";
+
+    if (id_ciclo) {
+      query += " AND id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += " ORDER BY fecha_creacion DESC";
+
+    const [tareas] = await pool.query(query, params);
 
     res.json(tareas);
 
@@ -266,9 +276,9 @@ export const obtenerTareasAlumno = async (req, res) => {
       });
     }
 
-    // Obtener tareas con información de entregas del alumno
-    const [tareas] = await pool.query(
-      `SELECT 
+    const { id_ciclo } = req.query;
+    const params = [id_alumno, id_materia, id_curso];
+    let query = `SELECT 
         t.*,
         et.id_entrega,
         et.archivo,
@@ -278,10 +288,16 @@ export const obtenerTareasAlumno = async (req, res) => {
         et.estado
       FROM tareas t
       LEFT JOIN entregas_tareas et ON t.id_tarea = et.id_tarea AND et.id_alumno = ?
-      WHERE t.id_materia = ? AND t.id_curso = ?
-      ORDER BY t.fecha_creacion DESC`,
-      [id_alumno, id_materia, id_curso]
-    );
+      WHERE t.id_materia = ? AND t.id_curso = ?`;
+
+    if (id_ciclo) {
+      query += " AND t.id_ciclo = ?";
+      params.push(id_ciclo);
+    }
+
+    query += " ORDER BY t.fecha_creacion DESC";
+
+    const [tareas] = await pool.query(query, params);
 
     res.json(tareas);
 

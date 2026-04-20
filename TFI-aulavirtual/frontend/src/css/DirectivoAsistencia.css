@@ -255,11 +255,44 @@
 /* ===== FILTERS ACTIONS ===== */
 .filters-actions {
   display: flex;
+  justify-content: space-between;
   gap: 15px;
   flex-wrap: wrap;
   align-items: center;
-  padding-top: 15px;
+  padding: 18px 0 10px;
   border-top: 1px solid var(--border);
+  margin-top: 18px;
+}
+
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0.9));
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.summary-card span {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-card strong {
+  font-size: 28px;
+  color: var(--text-dark);
 }
 
 .search-input-wrapper {
@@ -388,14 +421,16 @@
 /* ===== CONTENT SECTION ===== */
 .content-section {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 28px auto 0;
 }
 
 .results-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 25px;
+  margin-bottom: 22px;
+  padding: 0 4px;
 }
 
 .results-title {
@@ -530,10 +565,11 @@
 /* ===== DATA TABLE ===== */
 .table-wrapper {
   background: white;
-  border-radius: 12px;
+  border-radius: 18px;
   overflow: hidden;
   box-shadow: var(--shadow);
   overflow-x: auto;
+  border: 1px solid rgba(229, 231, 235, 0.9);
 }
 
 .data-table {
@@ -543,7 +579,7 @@
 }
 
 .data-table thead {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), var(--primary-dark));
   color: white;
 }
 
@@ -554,15 +590,24 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.data-table th:last-child {
+  border-right: none;
 }
 
 .data-table tbody tr {
-  border-bottom: 1px solid var(--border);
-  transition: var(--transition);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.data-table tbody tr:nth-child(odd) {
+  background: #fcfcfd;
 }
 
 .data-table tbody tr:hover {
-  background: var(--bg-light);
+  background: rgba(59, 130, 246, 0.08);
+  transform: translateX(1px);
 }
 
 .data-table tbody tr:last-child {
@@ -570,12 +615,14 @@
 }
 
 .data-table td {
-  padding: 14px 16px;
+  padding: 16px;
   color: var(--text-dark);
+  vertical-align: middle;
 }
 
 .alumno-nombre {
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
 .stat-presente {
@@ -602,10 +649,13 @@
 }
 
 .percentage-badge {
-  background: var(--primary);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.14);
+  color: var(--primary);
+  padding: 8px 14px;
+  border-radius: 999px;
   font-weight: 700;
   font-size: 12px;
 }

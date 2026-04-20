@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../css/docente.css";
+import CicloFiltro from "../components/common/CicloFiltro";
 
 // Layout
 import DocenteSidebar from "../components/docente/DocenteSidebar";
@@ -16,26 +17,27 @@ import AsistenciaDocente from "../components/docente/AsistenciaDocente";
 
 const DocenteDashboard = () => {
   const [section, setSection] = useState("inicio");
+  const [selectedCiclo, setSelectedCiclo] = useState("");
 
   const renderSection = () => {
     switch (section) {
       case "inicio":
-        return <InicioDocente setSection={setSection} />;
+        return <InicioDocente setSection={setSection} selectedCiclo={selectedCiclo} />;
 
       case "materias":
-        return <MisMaterias setSection={setSection} />;
+        return <MisMaterias setSection={setSection} selectedCiclo={selectedCiclo} />;
 
       case "crear-tareas":
-        return <CrearTareas setSection={setSection} />;
+        return <CrearTareas setSection={setSection} selectedCiclo={selectedCiclo} />;
 
       case "tareas":
-        return <RecibirTarea setSection={setSection} />;
+        return <RecibirTarea setSection={setSection} selectedCiclo={selectedCiclo} />;
 
       case "notas":
-        return <CargarNotas setSection={setSection} />;
+        return <CargarNotas setSection={setSection} selectedCiclo={selectedCiclo} />;
 
       case "asistencia":
-        return <AsistenciaDocente setSection={setSection} />;
+        return <AsistenciaDocente setSection={setSection} selectedCiclo={selectedCiclo} />;
 
       default:
         return (
@@ -56,6 +58,10 @@ const DocenteDashboard = () => {
       <div className="docente-main">
         {/* Header */}
         <DocenteHeader />
+
+        <div style={{ padding: "0 24px 12px" }}>
+          <CicloFiltro selectedCiclo={selectedCiclo} onChange={setSelectedCiclo} />
+        </div>
 
         {/* Content */}
         <div className="docente-content">

@@ -8,12 +8,12 @@ import GestionCuentas from "../components/directivo/GestionCuentas";
 import DirectivoMaterias from "../components/directivo/DiretivoMaterias";
 import NotasAlumnos from "../components/directivo/NotasAlumnos";
 import AsignarCurso from "../components/directivo/AsignarCurso";
+import CicloFiltro from "../components/common/CicloFiltro";
  
 import DirectivoAsistencia from "../components/directivo/DirectivoAsistencia";
 const DirectivoDashboard = () => {
   const [section, setSection] = useState("inicio");
-   
-
+  const [selectedCiclo, setSelectedCiclo] = useState("");
 
 
   const renderSection = () => {
@@ -22,20 +22,20 @@ const DirectivoDashboard = () => {
         return <Inicio setSection={setSection} />;
 
       case "aprobados":
-        return <GestionCuentas />;
+        return <GestionCuentas selectedCiclo={selectedCiclo} />;
       
       case "materias":
-        return <DirectivoMaterias />;
+        return <DirectivoMaterias selectedCiclo={selectedCiclo} />;
       
 
       case "dms":
-        return <NotasAlumnos />;
+        return <NotasAlumnos selectedCiclo={selectedCiclo} />;
 
       case "asignar-curso":
         return <AsignarCurso />;
 
       case "asistencia":
-        return <DirectivoAsistencia />;
+        return <DirectivoAsistencia selectedCiclo={selectedCiclo} />;
 
 
         
@@ -60,6 +60,10 @@ const DirectivoDashboard = () => {
       <div className="directivo-main">
         {/* Header */}
         <DirectivoHeader />
+
+        <div style={{ padding: "0 24px 12px" }}>
+          <CicloFiltro selectedCiclo={selectedCiclo} onChange={setSelectedCiclo} />
+        </div>
 
         {/* Content */}
         <div className="directivo-content">{renderSection()}</div>

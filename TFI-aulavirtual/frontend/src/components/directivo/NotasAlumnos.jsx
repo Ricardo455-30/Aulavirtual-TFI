@@ -7,12 +7,13 @@ import {
   FiChevronDown,
   FiAlertCircle,
   FiCheckCircle,
+  FiInfo,
 } from "react-icons/fi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import "../../css/NotasAlumnos.css";
 
-const NotasAlumnos = () => {
+const NotasAlumnos = ({ selectedCiclo }) => {
   const [cursos, setCursos] = useState([]);
   const [cursoSeleccionado, setCursoSeleccionado] = useState("");
   const [cursoData, setCursoData] = useState(null);
@@ -24,13 +25,28 @@ const NotasAlumnos = () => {
 
   // 🔹 cargar cursos
   useEffect(() => {
-    cargarCursos();
-  }, []);
+    if (selectedCiclo) {
+      cargarCursos();
+    }
+  }, [selectedCiclo]);
+
+  if (!selectedCiclo) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
+        <h3>Selecciona un ciclo lectivo</h3>
+        <p>Elige un ciclo lectivo para ver las notas de los alumnos.</p>
+      </div>
+    );
+  }
 
   const cargarCursos = async () => {
     try {
       const res = await axios.get("http://localhost:8000/api/cursos", {
         headers: { Authorization: `Bearer ${token}` },
+        params: {
+          id_ciclo: selectedCiclo || undefined,
+        },
       });
       setCursos(res.data);
     } catch (error) {
@@ -53,6 +69,9 @@ const NotasAlumnos = () => {
         `http://localhost:8000/api/boletin/curso/${id_curso}`,
         {
           headers: { Authorization: `Bearer ${token}` },
+          params: {
+            id_ciclo: selectedCiclo || undefined,
+          },
         }
       );
 

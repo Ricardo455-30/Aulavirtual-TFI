@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -16,10 +17,11 @@ import {
   FiBarChart2,
   FiUsers,
   FiBook,
+  FiInfo,
 } from "react-icons/fi";
 import "../../css/DirectivoAsistencia.css";
 
-const DirectivoAsistencia = () => {
+const DirectivoAsistencia = ({ selectedCiclo }) => {
   const [cursos, setCursos] = useState([]);
   const [materias, setMaterias] = useState([]);
   const [asistencia, setAsistencia] = useState([]);
@@ -36,6 +38,8 @@ const DirectivoAsistencia = () => {
 
   // 📚 OBTENER CURSOS
   useEffect(() => {
+    if (!selectedCiclo) return;
+
     const fetchCursos = async () => {
       try {
         setLoadingCursos(true);
@@ -44,6 +48,9 @@ const DirectivoAsistencia = () => {
 
         const res = await axios.get("http://localhost:8000/api/materias/cursos", {
           headers: { Authorization: `Bearer ${token}` },
+          params: {
+            id_ciclo: selectedCiclo || undefined,
+          },
         });
 
         setCursos(res.data || []);
@@ -58,7 +65,7 @@ const DirectivoAsistencia = () => {
     };
 
     fetchCursos();
-  }, []);
+  }, [selectedCiclo]);
 
   // 📖 OBTENER MATERIAS DEL CURSO
   useEffect(() => {
@@ -107,6 +114,7 @@ const DirectivoAsistencia = () => {
         params: {
           cursoId: cursoSeleccionado,
           materiaId: materiaSeleccionada || undefined,
+          id_ciclo: selectedCiclo ? parseInt(selectedCiclo) : 3, // Usar ciclo activo (2026) por defecto
         },
       });
 
@@ -185,7 +193,7 @@ const DirectivoAsistencia = () => {
   };
 
   // 📥 EXPORTAR EXCEL PROFESIONAL
-  const exportarExcel = () => {
+  const exportarExcel = async () => {
     if (asistencia.length === 0) {
       alert("No hay datos para exportar");
       return;
@@ -197,122 +205,267 @@ const DirectivoAsistencia = () => {
       cursoData?.nombre ||
       `${cursoData?.anio || "?"}° ${cursoData?.division || "?"}`;
 
-    const wb = XLSX.utils.book_new();
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = "Aula Virtual";
+    workbook.created = new Date();
+    workbook.modified = new Date();
+    workbook.properties.title = `Reporte de Asistencia ${cursoLabel}`;
 
-    // ===== HOJA 1: RESUMEN GENERAL =====
-    const resumenData = alumnosAgrupados().map((alumno) => ({
-      "Apellido": alumno.apellido,
-      "Nombre": alumno.nombre,
-      "Presentes": alumno.presentes,
-      "Ausentes": alumno.ausentes,
-      "Justificados": alumno.justificados,
-      "Sin Registrar": alumno.sinRegistrar,
-      "Total": alumno.total,
-      "% Asistencia": `${alumno.porcentaje}%`,
-    }));
-
-    const wsResumen = XLSX.utils.json_to_sheet(resumenData);
-    wsResumen["!cols"] = [
-      { wch: 18 },
-      { wch: 18 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 10 },
-      { wch: 15 },
-    ];
-
-    // Estilo de encabezados - crear estilos
-    const headerFillStyle = {
-      fill: { fgColor: { rgb: "FF1976D2" } },
-      font: { bold: true, color: { rgb: "FFFFFFFF" } },
-      alignment: { horizontal: "center", vertical: "center" },
-    };
-
-    // Aplicar estilos a encabezados
-    for (let col = 0; col < 8; col++) {
-      const cellRef = XLSX.utils.encode_col(col) + "1";
-      wsResumen[cellRef] = wsResumen[cellRef] || {};
-      wsResumen[cellRef].s = headerFillStyle;
+    const logoUrl = new URL("../../assets/icono.png", import.meta.url);
+    let logoId;
+    try {
+      const response = await fetch(logoUrl);
+      const buffer = await response.arrayBuffer();
+      logoId = workbook.addImage({ buffer, extension: "png" });
+    } catch (error) {
+      console.warn("No se pudo cargar el logo para el Excel:", error);
     }
 
-    XLSX.utils.book_append_sheet(wb, wsResumen, "📊 Resumen por Alumno");
+    const resumenSheet = workbook.addWorksheet("Resumen por Alumno", {
+      views: [{ state: "frozen", ySplit: 5 }],
+    });
 
-    // ===== HOJA 2: DETALLES COMPLETOS =====
-    const detallesData = asistencia.map((d) => {
-      const estadoEmoji =
-        d.estado === "presente" ? "✓ Presente" :
-        d.estado === "ausente" ? "✗ Ausente" :
-        d.estado === "justificado" ? "📄 Justificado" : "⚪ Sin Registrar";
+    if (logoId) {
+      resumenSheet.addImage(logoId, {
+        tl: { col: 0, row: 0 },
+        ext: { width: 120, height: 60 },
+      });
+    }
 
-      return {
-        "Apellido": d.apellido || "",
-        "Nombre": d.nombre || "",
-        "Materia": d.materia || "Sin especificar",
-        "Fecha": d.fecha,
-        "Estado": estadoEmoji,
-        "Observaciones": "",
+    resumenSheet.mergeCells("C1", "H2");
+    const titleCell = resumenSheet.getCell("C1");
+    titleCell.value = "REPORTE DE ASISTENCIA";
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    titleCell.font = { size: 16, bold: true, color: { argb: "FF1976D2" } };
+
+    resumenSheet.addRow([]);
+    resumenSheet.addRow([]);
+    resumenSheet.addRow([]);
+
+    const headerRow = resumenSheet.addRow([
+      "Apellido",
+      "Nombre",
+      "Presentes",
+      "Ausentes",
+      "Justificados",
+      "Sin Registrar",
+      "Total",
+      "% Asistencia",
+    ]);
+
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF1976D2" },
+      };
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
       };
     });
 
-    const wsDetalles = XLSX.utils.json_to_sheet(detallesData);
-    wsDetalles["!cols"] = [
-      { wch: 18 },
-      { wch: 18 },
-      { wch: 25 },
-      { wch: 15 },
-      { wch: 18 },
-      { wch: 25 },
+    resumenSheet.columns = [
+      { key: "apellido", width: 18 },
+      { key: "nombre", width: 18 },
+      { key: "presentes", width: 12 },
+      { key: "ausentes", width: 12 },
+      { key: "justificados", width: 14 },
+      { key: "sinRegistrar", width: 14 },
+      { key: "total", width: 10 },
+      { key: "porcentaje", width: 15 },
     ];
 
-    // Aplicar estilos a encabezados de detalles
-    for (let col = 0; col < 6; col++) {
-      const cellRef = XLSX.utils.encode_col(col) + "1";
-      wsDetalles[cellRef] = wsDetalles[cellRef] || {};
-      wsDetalles[cellRef].s = headerFillStyle;
-    }
+    alumnosAgrupados().forEach((alumno, index) => {
+      const row = resumenSheet.addRow({
+        apellido: alumno.apellido,
+        nombre: alumno.nombre,
+        presentes: alumno.presentes,
+        ausentes: alumno.ausentes,
+        justificados: alumno.justificados,
+        sinRegistrar: alumno.sinRegistrar,
+        total: alumno.total,
+        porcentaje: `${alumno.porcentaje}%`,
+      });
 
-    XLSX.utils.book_append_sheet(wb, wsDetalles, "📋 Registro Detallado");
+      if (index % 2 === 1) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF3F6FB" },
+          };
+        });
+      }
+    });
+
+    resumenSheet.addRow([]);
+    const totalRow = resumenSheet.addRow([
+      "TOTAL ALUMNOS",
+      alumnosAgrupados().length,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ]);
+    totalRow.font = { bold: true };
+
+    // ===== HOJA 2: REGISTRO DETALLADO =====
+    const detallesSheet = workbook.addWorksheet("Registro Detallado", {
+      views: [{ state: "frozen", ySplit: 1 }],
+    });
+
+    detallesSheet.columns = [
+      { header: "Apellido", key: "apellido", width: 18 },
+      { header: "Nombre", key: "nombre", width: 18 },
+      { header: "Materia", key: "materia", width: 30 },
+      { header: "Fecha", key: "fecha", width: 16 },
+      { header: "Estado", key: "estado", width: 18 },
+      { header: "Observaciones", key: "observaciones", width: 30 },
+    ];
+
+    const detallesHeader = detallesSheet.getRow(1);
+    detallesHeader.height = 22;
+    detallesHeader.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF1976D2" },
+      };
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        bottom: { style: "thin", color: { argb: "FFB0C4DE" } },
+      };
+    });
+
+    asistencia.forEach((d, index) => {
+      const row = detallesSheet.addRow({
+        apellido: d.apellido || "",
+        nombre: d.nombre || "",
+        materia: d.materia || "Sin especificar",
+        fecha: d.fecha,
+        estado:
+          d.estado === "presente"
+            ? "✓ Presente"
+            : d.estado === "ausente"
+            ? "✗ Ausente"
+            : d.estado === "justificado"
+            ? "📄 Justificado"
+            : "⚪ Sin Registrar",
+        observaciones: "",
+      });
+
+      row.eachCell((cell) => {
+        cell.border = {
+          bottom: { style: "hair", color: { argb: "FFDCDCDC" } },
+        };
+        cell.alignment = { vertical: "middle", horizontal: "left" };
+      });
+
+      if (index % 2 === 1) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF8FAFC" },
+          };
+        });
+      }
+    });
+
+    detallesSheet.addRow([]);
+    detallesSheet.addRow(["Total registros", asistencia.length]);
+    detallesSheet.getRow(detallesSheet.lastRow.number).font = { bold: true };
 
     // ===== HOJA 3: ESTADÍSTICAS =====
-    const totalAlumnos = alumnosAgrupados().length;
-    const totalPresentes = alumnosAgrupados().reduce((sum, a) => sum + a.presentes, 0);
-    const totalAusentes = alumnosAgrupados().reduce((sum, a) => sum + a.ausentes, 0);
-    const totalJustificados = alumnosAgrupados().reduce((sum, a) => sum + a.justificados, 0);
-    const totalRegistros = asistencia.length;
-    const promedioAsistencia = totalAlumnos > 0 
-      ? Math.round(
-          (totalPresentes / (totalAlumnos * alumnosAgrupados()[0]?.total || 1)) * 100
-        ) 
-      : 0;
-
-    const estadisticasData = [
-      ["ESTADÍSTICAS GENERALES", ""],
-      ["", ""],
-      ["Total de Alumnos", totalAlumnos],
-      ["Total de Registros", totalRegistros],
-      ["", ""],
-      ["RESUMEN POR ESTADO", ""],
-      ["Presentes", totalPresentes],
-      ["Ausentes", totalAusentes],
-      ["Justificados", totalJustificados],
-      ["", ""],
-      ["Promedio de Asistencia", `${promedioAsistencia}%`],
-      ["Curso", cursoLabel],
-      ["Fecha de Generación", new Date().toLocaleDateString("es-AR")],
+    const statsSheet = workbook.addWorksheet("Estadísticas", {
+      views: [{ state: "frozen", ySplit: 3 }],
+    });
+    statsSheet.columns = [
+      { width: 28 },
+      { width: 22 },
     ];
 
-    const wsEstadisticas = XLSX.utils.aoa_to_sheet(estadisticasData);
-    wsEstadisticas["!cols"] = [{ wch: 30 }, { wch: 20 }];
+    statsSheet.mergeCells("A1", "B1");
+    const statsTitle = statsSheet.getCell("A1");
+    statsTitle.value = "ESTADÍSTICAS DE ASISTENCIA";
+    statsTitle.font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
+    statsTitle.alignment = { horizontal: "center", vertical: "middle" };
+    statsTitle.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF1976D2" },
+    };
+    statsSheet.getRow(1).height = 28;
 
-    XLSX.utils.book_append_sheet(wb, wsEstadisticas, "📈 Estadísticas");
+    statsSheet.addRow([]);
+    statsSheet.addRow(["Curso", cursoLabel]);
+    statsSheet.addRow(["Fecha de generación", new Date().toLocaleDateString("es-AR")]);
+    statsSheet.addRow(["Total de alumnos", alumnosAgrupados().length]);
+    statsSheet.addRow(["Total de registros", asistencia.length]);
 
-    // Guardar archivo
-    const filename = `Asistencia_${cursoLabel}_${new Date()
-      .toISOString()
-      .split("T")[0]}.xlsx`;
-    XLSX.writeFile(wb, filename);
+    const summaryHeaderRow = statsSheet.addRow([]);
+    statsSheet.mergeCells(`A${summaryHeaderRow.number}:B${summaryHeaderRow.number}`);
+    const summaryHeaderCell = statsSheet.getCell(`A${summaryHeaderRow.number}`);
+    summaryHeaderCell.value = "RESUMEN POR ESTADO";
+    summaryHeaderCell.font = { bold: true, color: { argb: "FF1976D2" } };
+    summaryHeaderCell.alignment = { horizontal: "left", vertical: "middle" };
+
+    const presentCount = asistencia.filter((a) => a.estado === "presente").length;
+    const absentCount = asistencia.filter((a) => a.estado === "ausente").length;
+    const justifiedCount = asistencia.filter((a) => a.estado === "justificado").length;
+    const attendanceAvg = `${Math.round((presentCount / (asistencia.length || 1)) * 100)}%`;
+
+    const statRows = [
+      ["Presentes", presentCount],
+      ["Ausentes", absentCount],
+      ["Justificados", justifiedCount],
+      ["Promedio de asistencia", attendanceAvg],
+    ];
+
+    statRows.forEach(([label, value], index) => {
+      const row = statsSheet.addRow([label, value]);
+      row.eachCell((cell) => {
+        cell.border = {
+          bottom: { style: "thin", color: { argb: "FFDDDDDD" } },
+        };
+      });
+      if (index % 2 === 0) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF7F9FC" },
+          };
+        });
+      }
+      row.getCell(1).font = { bold: true };
+      row.getCell(2).alignment = { horizontal: "center", vertical: "middle" };
+    });
+
+    const noteRow = statsSheet.addRow(["Nota", "Los valores están calculados sobre los registros de asistencia cargados."]);
+    noteRow.getCell(1).font = { italic: true, color: { argb: "FF6B7280" } };
+    noteRow.getCell(2).alignment = { wrapText: true };
+    statsSheet.getRow(noteRow.number).height = 24;
+
+    statsSheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.alignment = { vertical: "middle", horizontal: cell.col === 2 ? "center" : "left" };
+      });
+    });
+
+    const filename = `Asistencia_${cursoLabel}_${new Date().toISOString().split("T")[0]}.xlsx`;
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(
+      new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+      filename
+    );
   };
 
   // 🖨️ EXPORTAR PDF PROFESIONAL
@@ -566,13 +719,27 @@ const DirectivoAsistencia = () => {
 
   const alumnosData = alumnosAgrupados();
 
+  if (!selectedCiclo) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
+        <h3>Selecciona un ciclo lectivo</h3>
+        <p>Elige un ciclo lectivo para ver la asistencia.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="asistencia-container">
       {/* Header */}
       <div className="asistencia-header">
         <div className="header-content">
           <h1 className="header-title">
-            <FiBarChart2 className="header-icon" />
+            <FiBarChart2
+              className="header-icon"
+              title="Reporte de asistencia"
+              aria-label="Icono de reporte de asistencia"
+            />
             Control de Asistencia
           </h1>
           <p className="header-subtitle">
@@ -696,41 +863,68 @@ const DirectivoAsistencia = () => {
 
         {/* Búsqueda de Alumno + Vista + Exportar */}
         {asistencia.length > 0 && (
-          <div className="filters-actions">
-            <div className="search-input-wrapper">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="🔍 Buscar alumno..."
-                value={busquedaAlumno}
-                onChange={(e) => setBusquedaAlumno(e.target.value)}
-              />
+          <>
+            <div className="filters-actions">
+              <div className="search-input-wrapper">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="🔍 Buscar alumno..."
+                  value={busquedaAlumno}
+                  onChange={(e) => setBusquedaAlumno(e.target.value)}
+                />
+              </div>
+
+              <div className="view-toggle">
+                <button
+                  className={`toggle-btn ${vistaCards ? "active" : ""}`}
+                  onClick={() => setVistaCards(true)}
+                >
+                  <FiGrid /> Cards
+                </button>
+                <button
+                  className={`toggle-btn ${!vistaCards ? "active" : ""}`}
+                  onClick={() => setVistaCards(false)}
+                >
+                  <FiList /> Tabla
+                </button>
+              </div>
+
+              <div className="export-buttons">
+                <button className="btn-export excel" onClick={exportarExcel}>
+                  <FiDownload /> Excel
+                </button>
+                <button className="btn-export pdf" onClick={exportarPDF}>
+                  <FiFileText /> PDF
+                </button>
+              </div>
             </div>
 
-            <div className="view-toggle">
-              <button
-                className={`toggle-btn ${vistaCards ? "active" : ""}`}
-                onClick={() => setVistaCards(true)}
-              >
-                <FiGrid /> Cards
-              </button>
-              <button
-                className={`toggle-btn ${!vistaCards ? "active" : ""}`}
-                onClick={() => setVistaCards(false)}
-              >
-                <FiList /> Tabla
-              </button>
+            <div className="stats-summary">
+              <div className="summary-card">
+                <span>Total de alumnos</span>
+                <strong>{alumnosData.length}</strong>
+              </div>
+              <div className="summary-card">
+                <span>Registros</span>
+                <strong>{asistencia.length}</strong>
+              </div>
+              <div className="summary-card">
+                <span>Asistencia promedio</span>
+                <strong>
+                  {Math.round(
+                    (asistencia.filter((a) => a.estado === "presente").length /
+                      (asistencia.length || 1)) *
+                      100
+                  )}%
+                </strong>
+              </div>
+              <div className="summary-card">
+                <span>Vista actual</span>
+                <strong>{vistaCards ? "Cards" : "Tabla"}</strong>
+              </div>
             </div>
-
-            <div className="export-buttons">
-              <button className="btn-export excel" onClick={exportarExcel}>
-                <FiDownload /> Excel
-              </button>
-              <button className="btn-export pdf" onClick={exportarPDF}>
-                <FiFileText /> PDF
-              </button>
-            </div>
-          </div>
+          </>
         )}
       </div>
 
