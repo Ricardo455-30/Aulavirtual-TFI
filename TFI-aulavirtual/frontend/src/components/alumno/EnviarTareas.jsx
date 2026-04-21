@@ -19,7 +19,7 @@ import {
 } from "react-icons/fi";
 import Modal from "../Modal.jsx";
 
-const EnviarTareas = () => {
+const EnviarTareas = ({ setSection, idCiclo }) => {
   // Estados principales
   const [materias, setMaterias] = useState([]);
   const [tareas, setTareas] = useState([]);
@@ -59,6 +59,7 @@ const EnviarTareas = () => {
           "http://localhost:8000/api/alumnos/mis-materias",
           {
             headers: { Authorization: `Bearer ${token}` },
+            params: idCiclo ? { id_ciclo: idCiclo } : {},
           }
         );
         setMaterias(resMaterias.data || []);
@@ -76,7 +77,7 @@ const EnviarTareas = () => {
     };
 
     fetchDatos();
-  }, []);
+  }, [idCiclo]);
 
   // ========================
   // CARGAR TAREAS DEL ALUMNO
@@ -95,6 +96,7 @@ const EnviarTareas = () => {
         `http://localhost:8000/api/entregas/tareas/${id_materia}/${id_curso}`,
         {
           headers: { Authorization: `Bearer ${token}` },
+          params: idCiclo ? { id_ciclo: idCiclo } : {},
         }
       );
 

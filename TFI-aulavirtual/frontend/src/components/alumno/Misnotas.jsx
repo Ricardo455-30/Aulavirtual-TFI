@@ -18,16 +18,6 @@ const MisNotas = ({ setSection, idCiclo }) => {
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroTrimestre, setFiltroTrimestre] = useState("");
 
-  if (!idCiclo) {
-    return (
-      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
-        <h3>Selecciona un ciclo lectivo</h3>
-        <p>Elige un ciclo lectivo para ver tus notas.</p>
-      </div>
-    );
-  }
-
   useEffect(() => {
     const fetchNotas = async () => {
       try {
@@ -41,17 +31,15 @@ const MisNotas = ({ setSection, idCiclo }) => {
           return;
         }
 
-        // Extraer ID del alumno del JWT
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const alumnoId = payload.id || payload.id_usuario;
+        // Extraer ID del alumno del JWT (no necesario, backend usa req.user)
+        // const payload = JSON.parse(atob(token.split(".")[1]));
+        // const alumnoId = payload.id || payload.id_usuario;
 
         const res = await axios.get(
-          `http://localhost:8000/api/notas/alumno/${alumnoId}`,
+          `http://localhost:8000/api/notas/alumno`,
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: {
-              id_ciclo: idCiclo || undefined,
-            },
+            params: idCiclo ? { id_ciclo: idCiclo } : {},
           }
         );
         setNotas(res.data || []);
@@ -239,7 +227,7 @@ const MisNotas = ({ setSection, idCiclo }) => {
                   <div className="mis-notas-info">
                     <div className="mis-notas-info-item">
                       <label>Trimestre:</label>
-                      <value>{nota.trimestre || "—"}°</value>
+                      <span>{nota.trimestre || "—"}°</span>
                     </div>
 
                     {nota.nota !== null && (

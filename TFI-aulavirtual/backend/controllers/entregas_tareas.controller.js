@@ -372,6 +372,7 @@ export const eliminarEntrega = async (req, res) => {
 export const obtenerTareasAlumnoWithEntregas = async (req, res) => {
   try {
     const { id_materia, id_curso } = req.params;
+    const { id_ciclo } = req.query;
     const id_usuario = req.user.id;
 
     // Validar parámetros
@@ -417,8 +418,9 @@ export const obtenerTareasAlumnoWithEntregas = async (req, res) => {
         AND et.id_alumno = ?
       WHERE t.id_materia = ? 
         AND t.id_curso = ?
+        ${id_ciclo ? 'AND t.id_ciclo = ?' : ''}
       ORDER BY t.fecha_entrega ASC`,
-      [id_alumno, id_materia, id_curso]
+      id_ciclo ? [id_alumno, id_materia, id_curso, id_ciclo] : [id_alumno, id_materia, id_curso]
     );
 
     console.log("📌 Tareas encontradas:", tareas.length);

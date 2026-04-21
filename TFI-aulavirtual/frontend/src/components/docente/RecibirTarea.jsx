@@ -18,7 +18,7 @@ import {
 } from "react-icons/fi";
 import Modal from "../Modal.jsx";
 
-const RecibirTarea = () => {
+const RecibirTarea = ({ idCiclo }) => {
   // Estados principales
   const [materias, setMaterias] = useState([]);
   const [tareas, setTareas] = useState([]);
@@ -71,7 +71,7 @@ const RecibirTarea = () => {
     };
 
     fetchMaterias();
-  }, []);
+  }, [idCiclo]);
 
   // ========================
   // 2️⃣ CARGAR TAREAS
@@ -87,7 +87,7 @@ const RecibirTarea = () => {
 
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `http://localhost:8000/api/tareas?id_materia=${id_materia}&id_curso=${id_curso}`,
+        `http://localhost:8000/api/tareas?id_materia=${id_materia}&id_curso=${id_curso}&id_ciclo=${idCiclo}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

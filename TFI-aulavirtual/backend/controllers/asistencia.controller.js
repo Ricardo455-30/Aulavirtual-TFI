@@ -41,9 +41,9 @@ export const obtenerAlumnosPorCursoMateria = async (req, res) => {
     const { id } = req.params; // id de docente_materia_curso
     const { id_ciclo } = req.query;
 
-    // Obtener id_materia desde docente_materia_curso
+    // Obtener id_materia e id_curso desde docente_materia_curso
     const [dmcRows] = await pool.query(
-      `SELECT id_materia FROM docente_materia_curso WHERE id = ?`,
+      `SELECT id_materia, id_curso FROM docente_materia_curso WHERE id = ?`,
       [id]
     );
 
@@ -51,8 +51,8 @@ export const obtenerAlumnosPorCursoMateria = async (req, res) => {
       return res.status(404).json({ message: "Asignación no encontrada" });
     }
 
-    const { id_materia } = dmcRows[0];
-    console.log('id_materia:', id_materia);
+    const { id_materia, id_curso } = dmcRows[0];
+    console.log('id_materia:', id_materia, 'id_curso:', id_curso);
 
     const query = `
       SELECT 
@@ -61,16 +61,14 @@ export const obtenerAlumnosPorCursoMateria = async (req, res) => {
         u.apellido
       FROM alumnos al
       INNER JOIN usuarios u ON al.id_usuario = u.id_usuario
-      INNER JOIN alumno_materia am 
-        ON am.id_alumno = al.id_alumno
-      WHERE am.id_materia = ?
-      AND am.estado = 'Cursando'` + (id_ciclo ? " AND am.id_ciclo = ?" : "") + `
+      INNER JOIN alumno_materia am ON al.id_alumno = am.id_alumno
+      WHERE am.id_materia = ? AND al.id_curso = ?
       ORDER BY u.apellido
       `;
 
     const [rows] = await pool.query(
       query,
-      id_ciclo ? [id_materia, id_ciclo] : [id_materia]
+      [id_materia, id_curso]
     );
 
     console.log('Alumnos encontrados:', rows.length);

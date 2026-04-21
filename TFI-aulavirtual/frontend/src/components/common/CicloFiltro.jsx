@@ -21,11 +21,11 @@ const CicloFiltro = ({ selectedCiclo, onChange }) => {
         const ciclosData = response.data || [];
         setCiclos(ciclosData);
 
-        // No auto-seleccionar el ciclo activo, dejar que el usuario elija
-        // if (!selectedCiclo && ciclosData.length > 0) {
-        //   const activo = ciclosData.find((c) => c.estado === "Activo");
-        //   onChange(activo?.id_ciclo || ciclosData[0]?.id_ciclo);
-        // }
+        // Auto-seleccionar el ciclo activo si no hay uno seleccionado
+        if (!selectedCiclo && ciclosData.length > 0) {
+          const activo = ciclosData.find((c) => c.estado === "Activo");
+          onChange(activo?.id_ciclo || ciclosData[0]?.id_ciclo);
+        }
       } catch (err) {
         setError("No se pudieron cargar los ciclos lectivos.");
         console.error("Error CicloFiltro:", err);

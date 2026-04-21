@@ -265,36 +265,25 @@ export const eliminarNota = async (req, res) => {
 // ==========================================
 export const obtenerNotasAlumno = async (req, res) => {
   try {
-    const { alumnoId } = req.params;
+    const id_usuario = req.user.id;
 
-    console.log("📌 obtenerNotasAlumno - alumnoId recibido:", alumnoId);
+    console.log("📌 obtenerNotasAlumno - id_usuario:", id_usuario);
 
-    // 🔍 Primero verificar si es id_usuario o id_alumno
-    // Intenta buscar primero como id_alumno
-    let [alumnoCheck] = await pool.query(
-      `SELECT id_alumno FROM alumnos WHERE id_alumno = ?`,
-      [alumnoId]
+    // Obtener id_alumno del id_usuario
+    const [alumnoRows] = await pool.query(
+      "SELECT id_alumno FROM alumnos WHERE id_usuario = ?",
+      [id_usuario]
     );
 
-    let id_alumno = alumnoId;
+    console.log("📌 Alumno encontrado:", alumnoRows);
 
-    // Si no encuentra como id_alumno, intenta como id_usuario
-    if (alumnoCheck.length === 0) {
-      console.log("⚠️ No es id_alumno, buscando por id_usuario...");
-      [alumnoCheck] = await pool.query(
-        `SELECT id_alumno FROM alumnos WHERE id_usuario = ?`,
-        [alumnoId]
-      );
-
-      if (alumnoCheck.length === 0) {
-        console.error("❌ Alumno no encontrado");
-        return res.status(404).json({ error: "Alumno no encontrado" });
-      }
-
-      id_alumno = alumnoCheck[0].id_alumno;
+    if (alumnoRows.length === 0) {
+      console.error("❌ Alumno no encontrado en tabla alumnos");
+      return res.status(404).json({ error: "Alumno no encontrado" });
     }
 
-    console.log("✅ id_alumno resuelto:", id_alumno);
+    const id_alumno = alumnoRows[0].id_alumno;
+    console.log("📌 id_alumno:", id_alumno);
 
     const { id_ciclo } = req.query;
 

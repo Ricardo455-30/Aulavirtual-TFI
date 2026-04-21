@@ -29,7 +29,7 @@ const estadoConfig = {
   Cursando: { color: "#9e9e9e", icon: <FiClock /> },
 };
 
-const CargarNotas = ({ selectedCiclo }) => {
+const CargarNotas = ({ idCiclo }) => {
   const [materias, setMaterias] = useState([]);
   const [materiaSeleccionada, setMateriaSeleccionada] = useState(null);
   const [alumnos, setAlumnos] = useState([]);
@@ -41,16 +41,6 @@ const CargarNotas = ({ selectedCiclo }) => {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
   const [exito, setExito] = useState(false);
-
-  if (!selectedCiclo) {
-    return (
-      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
-        <h3>Selecciona un ciclo lectivo</h3>
-        <p>Elige un ciclo lectivo para cargar notas.</p>
-      </div>
-    );
-  }
 
   // =========================
   //  MATERIAS
@@ -66,9 +56,7 @@ const CargarNotas = ({ selectedCiclo }) => {
           "http://localhost:8000/api/materias/docente",
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: {
-              id_ciclo: selectedCiclo || undefined,
-            },
+            params: idCiclo ? { id_ciclo: idCiclo } : {},
           }
         );
 
@@ -82,7 +70,7 @@ const CargarNotas = ({ selectedCiclo }) => {
     };
 
     fetchMaterias();
-  }, [selectedCiclo]);
+  }, [idCiclo]);
 
   // Recargar alumnos cuando cambie tipo o trimestre
   useEffect(() => {
@@ -125,7 +113,7 @@ const CargarNotas = ({ selectedCiclo }) => {
               params: {
                 tipo,
                 trimestre,
-                id_ciclo: selectedCiclo || undefined,
+                id_ciclo: idCiclo || undefined,
               },
             }
           );
@@ -204,7 +192,7 @@ const CargarNotas = ({ selectedCiclo }) => {
 
       await axios.post(
         "http://localhost:8000/api/notas",
-        { materiaId: materiaSeleccionada, tipo, trimestre, notas, id_ciclo: selectedCiclo },
+        { materiaId: materiaSeleccionada, tipo, trimestre, notas, id_ciclo: idCiclo },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

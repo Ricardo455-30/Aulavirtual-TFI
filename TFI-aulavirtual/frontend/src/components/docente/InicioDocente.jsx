@@ -12,7 +12,7 @@ import {
 } from "react-icons/fi";
 import "../../css/inicio.css";
 
-const InicioDocente = ({ setSection }) => {
+const InicioDocente = ({ setSection, idCiclo }) => {
   const [docente, setDocente] = useState(null);
   const [materias, setMaterias] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,10 @@ const InicioDocente = ({ setSection }) => {
         // Traer materias
         const resMaterias = await axios.get(
           "http://localhost:8000/api/materias/docente",
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: idCiclo ? { id_ciclo: idCiclo } : {},
+          }
         );
 
         const materiasData = resMaterias.data || [];
@@ -66,7 +69,10 @@ const InicioDocente = ({ setSection }) => {
             try {
               const resAlumnos = await axios.get(
                 `http://localhost:8000/api/notas/alumnos/${materia.id_materia}`,
-                { headers: { Authorization: `Bearer ${token}` } }
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                  params: idCiclo ? { id_ciclo: idCiclo } : {},
+                }
               );
               totalAlumnos += resAlumnos.data?.length || 0;
             } catch (err) {
@@ -80,7 +86,8 @@ const InicioDocente = ({ setSection }) => {
                 {
                   params: {
                     id_materia: materia.id_materia,
-                    id_curso: materia.id_curso
+                    id_curso: materia.id_curso,
+                    id_ciclo: idCiclo || undefined,
                   },
                   headers: { Authorization: `Bearer ${token}` }
                 }
@@ -108,7 +115,7 @@ const InicioDocente = ({ setSection }) => {
     };
 
     cargarDatos();
-  }, []);
+  }, [idCiclo]);
 
   if (loading) {
     return (

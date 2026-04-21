@@ -188,91 +188,206 @@ const exportarExcel = async () => {
         return;
       }
 
-      // HOJA 1: Datos Detallados
-      const dataDetallada = usuariosFiltrados.map((u, index) => ({
-        "N°": index + 1,
-        Nombre: u.nombre,
-        Apellido: u.apellido,
-        Email: u.email,
-        Rol: u.rol.charAt(0).toUpperCase() + u.rol.slice(1),
-        Estado: u.estado,
-        "Fecha Creación": formatearFechaCorta(u.createdAt),
-      }));
-
-      // HOJA 2: Resumen Estadísticas
-      const estadisticas = {
-        "Total Usuarios": usuariosFiltrados.length,
-        "Activos": usuariosFiltrados.filter(u => u.estado === "Activo").length,
-        "Inactivos": usuariosFiltrados.filter(u => u.estado === "Inactivo").length,
-        "Pendientes": usuariosFiltrados.filter(u => u.estado === "Pendiente").length,
-        "Rechazados": usuariosFiltrados.filter(u => u.estado === "Rechazado").length,
-      };
-
-      const rolesCount = roles.map(rol => ({
-        "Rol": rol.charAt(0).toUpperCase() + rol.slice(1),
-        "Cantidad": usuariosFiltrados.filter(u => u.rol === rol).length
-      }));
-
-      // Crear workbook
       const wb = XLSX.utils.book_new();
 
-      // === HOJA 1: Datos ===
+      // ==================== HOJA 1: PORTADA PROFESIONAL ====================
+      const wsCover = XLSX.utils.json_to_sheet([]);
+      
+      // Banner superior decorativo
+      for (let i = 0; i < 8; i++) {
+        const cell = XLSX.utils.encode_cell({ r: 0, c: i });
+        wsCover[cell] = { t: "s", v: "" };
+        wsCover[cell].s = { fill: { fgColor: { rgb: "FF1F4E78" } } };
+      }
+      
+      for (let i = 0; i < 8; i++) {
+        const cell = XLSX.utils.encode_cell({ r: 1, c: i });
+        wsCover[cell] = { t: "s", v: "" };
+        wsCover[cell].s = { fill: { fgColor: { rgb: "FF366092" } } };
+      }
+
+      // Logo/Icono con texto
+      XLSX.utils.sheet_add_aoa(wsCover, [["🎓 AULA VIRTUAL - SISTEMA DE GESTIÓN"]], { origin: "B3" });
+      wsCover["B3"].s = {
+        font: { name: "Calibri", sz: 26, bold: true, color: { rgb: "FF1F4E78" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      // Subtítulo
+      XLSX.utils.sheet_add_aoa(wsCover, [["REPORTE INTEGRAL DE USUARIOS"]], { origin: "B5" });
+      wsCover["B5"].s = {
+        font: { name: "Calibri", sz: 18, bold: true, color: { rgb: "FF4472C4" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      // Rol destacado
+      XLSX.utils.sheet_add_aoa(wsCover, [[`Role: ${rolActivo.toUpperCase()}`]], { origin: "B7" });
+      wsCover["B7"].s = {
+        font: { name: "Calibri", sz: 16, bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FF70AD47" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      // Fecha
+      XLSX.utils.sheet_add_aoa(wsCover, [[`Generado: ${formatearFecha(new Date())}`]], { origin: "B9" });
+      wsCover["B9"].s = {
+        font: { name: "Calibri", sz: 13, color: { rgb: "FF595959" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      // Estadísticas rápidas
+      const totalActivos = usuariosFiltrados.filter(u => u.estado === "Activo").length;
+      const totalInactivos = usuariosFiltrados.filter(u => u.estado === "Inactivo").length;
+      const totalPendientes = usuariosFiltrados.filter(u => u.estado === "Pendiente").length;
+
+      XLSX.utils.sheet_add_aoa(wsCover, [[""]], { origin: "B11" });
+      XLSX.utils.sheet_add_aoa(wsCover, [["RESUMEN RÁPIDO"]], { origin: "B12" });
+      wsCover["B12"].s = {
+        font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FFED7D31" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      // Stats boxes
+      const statsData = [
+        [`✓ TOTAL: ${usuariosFiltrados.length}`, "FF4472C4"],
+        [`✓ ACTIVOS: ${totalActivos}`, "FF00B050"],
+        [`✗ INACTIVOS: ${totalInactivos}`, "FFF79646"],
+        [`⏳ PENDIENTES: ${totalPendientes}`, "FFFFFF00"]
+      ];
+
+      statsData.forEach((stat, idx) => {
+        const row = 13 + idx;
+        XLSX.utils.sheet_add_aoa(wsCover, [[stat[0]]], { origin: `B${row}` });
+        const cell = XLSX.utils.encode_cell({ r: row - 1, c: 1 });
+        wsCover[cell].s = {
+          font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
+          fill: { fgColor: { rgb: stat[1] } },
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+      });
+
+      wsCover["!cols"] = Array(8).fill({ wch: 22 });
+      wsCover["!rows"] = Array(20).fill({ hpx: 28 });
+
+      XLSX.utils.book_append_sheet(wb, wsCover, "📊 Portada");
+
+      // ==================== HOJA 2: TABLA PRINCIPAL ====================
+      const dataDetallada = usuariosFiltrados.map((u, index) => ({
+        "Nº": index + 1,
+        "👤 NOMBRE": u.nombre,
+        "APELLIDO": u.apellido,
+        "📧 EMAIL": u.email,
+        "👥 ROL": u.rol.charAt(0).toUpperCase() + u.rol.slice(1),
+        "🎯 ESTADO": u.estado,
+        "📅 FECHA": formatearFechaCorta(u.createdAt),
+      }));
+
       const ws1 = XLSX.utils.json_to_sheet(dataDetallada);
-      
-      // Título
-      XLSX.utils.sheet_add_aoa(ws1, [["REPORTE DE USUARIOS - " + rolActivo.toUpperCase()]], { origin: "A1" });
-      XLSX.utils.sheet_add_aoa(ws1, [["Generado: " + formatearFecha(new Date())]], { origin: "A2" });
-      XLSX.utils.sheet_add_aoa(ws1, [[""]], { origin: "A3" }); // espacio
-      
+
+      // Encabezados con merge decorativo
+      XLSX.utils.sheet_add_aoa(ws1, [["📋 LISTADO COMPLETO DE USUARIOS"]], { origin: "A1" });
+      XLSX.utils.sheet_add_aoa(ws1, [[`Total de registros: ${usuariosFiltrados.length} | Generado: ${formatearFecha(new Date())}`]], { origin: "A2" });
+      XLSX.utils.sheet_add_aoa(ws1, [[""]], { origin: "A3" });
+
       ws1["!merges"] = [
         { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
         { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }
       ];
 
-      // Estilos título
-      ["A1", "A2"].forEach(cell => {
-        if (ws1[cell]) {
-          ws1[cell].s = {
-            font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
-            fill: { fgColor: { rgb: "FF1F4E78" } },
-            alignment: { horizontal: "center", vertical: "center" }
-          };
-        }
-      });
+      // Título principal
+      ws1["A1"].s = {
+        font: { name: "Calibri", sz: 18, bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FF1F4E78" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
 
-      // Estilos encabezado
+      ws1["A2"].s = {
+        font: { name: "Calibri", sz: 12, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FF366092" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      // Colores para encabezados
+      const headerColors = [
+        "FF4472C4", "FF70AD47", "FFED7D31", "FFC5504D", 
+        "FF4472C4", "FF70AD47", "FFED7D31"
+      ];
+
       Object.keys(dataDetallada[0]).forEach((key, colIdx) => {
         const cellRef = XLSX.utils.encode_cell({ r: 4, c: colIdx });
         if (ws1[cellRef]) {
           ws1[cellRef].s = {
-            font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFFFF" } },
-            fill: { fgColor: { rgb: "FF366092" } },
+            font: { name: "Calibri", sz: 12, bold: true, color: { rgb: "FFFFFFFF" } },
+            fill: { fgColor: { rgb: headerColors[colIdx] } },
             alignment: { horizontal: "center", vertical: "center", wrapText: true },
             border: {
-              top: { style: "thin", color: { rgb: "FF000000" } },
-              bottom: { style: "thin", color: { rgb: "FF000000" } },
-              left: { style: "thin", color: { rgb: "FF000000" } },
-              right: { style: "thin", color: { rgb: "FF000000" } }
+              top: { style: "medium", color: { rgb: "FFFFFFFF" } },
+              bottom: { style: "medium", color: { rgb: "FFFFFFFF" } },
+              left: { style: "medium", color: { rgb: "FFFFFFFF" } },
+              right: { style: "medium", color: { rgb: "FFFFFFFF" } }
             }
           };
         }
       });
 
-      // Estilos datos
+      // Función color por rol
+      const getColorByRol = (rol) => {
+        const colors = {
+          alumno: "FF4472C4",
+          docente: "FF70AD47",
+          directivo: "FFED7D31",
+          superadmin: "FFC5504D"
+        };
+        return colors[rol.toLowerCase()] || "FFB4C7E7";
+      };
+
+      // Función color por estado
+      const getColorByEstado = (estado) => {
+        const colors = {
+          "Activo": "FF00B050",
+          "Inactivo": "FFF79646",
+          "Pendiente": "FFFFFF00",
+          "Rechazado": "FFFF0000"
+        };
+        return colors[estado] || "FFEBF4f7";
+      };
+
+      // Datos con colores dinámicos
       dataDetallada.forEach((row, rowIdx) => {
         Object.keys(row).forEach((key, colIdx) => {
           const cellRef = XLSX.utils.encode_cell({ r: 5 + rowIdx, c: colIdx });
           if (ws1[cellRef]) {
-            const bgColor = rowIdx % 2 === 0 ? "FFEBF4f7" : "FFD9E8F5";
+            let bgColor = "FFEBF4F7";
+            let fontColor = "FF000000";
+
+            if (key === "👥 ROL") {
+              bgColor = getColorByRol(row["👥 ROL"]);
+              fontColor = "FFFFFFFF";
+            } else if (key === "🎯 ESTADO") {
+              bgColor = getColorByEstado(row["🎯 ESTADO"]);
+              fontColor = "FFFFFFFF";
+            } else {
+              bgColor = rowIdx % 2 === 0 ? "FFEBF4F7" : "FFF0F5FF";
+            }
+
             ws1[cellRef].s = {
-              font: { name: "Calibri", sz: 10 },
+              font: { 
+                name: "Calibri", 
+                sz: 11, 
+                bold: key === "👥 ROL" || key === "🎯 ESTADO",
+                color: { rgb: fontColor }
+              },
               fill: { fgColor: { rgb: bgColor } },
-              alignment: { horizontal: key === "Email" ? "left" : "center", vertical: "center" },
+              alignment: { 
+                horizontal: key === "📧 EMAIL" ? "left" : "center", 
+                vertical: "center" 
+              },
               border: {
-                top: { style: "thin", color: { rgb: "FFB4C7E7" } },
-                bottom: { style: "thin", color: { rgb: "FFB4C7E7" } },
-                left: { style: "thin", color: { rgb: "FFB4C7E7" } },
-                right: { style: "thin", color: { rgb: "FFB4C7E7" } }
+                top: { style: "thin", color: { rgb: "FFD3D3D3" } },
+                bottom: { style: "thin", color: { rgb: "FFD3D3D3" } },
+                left: { style: "thin", color: { rgb: "FFD3D3D3" } },
+                right: { style: "thin", color: { rgb: "FFD3D3D3" } }
               }
             };
           }
@@ -280,49 +395,133 @@ const exportarExcel = async () => {
       });
 
       ws1["!cols"] = [
-        { wch: 5 }, { wch: 18 }, { wch: 18 }, { wch: 25 }, 
-        { wch: 12 }, { wch: 12 }, { wch: 15 }
+        { wch: 6 }, { wch: 16 }, { wch: 16 }, { wch: 30 }, 
+        { wch: 14 }, { wch: 14 }, { wch: 16 }
       ];
-      ws1["!rows"] = [{ hpx: 25 }, { hpx: 20 }, { hpx: 5 }];
+      ws1["!rows"] = [
+        { hpx: 28 }, { hpx: 22 }, { hpx: 8 }, { hpx: 0 },
+        { hpx: 28 },
+        ...Array(dataDetallada.length).fill({ hpx: 24 })
+      ];
 
-      XLSX.utils.book_append_sheet(wb, ws1, "Usuarios");
+      XLSX.utils.book_append_sheet(wb, ws1, "👥 Usuarios");
 
-      // === HOJA 2: Estadísticas ===
+      // ==================== HOJA 3: ANÁLISIS ESTADÍSTICO ====================
       const ws2 = XLSX.utils.json_to_sheet([]);
-      XLSX.utils.sheet_add_aoa(ws2, [["ESTADÍSTICAS DE USUARIOS"]], { origin: "A1" });
-      XLSX.utils.sheet_add_aoa(ws2, [[""]], { origin: "A2" });
-      XLSX.utils.sheet_add_aoa(ws2, [["ESTADO"]], { origin: "A3" });
-      
-      let row = 4;
-      Object.entries(estadisticas).forEach(([label, value]) => {
-        XLSX.utils.sheet_add_aoa(ws2, [[label, value]], { origin: `A${row}` });
-        row++;
-      });
 
-      XLSX.utils.sheet_add_aoa(ws2, [[""]], { origin: `A${row}` });
-      row++;
-      XLSX.utils.sheet_add_aoa(ws2, [["POR ROL"]], { origin: `A${row}` });
-      row++;
-
-      rolesCount.forEach(item => {
-        XLSX.utils.sheet_add_aoa(ws2, [[item.Rol, item.Cantidad]], { origin: `A${row}` });
-        row++;
-      });
-
-      // Estilos hoja 2
+      XLSX.utils.sheet_add_aoa(ws2, [["📊 ANÁLISIS ESTADÍSTICO COMPLETO"]], { origin: "A1" });
       ws2["A1"].s = {
-        font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
-        fill: { fgColor: { rgb: "FF1F4E78" } },
-        alignment: { horizontal: "center", vertical: "center" }
+        font: { name: "Calibri", sz: 18, bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FF1F4E78" } }
       };
 
-      ws2["!cols"] = [{ wch: 25 }, { wch: 15 }];
+      // Sección 1: General
+      XLSX.utils.sheet_add_aoa(ws2, [[""]], { origin: "A2" });
+      XLSX.utils.sheet_add_aoa(ws2, [["📈 ESTADÍSTICAS GENERALES"]], { origin: "A3" });
+      ws2["A3"].s = {
+        font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FF4472C4" } }
+      };
 
-      XLSX.utils.book_append_sheet(wb, ws2, "Estadísticas");
+      const generalStats = [
+        ["Total de Usuarios", usuariosFiltrados.length, "FF4472C4"],
+        ["Activos ✓", totalActivos, "FF00B050"],
+        ["Inactivos ✗", totalInactivos, "FFF79646"],
+        ["Pendientes ⏳", totalPendientes, "FFFFFF00"],
+        ["Rechazados ✘", usuariosFiltrados.filter(u => u.estado === "Rechazado").length, "FFFF0000"]
+      ];
+
+      let row = 4;
+      generalStats.forEach(stat => {
+        XLSX.utils.sheet_add_aoa(ws2, [[stat[0], stat[1]]], { origin: `A${row}` });
+        const cellA = XLSX.utils.encode_cell({ r: row - 1, c: 0 });
+        const cellB = XLSX.utils.encode_cell({ r: row - 1, c: 1 });
+        
+        ws2[cellA].s = {
+          font: { name: "Calibri", sz: 12, bold: true, color: { rgb: "FFFFFFFF" } },
+          fill: { fgColor: { rgb: stat[2] } },
+          alignment: { horizontal: "left", vertical: "center" }
+        };
+        ws2[cellB].s = {
+          font: { name: "Calibri", sz: 12, bold: true, color: { rgb: "FFFFFFFF" } },
+          fill: { fgColor: { rgb: stat[2] } },
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+        row++;
+      });
+
+      // Sección 2: Por Rol
+      row += 2;
+      XLSX.utils.sheet_add_aoa(ws2, [["👥 DISTRIBUCIÓN POR ROL"]], { origin: `A${row}` });
+      ws2[XLSX.utils.encode_cell({ r: row - 1, c: 0 })].s = {
+        font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FF70AD47" } }
+      };
+      row++;
+
+      roles.forEach(rol => {
+        const count = usuariosFiltrados.filter(u => u.rol === rol).length;
+        const roleDisplay = rol.charAt(0).toUpperCase() + rol.slice(1);
+        XLSX.utils.sheet_add_aoa(ws2, [[roleDisplay, count]], { origin: `A${row}` });
+        
+        const cellA = XLSX.utils.encode_cell({ r: row - 1, c: 0 });
+        const cellB = XLSX.utils.encode_cell({ r: row - 1, c: 1 });
+        const roleColor = getColorByRol(rol);
+        
+        ws2[cellA].s = {
+          font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFFFF" } },
+          fill: { fgColor: { rgb: roleColor } },
+          alignment: { horizontal: "left", vertical: "center" }
+        };
+        ws2[cellB].s = {
+          font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFFFF" } },
+          fill: { fgColor: { rgb: roleColor } },
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+        row++;
+      });
+
+      // Sección 3: Por Estado
+      row += 2;
+      XLSX.utils.sheet_add_aoa(ws2, [["🎯 DISTRIBUCIÓN POR ESTADO"]], { origin: `A${row}` });
+      ws2[XLSX.utils.encode_cell({ r: row - 1, c: 0 })].s = {
+        font: { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FFED7D31" } }
+      };
+      row++;
+
+      const estadosDistrib = [
+        ["Activo", totalActivos, "FF00B050"],
+        ["Inactivo", totalInactivos, "FFF79646"],
+        ["Pendiente", totalPendientes, "FFFFFF00"],
+        ["Rechazado", usuariosFiltrados.filter(u => u.estado === "Rechazado").length, "FFFF0000"]
+      ];
+
+      estadosDistrib.forEach(stat => {
+        XLSX.utils.sheet_add_aoa(ws2, [[stat[0], stat[1]]], { origin: `A${row}` });
+        const cellA = XLSX.utils.encode_cell({ r: row - 1, c: 0 });
+        const cellB = XLSX.utils.encode_cell({ r: row - 1, c: 1 });
+        
+        ws2[cellA].s = {
+          font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFFFF" } },
+          fill: { fgColor: { rgb: stat[2] } },
+          alignment: { horizontal: "left", vertical: "center" }
+        };
+        ws2[cellB].s = {
+          font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFFFF" } },
+          fill: { fgColor: { rgb: stat[2] } },
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+        row++;
+      });
+
+      ws2["!cols"] = [{ wch: 35 }, { wch: 18 }];
+
+      XLSX.utils.book_append_sheet(wb, ws2, "📊 Estadísticas");
 
       // Exportar
-      XLSX.writeFile(wb, `Reporte_Usuarios_${rolActivo}_${new Date().toISOString().split('T')[0]}.xlsx`);
-      showToast("Archivo Excel exportado correctamente ✓", "success");
+      XLSX.writeFile(wb, `📊 Reporte_Usuarios_${rolActivo}_${new Date().toISOString().split('T')[0]}.xlsx`);
+      showToast("✨ Archivo Excel exportado correctamente ✓", "success");
       setMostrarExport(false);
     } catch (error) {
       console.error("Error exportando Excel:", error);
@@ -493,23 +692,73 @@ const exportarExcel = async () => {
         return;
       }
 
+      // Función para codificar estados con símbolos
+      const encodeEstado = (estado) => {
+        const symbols = {
+          "Activo": "✓ Activo",
+          "Inactivo": "✗ Inactivo",
+          "Pendiente": "⏳ Pendiente",
+          "Rechazado": "✘ Rechazado"
+        };
+        return symbols[estado] || estado;
+      };
+
+      // Función para codificar rol con símbolo
+      const encodeRol = (rol) => {
+        const symbols = {
+          "alumno": "👤 Alumno",
+          "docente": "👨‍🏫 Docente",
+          "directivo": "🎓 Directivo",
+          "superadmin": "👨‍💼 Superadmin"
+        };
+        return symbols[rol] || rol;
+      };
+
       const headers = ["#", "Nombre", "Apellido", "Email", "Rol", "Estado", "Fecha Creación"];
       const rows = usuariosFiltrados.map((u, idx) => [
         idx + 1,
-        `"${u.nombre}"`,
-        `"${u.apellido}"`,
-        `"${u.email}"`,
-        u.rol,
-        u.estado,
+        u.nombre,
+        u.apellido,
+        u.email,
+        encodeRol(u.rol.toLowerCase()),
+        encodeEstado(u.estado),
         formatearFechaCorta(u.createdAt)
       ]);
 
+      // Construir CSV mejorado
       const csvContent = [
+        // Encabezado decorativo
+        "REPORTE DE USUARIOS",
+        `Rol: ${rolActivo.toUpperCase()}`,
+        `Generado: ${formatearFecha(new Date())}`,
+        `Total de registros: ${usuariosFiltrados.length}`,
+        "",
+        // Tabla de datos
         headers.join(","),
-        ...rows.map(row => row.join(","))
+        ...rows.map(row => 
+          row.map(cell => {
+            // Escapar comillas y quoteado
+            const str = String(cell);
+            return str.includes(",") || str.includes('"') || str.includes("\n")
+              ? `"${str.replace(/"/g, '""')}"` 
+              : str;
+          }).join(",")
+        ),
+        "",
+        // Estadísticas
+        "ESTADÍSTICAS",
+        "",
+        "Estado,Cantidad",
+        `✓ Activo,${usuariosFiltrados.filter(u => u.estado === "Activo").length}`,
+        `✗ Inactivo,${usuariosFiltrados.filter(u => u.estado === "Inactivo").length}`,
+        `⏳ Pendiente,${usuariosFiltrados.filter(u => u.estado === "Pendiente").length}`,
+        `✘ Rechazado,${usuariosFiltrados.filter(u => u.estado === "Rechazado").length}`,
+        "",
+        "Rol,Cantidad",
+        ...roles.map(rol => `👤 ${rol.charAt(0).toUpperCase() + rol.slice(1)},${usuariosFiltrados.filter(u => u.rol === rol).length}`)
       ].join("\n");
 
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
       saveAs(blob, `Usuarios_${rolActivo}_${new Date().toISOString().split('T')[0]}.csv`);
       
       showToast("Archivo CSV exportado correctamente ✓", "success");

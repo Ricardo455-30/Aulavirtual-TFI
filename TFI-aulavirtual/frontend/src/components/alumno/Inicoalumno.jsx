@@ -65,15 +65,15 @@ const InicioAlumno = ({ setSection }) => {
         if (id_alumno) {
           try {
             const resNotas = await axios.get(
-              `http://localhost:8000/api/notas/alumno/${id_alumno}`,
+              `http://localhost:8000/api/notas/alumno`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             
             if (resNotas.data && resNotas.data.length > 0) {
               // Calcular promedio
               const calificaciones = resNotas.data
-                .filter(n => n.calificacion !== null)
-                .map(n => parseFloat(n.calificacion));
+                .filter(n => n.nota !== null)
+                .map(n => parseFloat(n.nota));
               
               if (calificaciones.length > 0) {
                 promedio = Math.round(

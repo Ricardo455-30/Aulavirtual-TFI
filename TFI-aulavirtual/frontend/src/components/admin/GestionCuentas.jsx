@@ -97,7 +97,7 @@ const GestionCuentas = () => {
 
           try {
             const pendientesRes = await axios.get(
-              "http://localhost:8000/api/admin/pendientes",
+              "http://localhost:8000/api/auth/pendientes",
               { headers: { Authorization: `Bearer ${token}` } }
             );
             pendientes = pendientesRes.data?.length || 0;
@@ -107,7 +107,7 @@ const GestionCuentas = () => {
 
           try {
             const aprobadosRes = await axios.get(
-              "http://localhost:8000/api/admin/aprobados",
+              "http://localhost:8000/api/auth/aprobados",
               { headers: { Authorization: `Bearer ${token}` } }
             );
             aprobados = aprobadosRes.data?.length || 0;
@@ -117,7 +117,7 @@ const GestionCuentas = () => {
 
           try {
             const rechazadosRes = await axios.get(
-              "http://localhost:8000/api/admin/rechazados",
+              "http://localhost:8000/api/auth/rechazados",
               { headers: { Authorization: `Bearer ${token}` } }
             );
             rechazados = rechazadosRes.data?.length || 0;

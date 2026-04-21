@@ -1,4 +1,5 @@
 import express from "express";
+import { verifyToken } from "../middlewares/auth.js";
 import {
   obtenerNotas,
   crearNota,
@@ -17,6 +18,6 @@ router.post("/crear", crearNota);
 router.get("/materia/:id", obtenerAlumnosConNotas);
 router.get("/alumnos/:id_materia", obtenerAlumnosPorMateria);
 router.delete("/:id", eliminarNota);
-router.get("/alumno/:alumnoId", obtenerNotasAlumno);
+router.get("/alumno", verifyToken, obtenerNotasAlumno);
 
 export default router;

@@ -36,9 +36,7 @@ const MisMaterias = ({ setSection, idCiclo }) => {
 
         const res = await axios.get("http://localhost:8000/api/alumnos/mis-materias", {
           headers,
-          params: {
-            id_ciclo: idCiclo || undefined,
-          },
+          params: idCiclo ? { id_ciclo: idCiclo } : {},
         });
 
         setMaterias(res.data || []);
@@ -110,16 +108,6 @@ const MisMaterias = ({ setSection, idCiclo }) => {
           <FiLoader />
           <span>Cargando materias...</span>
         </div>
-      </div>
-    );
-  }
-
-  if (!idCiclo) {
-    return (
-      <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-        <FiInfo size={48} style={{ marginBottom: "16px", opacity: 0.6 }} />
-        <h3>Selecciona un ciclo lectivo</h3>
-        <p>Elige un ciclo lectivo para ver tus materias inscritas.</p>
       </div>
     );
   }

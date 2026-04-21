@@ -16,7 +16,7 @@ import {
 } from "react-icons/fi";
 import Modal from "../Modal.jsx";
 
-const CrearTareas = ({ selectedCiclo }) => {
+const CrearTareas = ({ idCiclo }) => {
   // Estados principales
   const [materias, setMaterias] = useState([]);
   const [tareas, setTareas] = useState([]);
@@ -51,9 +51,7 @@ const CrearTareas = ({ selectedCiclo }) => {
           "http://localhost:8000/api/materias/docente",
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: {
-              id_ciclo: selectedCiclo || undefined,
-            },
+            params: idCiclo ? { id_ciclo: idCiclo } : {},
           }
         );
         setMaterias(res.data || []);
@@ -69,7 +67,7 @@ const CrearTareas = ({ selectedCiclo }) => {
     };
 
     fetchMaterias();
-  }, []);
+  }, [idCiclo]);
 
   // ========================
   // 2️⃣ CARGAR TAREAS
@@ -89,7 +87,7 @@ const CrearTareas = ({ selectedCiclo }) => {
           params: {
             id_materia,
             id_curso,
-            id_ciclo: selectedCiclo || undefined,
+            id_ciclo: idCiclo || undefined,
           },
         }
       );
@@ -127,7 +125,7 @@ const CrearTareas = ({ selectedCiclo }) => {
           descripcion: descripcion.trim() || null,
           fecha_entrega: fechaEntrega || null,
           fecha_creacion: new Date().toISOString(),
-          id_ciclo: selectedCiclo || undefined,
+          id_ciclo: idCiclo || undefined,
         },
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -130,7 +130,8 @@ const AdminMaterias = ({ selectedCiclo }) => {
       return alert(dataAsignacion.error || "Error al asignar la materia al ciclo lectivo");
     }
 
-    setForm({ nombre: "", descripcion: "", id_docente: "", id_curso: "" });
+    setForm({ nombre: "", descripcion: "", id_docente: "",
+       id_curso: "" });
     await cargarMaterias();
     setLoading(false);
   };

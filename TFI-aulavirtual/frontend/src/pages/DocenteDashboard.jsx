@@ -22,22 +22,22 @@ const DocenteDashboard = () => {
   const renderSection = () => {
     switch (section) {
       case "inicio":
-        return <InicioDocente setSection={setSection} selectedCiclo={selectedCiclo} />;
+        return <InicioDocente setSection={setSection} idCiclo={selectedCiclo} />;
 
       case "materias":
-        return <MisMaterias setSection={setSection} selectedCiclo={selectedCiclo} />;
+        return <MisMaterias setSection={setSection} idCiclo={selectedCiclo} />;
 
       case "crear-tareas":
-        return <CrearTareas setSection={setSection} selectedCiclo={selectedCiclo} />;
+        return <CrearTareas setSection={setSection} idCiclo={selectedCiclo} />;
 
       case "tareas":
-        return <RecibirTarea setSection={setSection} selectedCiclo={selectedCiclo} />;
+        return <RecibirTarea setSection={setSection} idCiclo={selectedCiclo} />;
 
       case "notas":
-        return <CargarNotas setSection={setSection} selectedCiclo={selectedCiclo} />;
+        return <CargarNotas setSection={setSection} idCiclo={selectedCiclo} />;
 
       case "asistencia":
-        return <AsistenciaDocente setSection={setSection} selectedCiclo={selectedCiclo} />;
+        return <AsistenciaDocente setSection={setSection} idCiclo={selectedCiclo} />;
 
       default:
         return (
